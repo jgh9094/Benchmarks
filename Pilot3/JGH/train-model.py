@@ -119,6 +119,7 @@ def GenerateModels(x, y, xT, yT, N, S, V, cfg):
                     epochs=EPOCHS, verbose=2, validation_data=validation_data, callbacks=[stopper]
                   )
 
+  print('hist:', hist)
 
   # iterate through the different ranges for training/testing for each model
   for it in range(N):
