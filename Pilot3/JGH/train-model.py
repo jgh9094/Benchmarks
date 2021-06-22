@@ -115,7 +115,7 @@ def GenerateModels(x, y, xT, yT, N, S, V, cfg):
   # stopping criterion
   stopper = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)
 
-  hist = model.fit(x=np.array(x), y=[np.array(y)], batch_size=cfg['batch_size'],
+  hist = model.fit(x=np.array(x), y=np.array(y), batch_size=cfg['batch_size'],
                     epochs=EPOCHS, verbose=2, validation_data=validation_data, callbacks=[stopper]
                   )
 
