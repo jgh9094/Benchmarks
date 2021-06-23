@@ -69,7 +69,7 @@ def BasicModel(n,x,y,xT,yT,cfg):
     # word vector lengths
   wv_mat = np.random.randn( max(np.max(x), np.max(xT)) + 1, cfg['wv_len'] ).astype( 'float32' ) * 0.1
   # validation data
-  validation_data = ( { 'Input': xT }, {'Dense0': yT})
+  validation_data = ( { 'Input': xT }, {'Dense' + str(n) : yT})
   # stopping criterion
   stopper = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)
 
@@ -119,6 +119,15 @@ def GenerateModels(x,y,xT,yT,N,S,V,cfg,dump):
     print('u,v:', u,v)
 
     # send training/testing data for model
+    print(x[i:j].shape)
+    print(type(x[i:j]))
+    print(y[i:j].shape)
+    print(type(y[i:j]))
+    print(xT[u:v].shape)
+    print(type(xT[u:v]))
+    print(yT[u:v].shape)
+    print(type(yT[u:v]))
+
     hist, model = BasicModel(n, x[i:j], y[i:j], xT[u:v], yT[u:v], cfg)
 
     # create directory to dump all data related to model
