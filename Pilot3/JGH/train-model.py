@@ -115,19 +115,11 @@ def GenerateModels(x,y,xT,yT,N,S,V,cfg,dump):
 
   # iterate through the different ranges for training/testing for each model
   for n in range(N):
+    print('Working on Model', n)
     print('i,j:', i,j)
     print('u,v:', u,v)
 
     # send training/testing data for model
-    print(x[i:j].shape)
-    print(type(x[i:j]))
-    print(y[i:j].shape)
-    print(type(y[i:j]))
-    print(xT[u:v].shape)
-    print(type(xT[u:v]))
-    print(yT[u:v].shape)
-    print(type(yT[u:v]))
-
     hist, model = BasicModel(n, x[i:j], y[i:j], xT[u:v], yT[u:v], cfg)
 
     # create directory to dump all data related to model
