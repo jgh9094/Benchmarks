@@ -11,6 +11,7 @@ from matplotlib import pyplot as plt
 import argparse
 import os
 import pandas as pd
+import pickle as pk
 
 # keras python inputs
 from keras.models import Model
@@ -46,12 +47,24 @@ def GetModelConfig(config):
 
 # return the data for training and testing
 # will need to modify if other means of data gathering
-def GetData(dir):
+def GetData(dir,N):
   # load data
-  train_x = np.load( dir + 'train_X.npy' )
-  train_y = np.load( dir + 'train_Y.npy' )[ :, 0 ]
-  test_x = np.load( dir + 'test_X.npy' )
-  test_y = np.load( dir + 'test_Y.npy' )[ :, 0 ]
+  x = np.load( dir + 'train_X.npy' )
+  y = np.load( dir + 'train_Y.npy' )[ :, 0 ]
+  xT = np.load( dir + 'test_X.npy' )
+  yT = np.load( dir + 'test_Y.npy' )[ :, 0 ]
+
+  # create N copies of the data for each model we are training
+  train_x = np.array(x)
+  train_y = np.array(y)
+  test_x = np.array(xT)
+  test_y = np.array(yT)
+
+  for i in range(N-1):
+    train_x = np.concatenate((train_x, x))
+    train_y = np.concatenate((train_y, y))
+    test_x = np.concatenate((test_x, xT))
+    test_y = np.concatenate((test_y, yT))
 
   # find max class number and adjust test/training y
   train_y = to_categorical(train_y)
@@ -114,7 +127,7 @@ def GenerateModels(x,y,xT,yT,N,S,V,cfg,dump,em_max):
 
   # iterate through the different ranges for training/testing for each model
   for n in range(N):
-    print('Working on Model', n)
+    print('Working on Model', n + 1)
     print('i,j:', i,j)
     print('u,v:', u,v)
 
@@ -124,6 +137,15 @@ def GenerateModels(x,y,xT,yT,N,S,V,cfg,dump,em_max):
     # create directory to dump all data related to model
     fdir = dump + 'Model-' + str(n+1) + '/'
     os.mkdir(fdir)
+
+    # saving training, testing, softmax values
+    fp = open(fdir + 'training_X.pickle', 'wb')
+    pk.dump(model.predict(x[i:j]), fp)
+    fp.close()
+
+    fp = open(fdir + 'test_X.pickle', 'wb')
+    pk.dump(model.predict(xT[u:v]), fp)
+    fp.close()
 
     # save history files
     df = pd.DataFrame({'val_loss': pd.Series(hist.history['val_loss']),'val_acc': pd.Series(hist.history['val_acc']),
@@ -177,7 +199,7 @@ def main():
     exit(-1)
 
   # Step 2: Create training/testing data for models
-  xTrain,yTrain,xTest,yTest =  GetData(args.data_dir)
+  xTrain,yTrain,xTest,yTest =  GetData(args.data_dir, args.model_N)
 
   # quick descriptors of the data
   # could also do some fancy tricks to data before we send off to cnn
