@@ -35,11 +35,7 @@ def GetModelConfig(config):
       'dropout': 0.5,
       'optimizer': 'adam',
       'wv_len': 300,
-      'filter_sizes': 3,
-      'filter_sets': 3,
-      'num_filters': 100,
       'emb_l2': 0.001,
-      'w_l2': 0.01,
       'in_seq_len': 1500,
       'num_filters': [300,300,300,300],
       'filter_sizes': [3,4,5,6]
@@ -82,7 +78,7 @@ def BasicModel(n,x,y,xT,yT,cfg):
   # embedding lookup
   embed = Embedding(len(wv_mat), cfg['wv_len'], input_length=cfg['in_seq_len'], name="embedding",
                       embeddings_regularizer=l2(cfg['emb_l2']))(input)
-  # convolutional layer and dropout
+  # convolutional layer
   conv = Conv1D(filters=cfg['num_filters'][n], kernel_size=cfg['filter_sizes'][n], padding="same",
                   activation="relu", strides=1, name=str(n) + "_thfilter")(embed)
   # max pooling layer
