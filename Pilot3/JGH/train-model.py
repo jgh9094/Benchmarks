@@ -49,10 +49,10 @@ def GetModelConfig(config):
 # will need to modify if other means of data gathering
 def GetData(dir):
   # load data
-  train_x = np.load( dir + '/train_X.npy' )
-  train_y = np.load( dir + '/train_Y.npy' )[ :, 0 ]
-  test_x = np.load( dir + '/test_X.npy' )
-  test_y = np.load( dir + '/test_Y.npy' )[ :, 0 ]
+  train_x = np.load( dir + 'train_X.npy' )
+  train_y = np.load( dir + 'train_Y.npy' )[ :, 0 ]
+  test_x = np.load( dir + 'test_X.npy' )
+  test_y = np.load( dir + 'test_Y.npy' )[ :, 0 ]
 
   # find max class number and adjust test/training y
   train_y = to_categorical(train_y)
