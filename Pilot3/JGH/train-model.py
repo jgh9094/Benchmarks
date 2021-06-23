@@ -172,7 +172,7 @@ def main():
   print('run parameters:', config, end='\n\n')
 
   # check that our config matches number of models in config
-  if len(config['num_filters']) == args.model_N or len(config['filter_sizes']) == args.model_N:
+  if len(config['num_filters']) != args.model_N or len(config['filter_sizes']) != args.model_N:
     print('NUMBER OF CONFIG PARAMETERS DOES NOT MATCH NUMBER OF MODELS')
     exit(-1)
 
