@@ -1,7 +1,6 @@
 '''
 Created by: Jose Guadalupe Hernandez
 Email: jgh9094@gmail.com
-Date: 2/11/21
 
 export PATH=$HOME/anaconda3/bin:$PATH
 '''
@@ -65,28 +64,28 @@ def GetData(dir):
 # x,y: training input, output
 # xT,yT: testing input, output
 # cfg: configuration we are using for this experiment
-def BasicModel(n,x,y,xT,yT,cfg):
+def BasicModel(n,x,y,xT,yT,cfg,em_max):
     # word vector lengths
-  wv_mat = np.random.randn( max(np.max(x), np.max(xT)) + 1, cfg['wv_len'] ).astype( 'float32' ) * 0.1
+  wv_mat = np.random.randn( em_max + 1, cfg['wv_len'] ).astype( 'float32' ) * 0.1
   # validation data
-  validation_data = ( { 'Input': xT }, {'Dense' + str(n) : yT})
+  validation_data = ( { 'Input-' + str(n+1): xT }, {'Dense-' + str(n+1) : yT})
   # stopping criterion
   stopper = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)
 
   # set input layer, assuming that all input will have same shape as starting case
-  input = Input(shape=([x.shape[1]]), name= "Input")
+  input = Input(shape=([x.shape[1]]), name= "Input-" + str(n+1))
   # embedding lookup
-  embed = Embedding(len(wv_mat), cfg['wv_len'], input_length=cfg['in_seq_len'], name="embedding",
+  embed = Embedding(len(wv_mat), cfg['wv_len'], input_length=cfg['in_seq_len'], name="embedding-"+ str(n+1),
                       embeddings_regularizer=l2(cfg['emb_l2']))(input)
   # convolutional layer
   conv = Conv1D(filters=cfg['num_filters'][n], kernel_size=cfg['filter_sizes'][n], padding="same",
-                  activation="relu", strides=1, name=str(n) + "_thfilter")(embed)
+                  activation="relu", strides=1, name=str(n+1) + "_thfilter")(embed)
   # max pooling layer
   pooling = GlobalMaxPooling1D()(conv)
   #  drop out layer
   concat_drop = Dropout(cfg['dropout'])(pooling)
   # dense (output) layer
-  outlayer = Dense(y.shape[1], name= "Dense"+str(n), activation='softmax')( concat_drop )
+  outlayer = Dense(y.shape[1], name= "Dense-"+str(n+1), activation='softmax')( concat_drop )
 
   # link, compile, and fit model
   model = Model(inputs=input, outputs = outlayer)
@@ -103,7 +102,7 @@ def BasicModel(n,x,y,xT,yT,cfg):
 # S: number of samples we take from training per model
 # V: number of samples from testing for validation per model
 # cfg: configuration we are using for this experiment
-def GenerateModels(x,y,xT,yT,N,S,V,cfg,dump):
+def GenerateModels(x,y,xT,yT,N,S,V,cfg,dump,em_max):
   # print the variables (not data) we are working with
   print('# of models:', N)
   print('# of training samples:', S)
@@ -120,10 +119,10 @@ def GenerateModels(x,y,xT,yT,N,S,V,cfg,dump):
     print('u,v:', u,v)
 
     # send training/testing data for model
-    hist, model = BasicModel(n, x[i:j], y[i:j], xT[u:v], yT[u:v], cfg)
+    hist, model = BasicModel(n, x[i:j], y[i:j], xT[u:v], yT[u:v], cfg, em_max)
 
     # create directory to dump all data related to model
-    fdir = dump + 'Model-' + str(n) + '/'
+    fdir = dump + 'Model-' + str(n+1) + '/'
     os.mkdir(fdir)
 
     # save history files
@@ -188,7 +187,8 @@ def main():
   print('yTest dim: ', yTest.shape , end='\n\n')
 
   # Step 3: Generate, create, and store  models
-  GenerateModels(xTrain, yTrain, xTest, yTest, args.model_N, args.model_S, args.model_V, config, args.dump_dir)
+  GenerateModels(xTrain, yTrain, xTest, yTest, args.model_N, args.model_S, args.model_V,
+                  config, args.dump_dir, max(np.max(xTrain), np.max(xTest)))
 
 
 if __name__ == '__main__':
