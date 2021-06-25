@@ -62,11 +62,11 @@ def GetData(dir,N):
   test_x = np.array(xT)
   test_y = np.array(yT)
 
-  for i in range(N-1):
-    train_x = np.concatenate((train_x, x))
-    train_y = np.concatenate((train_y, y))
-    test_x = np.concatenate((test_x, xT))
-    test_y = np.concatenate((test_y, yT))
+  # for i in range(N-1):
+  #   train_x = np.concatenate((train_x, x))
+  #   train_y = np.concatenate((train_y, y))
+  #   test_x = np.concatenate((test_x, xT))
+  #   test_y = np.concatenate((test_y, yT))
 
   # find max class number and adjust test/training y
   train_y = to_categorical(train_y)
@@ -190,10 +190,6 @@ def main():
 
   # Step 3: Create group ensemble
   models = load_models(config, args.modl_dir)
-  # what do the models look like
-  for i in range(len(models)):
-    print('***********************************************************')
-    print(models[i].summary())
   hist,ensemble = CreateEnsemble(models,config,xTrain,yTrain,xTest,yTest)
   print(hist.history)
 
