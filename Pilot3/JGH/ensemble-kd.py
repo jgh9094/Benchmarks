@@ -86,7 +86,7 @@ def load_models(cfg, dir):
     # create file dir for each model
     filename = dir + 'Model-' + str(i+1) + '/model' + '.h5'
     # load model from file
-    model = load_model(filename)
+    model = load_model(filename, compile=False)
     # add to list of members
     models.append(model)
     print('Loaded:', filename)
