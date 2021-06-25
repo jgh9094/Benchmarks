@@ -26,7 +26,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.layers import Concatenate
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.losses import SparseCategoricalCrossentropy,KLDivergence
+from tensorflow.keras.losses import CategoricalCrossentropy,KLDivergence
 
 # knowledge distillation files
 from distiller import Distiller
@@ -123,8 +123,9 @@ def CreateEnsemble(models,cfg,x,y,xT,yT):
 
   # compile & fit
   ensembleM.compile(optimizer=keras.optimizers.Adam(),
-    loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    metrics=[keras.metrics.SparseCategoricalAccuracy()],)
+    loss=keras.losses.CategoricalCrossentropy(from_logits=True),
+    metrics=[keras.metrics.CategoricalAccuracy()],)
+
   history = ensembleM.fit([x for _ in range(len(ensembleM.input))],y, batch_size=cfg['batch_size'],epochs=EPOCHS, verbose=2, validation_data=validation_data,
                             callbacks=[stopper])
 
