@@ -23,6 +23,7 @@ from keras.callbacks import EarlyStopping
 from keras.utils import to_categorical
 from keras.layers.merge import concatenate
 from keras.optimizers import adam
+from keras.losses import SparseCategoricalCrossentropy,KLDivergence
 
 # knowledge distillation files
 from distiller import Distiller
@@ -214,9 +215,9 @@ def main():
   distiller = Distiller(student=student, teacher=teacher)
   distiller.compile(
     optimizer=adam(lr=0.001, decay=1e-6),
-    metrics=[keras.metrics.SparseCategoricalAccuracy()],
-    student_loss_fn=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    distillation_loss_fn=keras.losses.KLDivergence(),
+    metrics=["acc"],
+    student_loss_fn=SparseCategoricalCrossentropy(from_logits=True),
+    distillation_loss_fn=KLDivergence(),
     alpha=0.1,
     temperature=10,
 )
