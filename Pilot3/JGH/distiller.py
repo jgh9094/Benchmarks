@@ -30,7 +30,7 @@ inter-class relationships learned by the teacher.
 # from tensorflow import keras
 # from tensorflow.keras import layers
 
-from keras
+import keras
 from keras import layers
 
 import numpy as np
