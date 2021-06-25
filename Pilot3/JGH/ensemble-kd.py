@@ -14,7 +14,7 @@ import pandas as pd
 import pickle as pk
 
 # keras python inputs
-import keras
+from tensorflow import keras
 from keras.models import Model, load_model
 from keras.layers import Input, Embedding, Dense, Dropout
 from keras.regularizers import l2
