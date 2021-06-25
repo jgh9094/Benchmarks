@@ -78,7 +78,7 @@ def GetData(dir,N):
 # xT,yT: testing input, output
 # cfg: configuration we are using for this experiment
 def BasicModel(n,x,y,xT,yT,cfg,em_max):
-    # word vector lengths
+  # word vector lengths
   wv_mat = np.random.randn( em_max + 1, cfg['wv_len'] ).astype( 'float32' ) * 0.1
   # validation data
   validation_data = ( { 'Input-' + str(n+1): xT }, {'Dense-' + str(n+1) : yT})
