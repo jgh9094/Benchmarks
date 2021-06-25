@@ -216,16 +216,14 @@ def main():
 
   # Step7: Begin distilation
   distiller = Distiller(student=student, teacher=teacher)
-  # Set Optimizer
-  opt = adam(lr=0.001, decay=1e-6)
   distiller.compile(
-    optimizer=opt,
-    metrics=["acc"],
-    student_loss_fn=SparseCategoricalCrossentropy(from_logits=True),
-    distillation_loss_fn=KLDivergence(),
+    optimizer=keras.optimizers.Adam(),
+    metrics=[keras.metrics.SparseCategoricalAccuracy()],
+    student_loss_fn=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    distillation_loss_fn=keras.losses.KLDivergence(),
     alpha=0.1,
-    temperature=10
-)
+    temperature=10,
+  )
 
   # Distill teacher to student
   distiller.fit(xTrain, yTrain, epochs=EPOCHS)
