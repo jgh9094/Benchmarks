@@ -32,7 +32,7 @@ from tensorflow.keras.losses import CategoricalCrossentropy,KLDivergence
 from distiller import Distiller
 
 # global variables
-EPOCHS = 100
+EPOCHS = 1
 
 # return configuration for the experiment
 def GetModelConfig(config):
