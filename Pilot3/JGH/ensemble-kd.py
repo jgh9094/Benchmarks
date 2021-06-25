@@ -196,9 +196,9 @@ def main():
 
   # Step 3: Create group ensemble
   models = load_models(config, args.modl_dir)
-  hist,ensemble = CreateEnsemble(models,config,xTrain,yTrain,xTest,yTest)
-  # plot graph of ensemble
-  plot_model(ensemble, show_shapes=True, to_file= args.dump_dir + 'ensemble.png')
+  hist,teacher = CreateEnsemble(models,config,xTrain,yTrain,xTest,yTest)
+  # plot graph of teacher
+  plot_model(teacher, show_shapes=True, to_file= args.dump_dir + 'teacher.png')
   print(hist.history)
 
   print('STUDENT STATS')
@@ -208,6 +208,15 @@ def main():
 
   # Step 6: Create student model
   student = CreateStudent(xTrain,yTrain,xTest,yTest,config,max(np.max(xTrain), np.max(xTest)))
+
+  # Step7: Begin distilation
+  distiller = Distiller(student=student, teacher=teacher)
+
+  # Distill teacher to student
+  distiller.fit(xTrain, yTrain, epochs=EPOCHS)
+
+  # Evaluate student on test dataset
+  distiller.evaluate(xTest, yTest)
 
 
 if __name__ == '__main__':
