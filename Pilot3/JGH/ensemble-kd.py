@@ -14,7 +14,6 @@ import pandas as pd
 import pickle as pk
 
 # keras python inputs
-from tensorflow import keras
 from keras.models import Model, load_model
 from keras.layers import Input, Embedding, Dense, Dropout
 from keras.regularizers import l2
@@ -23,6 +22,7 @@ from keras.utils import plot_model
 from keras.callbacks import EarlyStopping
 from keras.utils import to_categorical
 from keras.layers.merge import concatenate
+from keras.optimizers import adam
 
 # knowledge distillation files
 from distiller import Distiller
@@ -213,7 +213,7 @@ def main():
   # Step7: Begin distilation
   distiller = Distiller(student=student, teacher=teacher)
   distiller.compile(
-    optimizer=keras.optimizers.Adam(),
+    optimizer=adam(lr=0.001, decay=1e-6),
     metrics=[keras.metrics.SparseCategoricalAccuracy()],
     student_loss_fn=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
     distillation_loss_fn=keras.losses.KLDivergence(),
