@@ -14,16 +14,19 @@ import pandas as pd
 import pickle as pk
 
 # keras python inputs
-from keras.models import Model, load_model
-from keras.layers import Input, Embedding, Dense, Dropout
-from keras.regularizers import l2
-from keras.layers import GlobalMaxPooling1D, Conv1D
-from keras.utils import plot_model
-from keras.callbacks import EarlyStopping
-from keras.utils import to_categorical
-from keras.layers.merge import concatenate
-from keras.optimizers import adam
-from keras.losses import SparseCategoricalCrossentropy,KLDivergence
+import tensorflow as tf
+from tensorflow import keras
+
+from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.layers import Input, Embedding, Dense, Dropout
+from tensorflow.keras.regularizers import l2
+from tensorflow.keras.layers import GlobalMaxPooling1D, Conv1D
+from tensorflow.keras.utils import plot_model
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.layers import Concatenate
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.losses import SparseCategoricalCrossentropy,KLDivergence
 
 # knowledge distillation files
 from distiller import Distiller
@@ -106,10 +109,10 @@ def CreateEnsemble(models,cfg,x,y,xT,yT):
 
   # define multi-headed input
   ensemble_visible = [model.input for model in models]
-  # concatenate merge output from each model
+  # Concatenate merge output from each model
   ensemble_outputs = [model.output for model in models]
   # model layers
-  merge = concatenate(ensemble_outputs)
+  merge = Concatenate(axis=1)(ensemble_outputs)
   hidden = Dense(y.shape[1] * cfg['model_N'], activation='relu')(merge)
   output = Dense(y.shape[1], activation='softmax')(hidden)
   # ensemble model
