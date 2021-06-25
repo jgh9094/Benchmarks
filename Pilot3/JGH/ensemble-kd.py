@@ -157,7 +157,7 @@ def CreateStudent(x,y,xT,yT,cfg,em_max):
 
   # link, compile, and fit model
   model = Model(inputs=input, outputs = outlayer)
-  model.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
+  # model.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
 
   # history = model.fit(x,y, batch_size=cfg['batch_size'],epochs=EPOCHS, verbose=2, validation_data=validation_data, callbacks=[stopper])
 
