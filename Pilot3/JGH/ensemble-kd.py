@@ -23,6 +23,9 @@ from keras.callbacks import EarlyStopping
 from keras.utils import to_categorical
 from keras.layers.merge import concatenate
 
+# knowledge distillation files
+from distiller import Distiller
+
 # global variables
 EPOCHS = 100
 
@@ -38,8 +41,8 @@ def GetModelConfig(config):
       'wv_len': 300,
       'emb_l2': 0.001,
       'in_seq_len': 1500,
-      'num_filters': [300,300,300,300],
-      'filter_sizes': [3,4,5,6],
+      'num_filters': 100,
+      'filter_sizes': 3,
       'model_N': 4
     }
 
@@ -61,12 +64,6 @@ def GetData(dir,N):
   train_y = np.array(y)
   test_x = np.array(xT)
   test_y = np.array(yT)
-
-  # for i in range(N-1):
-  #   train_x = np.concatenate((train_x, x))
-  #   train_y = np.concatenate((train_y, y))
-  #   test_x = np.concatenate((test_x, xT))
-  #   test_y = np.concatenate((test_y, yT))
 
   # find max class number and adjust test/training y
   train_y = to_categorical(train_y)
@@ -119,17 +116,44 @@ def CreateEnsemble(models,cfg,x,y,xT,yT):
   # validation data
   validation_data = [[xT for _ in range(len(ensembleM.input))], yT]
 
-  # plot graph of ensemble
-  plot_model(ensembleM, show_shapes=True, to_file='ensemble.png')
-
   # compile & fit
   ensembleM.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
   history = ensembleM.fit([x for _ in range(len(ensembleM.input))],y, batch_size=cfg['batch_size'],epochs=EPOCHS, verbose=2, validation_data=validation_data,
                             callbacks=[stopper])
 
-
-
   return history, ensembleM
+
+# create student model
+def CreateStudent(x,y,xT,yT,cfg,em_max):
+  # word vector lengths
+  wv_mat = np.random.randn( em_max + 1, cfg['wv_len'] ).astype( 'float32' ) * 0.1
+  # validation data
+  validation_data = (xT,yT)
+  # stopping criterion
+  stopper = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)
+
+  # set input layer, assuming that all input will have same shape as starting case
+  input = Input(shape=([x.shape[1]]), name= "Input")
+  # embedding lookup
+  embed = Embedding(len(wv_mat), cfg['wv_len'], input_length=cfg['in_seq_len'], name="embedding",
+                      embeddings_regularizer=l2(cfg['emb_l2']))(input)
+  # convolutional layer
+  conv = Conv1D(filters=cfg['num_filters'], kernel_size=cfg['filter_sizes'], padding="same",
+                  activation="relu", strides=1, name="filter")(embed)
+  # max pooling layer
+  pooling = GlobalMaxPooling1D()(conv)
+  #  drop out layer
+  concat_drop = Dropout(cfg['dropout'])(pooling)
+  # dense (output) layer
+  outlayer = Dense(y.shape[1], name= "Dense", activation='softmax')( concat_drop )
+
+  # link, compile, and fit model
+  model = Model(inputs=input, outputs = outlayer)
+  model.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
+
+  history = model.fit(x,y, batch_size=cfg['batch_size'],epochs=EPOCHS, verbose=2, validation_data=validation_data, callbacks=[stopper])
+
+  return history, model
 
 
 
@@ -137,32 +161,17 @@ def main():
   print('\n************************************************************************************', end='\n\n')
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
-  parser.add_argument('config',     type=int, help='What kd model config are we using?')
-  parser.add_argument('data_dir',   type=str, help='Where is the data located?')
-  parser.add_argument('dump_dir',   type=str, help='Where are we dumping the output?')
-  parser.add_argument('modl_dir',   type=str, help='Where are the models located?')
-  parser.add_argument('model_S',    type=int, help='How many samples per model for training')
-  parser.add_argument('model_V',    type=int, help='How many samples per model for testing')
-  parser.add_argument('seed',       type=int, help='Random seed for run')
+  parser.add_argument('config',      type=int, help='What kd model config are we using?')
+  parser.add_argument('teach_dir',   type=str, help='Where is the teacher data located?')
+  parser.add_argument('studt_dir',   type=str, help='Where is the student data located?')
+  parser.add_argument('modl_dir',    type=str, help='Where are the models located?')
+  parser.add_argument('dump_dir',    type=str, help='Where are we dumping the output?')
+  parser.add_argument('seed',        type=int, help='Random seed for run')
 
   # Parse all the arguments & set random seed
   args = parser.parse_args()
   print('Seed:', args.seed, end='\n\n')
   np.random.seed(args.seed)
-
-  # file = open(args.data_dir + 'Model-1/training_X.pickle', 'rb')
-  # data = pk.load(file)
-
-  # print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-
-  # print(type(data))
-  # print(data.shape)
-  # print(data)
-
-
-
-  # print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-
 
   # check that dump directory exists
   if not os.path.isdir(args.dump_dir):
@@ -173,13 +182,10 @@ def main():
   config = GetModelConfig(args.config)
   print('run parameters:', config, end='\n\n')
 
-  # check that our config matches number of models in config
-  if len(config['num_filters']) != config['model_N'] or len(config['filter_sizes']) != config['model_N']:
-    print('NUMBER OF CONFIG PARAMETERS DOES NOT MATCH NUMBER OF MODELS')
-    exit(-1)
+  print('TEACHER STATS')
 
-  # Step 2: Create training/testing data for models
-  xTrain,yTrain,xTest,yTest =  GetData(args.data_dir, config['model_N'])
+  # Step 2: Create training/testing data for ensemble model
+  xTrain,yTrain,xTest,yTest =  GetData(args.teach_dir, config['model_N'])
 
   # quick descriptors of the data
   # could also do some fancy tricks to data before we send off to cnn
@@ -191,7 +197,17 @@ def main():
   # Step 3: Create group ensemble
   models = load_models(config, args.modl_dir)
   hist,ensemble = CreateEnsemble(models,config,xTrain,yTrain,xTest,yTest)
+  # plot graph of ensemble
+  plot_model(ensemble, show_shapes=True, to_file= args.dump_dir + 'ensemble.png')
   print(hist.history)
+
+  print('STUDENT STATS')
+
+  # Step 5: Create training/testing data for student model
+  xTrain,yTrain,xTest,yTest =  GetData(args.studt_dir, config['model_N'])
+
+  # Step 6: Create student model
+  student = CreateStudent(xTrain,yTrain,xTest,yTest,config,max(np.max(xTrain), np.max(xTest)))
 
 
 if __name__ == '__main__':
