@@ -122,7 +122,9 @@ def CreateEnsemble(models,cfg,x,y,xT,yT):
   validation_data = [[xT for _ in range(len(ensembleM.input))], yT]
 
   # compile & fit
-  ensembleM.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+  ensembleM.compile(optimizer=keras.optimizers.Adam(),
+    loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    metrics=[keras.metrics.SparseCategoricalAccuracy()],)
   history = ensembleM.fit([x for _ in range(len(ensembleM.input))],y, batch_size=cfg['batch_size'],epochs=EPOCHS, verbose=2, validation_data=validation_data,
                             callbacks=[stopper])
 
