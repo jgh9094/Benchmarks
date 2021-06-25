@@ -217,7 +217,7 @@ def main():
   # Step7: Begin distilation
   distiller = Distiller(student=student, teacher=teacher)
   distiller.compile(
-    optimizer='adam',
+    optimizer=keras.optimizers.Adam(),
     metrics=[keras.metrics.SparseCategoricalAccuracy()],
     student_loss_fn=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
     distillation_loss_fn=keras.losses.KLDivergence(),
