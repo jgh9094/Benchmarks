@@ -14,6 +14,7 @@ import pandas as pd
 import pickle as pk
 
 # keras python inputs
+import keras
 from keras.models import Model, load_model
 from keras.layers import Input, Embedding, Dense, Dropout
 from keras.regularizers import l2
@@ -151,9 +152,9 @@ def CreateStudent(x,y,xT,yT,cfg,em_max):
   model = Model(inputs=input, outputs = outlayer)
   model.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
 
-  history = model.fit(x,y, batch_size=cfg['batch_size'],epochs=EPOCHS, verbose=2, validation_data=validation_data, callbacks=[stopper])
+  # history = model.fit(x,y, batch_size=cfg['batch_size'],epochs=EPOCHS, verbose=2, validation_data=validation_data, callbacks=[stopper])
 
-  return history, model
+  return model
 
 
 
@@ -211,6 +212,14 @@ def main():
 
   # Step7: Begin distilation
   distiller = Distiller(student=student, teacher=teacher)
+  distiller.compile(
+    optimizer=keras.optimizers.Adam(),
+    metrics=[keras.metrics.SparseCategoricalAccuracy()],
+    student_loss_fn=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    distillation_loss_fn=keras.losses.KLDivergence(),
+    alpha=0.1,
+    temperature=10,
+)
 
   # Distill teacher to student
   distiller.fit(xTrain, yTrain, epochs=EPOCHS)
