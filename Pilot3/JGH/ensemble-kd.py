@@ -11,6 +11,7 @@ from matplotlib import pyplot as plt
 import argparse
 import os
 import pandas as pd
+import pickle as pk
 
 # keras python inputs
 from keras.models import Model, load_model
@@ -48,12 +49,24 @@ def GetModelConfig(config):
 
 # return the data for training and testing
 # will need to modify if other means of data gathering
-def GetData(dir):
+def GetData(dir,N):
   # load data
-  train_x = np.load( dir + 'train_X.npy' )
-  train_y = np.load( dir + 'train_Y.npy' )[ :, 0 ]
-  test_x = np.load( dir + 'test_X.npy' )
-  test_y = np.load( dir + 'test_Y.npy' )[ :, 0 ]
+  x = np.load( dir + 'train_X.npy' )
+  y = np.load( dir + 'train_Y.npy' )[ :, 0 ]
+  xT = np.load( dir + 'test_X.npy' )
+  yT = np.load( dir + 'test_Y.npy' )[ :, 0 ]
+
+  # create N copies of the data for each model we are training
+  train_x = np.array(x)
+  train_y = np.array(y)
+  test_x = np.array(xT)
+  test_y = np.array(yT)
+
+  for i in range(N-1):
+    train_x = np.concatenate((train_x, x))
+    train_y = np.concatenate((train_y, y))
+    test_x = np.concatenate((test_x, xT))
+    test_y = np.concatenate((test_y, yT))
 
   # find max class number and adjust test/training y
   train_y = to_categorical(train_y)
@@ -130,14 +143,26 @@ def main():
   parser.add_argument('modl_dir',   type=str, help='Where are the models located?')
   parser.add_argument('model_S',    type=int, help='How many samples per model for training')
   parser.add_argument('model_V',    type=int, help='How many samples per model for testing')
-  parser.add_argument('tr_strt',    type=int, help='Where do we start for training index wise?')
-  parser.add_argument('ts_strt',    type=int, help='Where do we start for testing index wise?')
   parser.add_argument('seed',       type=int, help='Random seed for run')
 
   # Parse all the arguments & set random seed
   args = parser.parse_args()
   print('Seed:', args.seed, end='\n\n')
   np.random.seed(args.seed)
+
+  # file = open(args.data_dir + 'Model-1/training_X.pickle', 'rb')
+  # data = pk.load(file)
+
+  # print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+
+  # print(type(data))
+  # print(data.shape)
+  # print(data)
+
+
+
+  # print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+
 
   # check that dump directory exists
   if not os.path.isdir(args.dump_dir):
@@ -154,7 +179,7 @@ def main():
     exit(-1)
 
   # Step 2: Create training/testing data for models
-  xTrain,yTrain,xTest,yTest =  GetData(args.data_dir)
+  xTrain,yTrain,xTest,yTest =  GetData(args.data_dir, config['model_N'])
 
   # quick descriptors of the data
   # could also do some fancy tricks to data before we send off to cnn
