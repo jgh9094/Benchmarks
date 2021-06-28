@@ -4,8 +4,6 @@ Author: [Kenneth Borup](https://twitter.com/Kennethborup)
 Date created: 2020/09/01
 Last modified: 2020/09/01
 Description: Implementation of classical Knowledge Distillation.
-Link: https://github.com/keras-team/keras-io/blob/master/examples/vision/knowledge_distillation.py
-Additional Info: https://keras.io/examples/vision/knowledge_distillation/
 """
 
 """
@@ -255,3 +253,12 @@ student_scratch.compile(
 # Train and evaluate student trained from scratch.
 student_scratch.fit(x_train, y_train, epochs=3)
 student_scratch.evaluate(x_test, y_test)
+
+"""
+If the teacher is trained for 5 full epochs and the student is distilled on this teacher
+for 3 full epochs, you should in this example experience a performance boost compared to
+training the same student model from scratch, and even compared to the teacher itself.
+You should expect the teacher to have accuracy around 97.6%, the student trained from
+scratch should be around 97.6%, and the distilled student should be around 98.1%. Remove
+or try out different seeds to use different weight initializations.
+"""
