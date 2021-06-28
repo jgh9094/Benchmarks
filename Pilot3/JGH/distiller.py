@@ -89,6 +89,7 @@ def knowledge_distillation_loss(y_true, y_pred, lambda_const):
   y_pred, y_pred_soft = y_pred[:, :SPLIT], y_pred[:, SPLIT:]
 
   print('*******')
+  print(logits)
   print(lambda_const*logloss(y_true, y_pred) + logloss(y_soft, y_pred_soft))
   print('(((((((((')
 
