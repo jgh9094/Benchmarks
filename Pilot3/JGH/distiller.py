@@ -92,7 +92,7 @@ def knowledge_distillation_loss(y_true, y_pred, lambda_const):
   print(lambda_const*logloss(y_true, y_pred) + logloss(y_soft, y_pred_soft))
   print('(((((((((')
 
-  return lambda_const*logloss(y_true, y_pred) + logloss(y_soft, y_pred_soft)
+  return lambda_const*logloss(y_true, y_pred, from_logits=True) + logloss(y_soft, y_pred_soft, from_logits=True)
 
 # return the data for training and testing
 # will need to modify if other means of data gathering
