@@ -104,15 +104,15 @@ def GetData(dir,N):
 
 # combine the data output with ground truth and teacher logits
 def CombineData(y,yt,ty,tyt):
-  Y = np.array([])
+  Y = []
   for i in range(len(y)):
     Y.append(np.concatenate(y[i],ty[i]))
 
-  YT = np.array([])
+  YT = []
   for i in range(len(yt)):
     YT.append(np.concatenate(yt[i],tyt[i]))
 
-  return Y,YT
+  return np.array(Y),np.array(YT)
 
 # create student model
 def CreateStudent(x,y,xT,yT,cfg,em_max):
