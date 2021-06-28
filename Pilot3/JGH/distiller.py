@@ -214,6 +214,11 @@ def main():
                   loss=lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, config['const']),
                   metrics=[accuracy, top_5_accuracy, categorical_crossentropy, soft_logloss] )
 
+  # validation data
+  validation_data = (xTest,yTest)
+  student.fit(xTrain,yTrain, batch_size=config['batch_size'],epochs=EPOCHS, verbose=2, validation_data=validation_data,
+              callbacks=[EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
+
 
 
 
