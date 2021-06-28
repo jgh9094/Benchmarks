@@ -24,11 +24,21 @@ inter-class relationships learned by the teacher.
 ## Setup
 """
 
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
+# import tensorflow as tf
+# from tensorflow import keras
+# from tensorflow.keras import layers
 import numpy as np
+import keras
 
+# keras python inputs
+from keras.models import Model
+from keras.layers import Input, Embedding, Dense, Dropout,Conv2D ,LeakyReLU ,MaxPooling2D ,Conv2D ,Flatten, InputLayer
+from keras.regularizers import l2
+from keras.layers import GlobalMaxPooling1D, Conv1D
+from keras.utils import plot_model
+from keras.callbacks import EarlyStopping
+from keras.utils import to_categorical
+from keras.models import Sequential
 
 """
 ## Construct `Distiller()` class
@@ -144,33 +154,27 @@ convolutional neural networks and created using `Sequential()`,
 but could be any Keras model.
 """
 
+
+
 # Create the teacher
-teacher = keras.Sequential(
-    [
-        keras.Input(shape=(28, 28, 1)),
-        layers.Conv2D(256, (3, 3), strides=(2, 2), padding="same"),
-        layers.LeakyReLU(alpha=0.2),
-        layers.MaxPooling2D(pool_size=(2, 2), strides=(1, 1), padding="same"),
-        layers.Conv2D(512, (3, 3), strides=(2, 2), padding="same"),
-        layers.Flatten(),
-        layers.Dense(10),
-    ],
-    name="teacher",
-)
+teacher = Sequential()
+teacher.add(InputLayer(input_shape=(28, 28, 1)))
+teacher.add(Conv2D(256, (3, 3), strides=(2, 2), padding="same"))
+teacher.add(LeakyReLU(alpha=0.2))
+teacher.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1), padding="same"))
+teacher.add(Conv2D(512, (3, 3), strides=(2, 2), padding="same"))
+teacher.add(Flatten())
+teacher.add(Dense(10))
 
 # Create the student
-student = keras.Sequential(
-    [
-        keras.Input(shape=(28, 28, 1)),
-        layers.Conv2D(16, (3, 3), strides=(2, 2), padding="same"),
-        layers.LeakyReLU(alpha=0.2),
-        layers.MaxPooling2D(pool_size=(2, 2), strides=(1, 1), padding="same"),
-        layers.Conv2D(32, (3, 3), strides=(2, 2), padding="same"),
-        layers.Flatten(),
-        layers.Dense(10),
-    ],
-    name="student",
-)
+student = Sequential()
+student.add(InputLayer(input_shape=(28, 28, 1)))
+student.add(Conv2D(16, (3, 3), strides=(2, 2), padding="same"))
+student.add(LeakyReLU(alpha=0.2))
+student.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1), padding="same"))
+student.add(Conv2D(32, (3, 3), strides=(2, 2), padding="same"))
+student.add(Flatten())
+student.add(Dense(10))
 
 # Clone student for later comparison
 student_scratch = keras.models.clone_model(student)
@@ -185,7 +189,7 @@ the test set.
 """
 
 # Prepare the train and test dataset.
-batch_size = 64
+batch_size = 1
 (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
 
 # Normalize data
@@ -210,7 +214,7 @@ teacher.compile(
 )
 
 # Train and evaluate teacher on data.
-teacher.fit(x_train, y_train, epochs=5)
+teacher.fit(x_train, y_train, epochs=1)
 teacher.evaluate(x_test, y_test)
 
 """
@@ -232,7 +236,7 @@ distiller.compile(
 )
 
 # Distill teacher to student
-distiller.fit(x_train, y_train, epochs=3)
+distiller.fit(x_train, y_train, epochs=1)
 
 # Evaluate student on test dataset
 distiller.evaluate(x_test, y_test)
@@ -251,7 +255,7 @@ student_scratch.compile(
 )
 
 # Train and evaluate student trained from scratch.
-student_scratch.fit(x_train, y_train, epochs=3)
+student_scratch.fit(x_train, y_train, epochs=1)
 student_scratch.evaluate(x_test, y_test)
 
 """
