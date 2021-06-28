@@ -93,7 +93,7 @@ def knowledge_distillation_loss(y_true, y_pred, lambda_const):
   print(lambda_const*logloss(y_true, y_pred) + logloss(y_soft, y_pred_soft))
   print('(((((((((')
 
-  return lambda_const*logloss(y_true, y_pred, from_logits=True) + logloss(y_soft, y_pred_soft, from_logits=True)
+  return lambda_const*logloss(y_true, y_pred, from_logits=False) + logloss(y_soft, y_pred_soft, from_logits=False)
 
 # return the data for training and testing
 # will need to modify if other means of data gathering
@@ -141,7 +141,7 @@ def CreateStudent(x,y,xT,yT,cfg,em_max):
   #  drop out layer
   concat_drop = Dropout(cfg['dropout'])(pooling)
   # dense (output) layer
-  dense = Dense(y.shape[1], name= "Dense")( concat_drop )
+  dense = Dense(y.shape[1]/2, name= "Dense")( concat_drop )
 
   # hard probabilities
   probabilities = Activation('softmax')(dense)
