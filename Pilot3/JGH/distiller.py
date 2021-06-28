@@ -197,11 +197,7 @@ def main():
   print(ttest_X.shape)
   print(ttrain_X[0])
 
-  y,yt = CombineData(yTrain,yTest,ttrain_X,ttest_X)
-  print(y.shape)
-  print(yt.shape)
-
-
+  yTrain,yTest = CombineData(yTrain,yTest,ttrain_X,ttest_X)
 
   # quick descriptors of the data
   # could also do some fancy tricks to data before we send off to cnn
