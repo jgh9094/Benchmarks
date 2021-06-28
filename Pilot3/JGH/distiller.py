@@ -141,7 +141,7 @@ def CreateStudent(x,y,xT,yT,cfg,em_max):
   #  drop out layer
   concat_drop = Dropout(cfg['dropout'])(pooling)
   # dense (output) layer
-  dense = Dense(15, name= "Dense")( concat_drop )
+  dense = Dense(30, name= "Dense")( concat_drop )
 
   # hard probabilities
   probabilities = Activation('softmax')(dense)
