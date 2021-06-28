@@ -56,7 +56,7 @@ def GetModelConfig(config):
   if config == 0:
     return {
       'learning_rate': 0.01,
-      'batch_size': 10,
+      'batch_size': 5,
       'dropout': 0.5,
       'optimizer': 'adam',
       'wv_len': 300,
