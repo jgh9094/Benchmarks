@@ -1,268 +1,225 @@
-"""
-Title: Knowledge Distillation
-Author: [Kenneth Borup](https://twitter.com/Kennethborup)
-Date created: 2020/09/01
-Last modified: 2020/09/01
-Description: Implementation of classical Knowledge Distillation.
-"""
+'''
+Created by: Jose Guadalupe Hernandez
+Email: jgh9094@gmail.com
 
-"""
-## Introduction to Knowledge Distillation
-Knowledge Distillation is a procedure for model
-compression, in which a small (student) model is trained to match a large pre-trained
-(teacher) model. Knowledge is transferred from the teacher model to the student
-by minimizing a loss function, aimed at matching softened teacher logits as well as
-ground-truth labels.
-The logits are softened by applying a "temperature" scaling function in the softmax,
-effectively smoothing out the probability distribution and revealing
-inter-class relationships learned by the teacher.
-**Reference:**
-- [Hinton et al. (2015)](https://arxiv.org/abs/1503.02531)
-"""
+export PATH=$HOME/anaconda3/bin:$PATH
+'''
 
-"""
-## Setup
-"""
-
-# import tensorflow as tf
-# from tensorflow import keras
-# from tensorflow.keras import layers
+# general python imports
 import numpy as np
-import keras
+from matplotlib import pyplot as plt
+import argparse
+import os
+import pandas as pd
+import pickle as pk
 
 # keras python inputs
 from keras.models import Model
-from keras.layers import Input, Embedding, Dense, Dropout,Conv2D ,LeakyReLU ,MaxPooling2D ,Conv2D ,Flatten, InputLayer
+from keras.layers import Input,Embedding,Dropout,Dense,GlobalMaxPooling1D,Conv1D,Activation,Lambda,concatenate
 from keras.regularizers import l2
-from keras.layers import GlobalMaxPooling1D, Conv1D
-from keras.utils import plot_model
 from keras.callbacks import EarlyStopping
-from keras.utils import to_categorical
-from keras.models import Sequential
+from keras.utils import to_categorical,plot_model
+from keras.losses import categorical_crossentropy as logloss
+from keras import backend as K
+from keras.metrics import categorical_accuracy, top_k_categorical_accuracy
 
-"""
-## Construct `Distiller()` class
-The custom `Distiller()` class, overrides the `Model` methods `train_step`, `test_step`,
-and `compile()`. In order to use the distiller, we need:
-- A trained teacher model
-- A student model to train
-- A student loss function on the difference between student predictions and ground-truth
-- A distillation loss function, along with a `temperature`, on the difference between the
-soft student predictions and the soft teacher labels
-- An `alpha` factor to weight the student and distillation loss
-- An optimizer for the student and (optional) metrics to evaluate performance
-In the `train_step` method, we perform a forward pass of both the teacher and student,
-calculate the loss with weighting of the `student_loss` and `distillation_loss` by `alpha` and
-`1 - alpha`, respectively, and perform the backward pass. Note: only the student weights are updated,
-and therefore we only calculate the gradients for the student weights.
-In the `test_step` method, we evaluate the student model on the provided dataset.
-"""
+# global variables
+EPOCHS = 100
+SPLIT = 0
+TEMP = 0
 
+def accuracy(y_true, y_pred):
+    y_true = y_true[:, :SPLIT]
+    y_pred = y_pred[:, :SPLIT]
+    return categorical_accuracy(y_true, y_pred)
 
-class Distiller(keras.Model):
-    def __init__(self, student, teacher):
-        super(Distiller, self).__init__()
-        self.teacher = teacher
-        self.student = student
+def top_5_accuracy(y_true, y_pred):
+    y_true = y_true[:, :SPLIT]
+    y_pred = y_pred[:, :SPLIT]
+    return top_k_categorical_accuracy(y_true, y_pred)
 
-    def compile(
-        self,
-        optimizer,
-        metrics,
-        student_loss_fn,
-        distillation_loss_fn,
-        alpha=0.1,
-        temperature=3,
-    ):
-        """ Configure the distiller.
-        Args:
-            optimizer: Keras optimizer for the student weights
-            metrics: Keras metrics for evaluation
-            student_loss_fn: Loss function of difference between student
-                predictions and ground-truth
-            distillation_loss_fn: Loss function of difference between soft
-                student predictions and soft teacher predictions
-            alpha: weight to student_loss_fn and 1-alpha to distillation_loss_fn
-            temperature: Temperature for softening probability distributions.
-                Larger temperature gives softer distributions.
-        """
-        super(Distiller, self).compile(optimizer=optimizer, metrics=metrics)
-        self.student_loss_fn = student_loss_fn
-        self.distillation_loss_fn = distillation_loss_fn
-        self.alpha = alpha
-        self.temperature = temperature
+def categorical_crossentropy(y_true, y_pred):
+    y_true = y_true[:, :SPLIT]
+    y_pred = y_pred[:, :SPLIT]
+    return logloss(y_true, y_pred)
 
-    def train_step(self, data):
-        # Unpack data
-        x, y = data
+# logloss with only soft probabilities and targets
+def soft_logloss(y_true, y_pred):
+    logits = y_true[:, SPLIT:]
+    y_soft = K.softmax(logits/TEMP)
+    y_pred_soft = y_pred[:, SPLIT:]
+    return logloss(y_soft, y_pred_soft)
 
-        # Forward pass of teacher
-        teacher_predictions = self.teacher(x, training=False)
+# return configuration for the experiment
+def GetModelConfig(config):
+  # testing configuration
+  if config == 0:
+    return {
+      'learning_rate': 0.01,
+      'batch_size': 10,
+      'dropout': 0.5,
+      'optimizer': 'adam',
+      'wv_len': 300,
+      'emb_l2': 0.001,
+      'in_seq_len': 1500,
+      'num_filters': 100,
+      'filter_sizes': 3,
+      'model_N': 4,
+      'const': 0.7
+    }
 
-        with tf.GradientTape() as tape:
-            # Forward pass of student
-            student_predictions = self.student(x, training=True)
+  else:
+    print('MODEL CONFIGURATION DOES NOT EXIST')
+    exit(-1)
 
-            # Compute losses
-            student_loss = self.student_loss_fn(y, student_predictions)
-            distillation_loss = self.distillation_loss_fn(
-                tf.nn.softmax(teacher_predictions / self.temperature, axis=1),
-                tf.nn.softmax(student_predictions / self.temperature, axis=1),
-            )
-            loss = self.alpha * student_loss + (1 - self.alpha) * distillation_loss
+# compute
+def knowledge_distillation_loss(y_true, y_pred, lambda_const):
 
-        # Compute gradients
-        trainable_vars = self.student.trainable_variables
-        gradients = tape.gradient(loss, trainable_vars)
+  # split in
+  #    onehot hard true targets
+  #    logits from xception
+  y_true, logits = y_true[:, :SPLIT], y_true[:, SPLIT:]
 
-        # Update weights
-        self.optimizer.apply_gradients(zip(gradients, trainable_vars))
+  # convert logits to soft targets
+  y_soft = K.softmax(logits/TEMP)
 
-        # Update the metrics configured in `compile()`.
-        self.compiled_metrics.update_state(y, student_predictions)
+  # split in
+  #    usual output probabilities
+  #    probabilities made softer with temperature
+  y_pred, y_pred_soft = y_pred[:, :SPLIT], y_pred[:, SPLIT:]
 
-        # Return a dict of performance
-        results = {m.name: m.result() for m in self.metrics}
-        results.update(
-            {"student_loss": student_loss, "distillation_loss": distillation_loss}
-        )
-        return results
+  return lambda_const*logloss(y_true, y_pred) + logloss(y_soft, y_pred_soft)
 
-    def test_step(self, data):
-        # Unpack the data
-        x, y = data
+# return the data for training and testing
+# will need to modify if other means of data gathering
+def GetData(dir,N):
+  # load data
+  trainX = np.load( dir + 'train_X.npy' )
+  trainY = np.load( dir + 'train_Y.npy' )[ :, 0 ]
+  testX = np.load( dir + 'test_X.npy' )
+  testY = np.load( dir + 'test_Y.npy' )[ :, 0 ]
 
-        # Compute predictions
-        y_prediction = self.student(x, training=False)
+  # find max class number and adjust test/training y
+  return np.array(trainX), np.array(to_categorical(trainY)), np.array(testX), np.array(to_categorical(testY))
 
-        # Calculate the loss
-        student_loss = self.student_loss_fn(y, y_prediction)
+# combine the data output with ground truth and teacher logits
+def CombineData(y,yt,ty,tyt):
+  Y = np.array([])
+  for i in range(len(y)):
+    Y.append(np.concatenate(y[i],ty[i]))
 
-        # Update the metrics.
-        self.compiled_metrics.update_state(y, y_prediction)
+  YT = np.array([])
+  for i in range(len(yt)):
+    YT.append(np.concatenate(yt[i],tyt[i]))
 
-        # Return a dict of performance
-        results = {m.name: m.result() for m in self.metrics}
-        results.update({"student_loss": student_loss})
-        return results
+  return Y,YT
 
+# create student model
+def CreateStudent(x,y,xT,yT,cfg,em_max):
+  # word vector lengths
+  wv_mat = np.random.randn( em_max + 1, cfg['wv_len'] ).astype( 'float32' ) * 0.1
+  # validation data
+  validation_data = (xT,yT)
+  # stopping criterion
+  stopper = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)
 
-"""
-## Create student and teacher models
-Initialy, we create a teacher model and a smaller student model. Both models are
-convolutional neural networks and created using `Sequential()`,
-but could be any Keras model.
-"""
+  # set input layer, assuming that all input will have same shape as starting case
+  input = Input(shape=([x.shape[1]]), name= "Input")
+  # embedding lookup
+  embed = Embedding(len(wv_mat), cfg['wv_len'], input_length=cfg['in_seq_len'], name="embedding",
+                      embeddings_regularizer=l2(cfg['emb_l2']))(input)
+  # convolutional layer
+  conv = Conv1D(filters=cfg['num_filters'], kernel_size=cfg['filter_sizes'], padding="same",
+                  activation="relu", strides=1, name="filter")(embed)
+  # max pooling layer
+  pooling = GlobalMaxPooling1D()(conv)
+  #  drop out layer
+  concat_drop = Dropout(cfg['dropout'])(pooling)
+  # dense (output) layer
+  dense = Dense(y.shape[1], name= "Dense")( concat_drop )
 
+  # hard probabilities
+  probabilities = Activation('softmax')(dense)
+  # softed probabilities
+  logits_T = Lambda(lambda x: x/TEMP)(dense)
+  probabilities_T = Activation('softmax')(logits_T)
 
+  # final output layer
+  outlayer = concatenate([probabilities, probabilities_T])
 
-# Create the teacher
-teacher = Sequential()
-teacher.add(InputLayer(input_shape=(28, 28, 1)))
-teacher.add(Conv2D(256, (3, 3), strides=(2, 2), padding="same"))
-teacher.add(LeakyReLU(alpha=0.2))
-teacher.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1), padding="same"))
-teacher.add(Conv2D(512, (3, 3), strides=(2, 2), padding="same"))
-teacher.add(Flatten())
-teacher.add(Dense(10))
+  # link, compile, and fit model
+  model = Model(inputs=input, outputs = outlayer)
 
-# Create the student
-student = Sequential()
-student.add(InputLayer(input_shape=(28, 28, 1)))
-student.add(Conv2D(16, (3, 3), strides=(2, 2), padding="same"))
-student.add(LeakyReLU(alpha=0.2))
-student.add(MaxPooling2D(pool_size=(2, 2), strides=(1, 1), padding="same"))
-student.add(Conv2D(32, (3, 3), strides=(2, 2), padding="same"))
-student.add(Flatten())
-student.add(Dense(10))
-
-# Clone student for later comparison
-student_scratch = keras.models.clone_model(student)
-
-"""
-## Prepare the dataset
-The dataset used for training the teacher and distilling the teacher is
-[MNIST](https://keras.io/api/datasets/mnist/), and the procedure would be equivalent for any other
-dataset, e.g. [CIFAR-10](https://keras.io/api/datasets/cifar10/), with a suitable choice
-of models. Both the student and teacher are trained on the training set and evaluated on
-the test set.
-"""
-
-# Prepare the train and test dataset.
-batch_size = 1
-(x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
-
-# Normalize data
-x_train = x_train.astype("float32") / 255.0
-x_train = np.reshape(x_train, (-1, 28, 28, 1))
-
-x_test = x_test.astype("float32") / 255.0
-x_test = np.reshape(x_test, (-1, 28, 28, 1))
+  return model
 
 
-"""
-## Train the teacher
-In knowledge distillation we assume that the teacher is trained and fixed. Thus, we start
-by training the teacher model on the training set in the usual way.
-"""
+def main():
+  print('\n************************************************************************************', end='\n\n')
+  # generate and get arguments
+  parser = argparse.ArgumentParser(description='Process arguments for model training.')
+  parser.add_argument('config',      type=int, help='What kd model config are we using?')
+  parser.add_argument('data_dir',    type=str, help='Where is the data located?')
+  parser.add_argument('teach_dir',   type=str, help='Where is the student data located?')
+  parser.add_argument('modl_dir',    type=str, help='Where are the models located?')
+  parser.add_argument('dump_dir',    type=str, help='Where are we dumping the output?')
+  parser.add_argument('seed',        type=int, help='Random seed for run')
 
-# Train teacher as usual
-teacher.compile(
-    optimizer=keras.optimizers.Adam(),
-    loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    metrics=[keras.metrics.SparseCategoricalAccuracy()],
-)
+  # Parse all the arguments & set random seed
+  args = parser.parse_args()
+  print('Seed:', args.seed, end='\n\n')
+  np.random.seed(args.seed)
 
-# Train and evaluate teacher on data.
-teacher.fit(x_train, y_train, epochs=1)
-teacher.evaluate(x_test, y_test)
+  # check that dump directory exists
+  if not os.path.isdir(args.dump_dir):
+    print('DUMP DIRECTORY DOES NOT EXIST')
+    exit(-1)
 
-"""
-## Distill teacher to student
-We have already trained the teacher model, and we only need to initialize a
-`Distiller(student, teacher)` instance, `compile()` it with the desired losses,
-hyperparameters and optimizer, and distill the teacher to the student.
-"""
+  # Step 1: Get experiment configurations
+  config = GetModelConfig(args.config)
+  print('run parameters:', config, end='\n\n')
 
-# Initialize and compile distiller
-distiller = Distiller(student=student, teacher=teacher)
-distiller.compile(
-    optimizer=keras.optimizers.Adam(),
-    metrics=[keras.metrics.SparseCategoricalAccuracy()],
-    student_loss_fn=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    distillation_loss_fn=keras.losses.KLDivergence(),
-    alpha=0.1,
-    temperature=10,
-)
+  print('TEACHER STATS')
 
-# Distill teacher to student
-distiller.fit(x_train, y_train, epochs=1)
+  # Step 2: Create training/testing data for ensemble model
+  xTrain,yTrain,xTest,yTest =  GetData(args.data_dir, config['model_N'])
+  global SPLIT
+  SPLIT = len(yTrain[0])
 
-# Evaluate student on test dataset
-distiller.evaluate(x_test, y_test)
+  # get the teacher training/testing outputs
+  file = open('./Model-1/training_X.pickle', 'rb')
+  ttrain_X = pk.load(file)
+  file.close
+  file = open('./Model-1/test_X.pickle', 'rb')
+  ttest_X = pk.load(file)
+  file.close
 
-"""
-## Train student from scratch for comparison
-We can also train an equivalent student model from scratch without the teacher, in order
-to evaluate the performance gain obtained by knowledge distillation.
-"""
+  print(ttrain_X.shape)
+  print(ttest_X.shape)
+  print(ttrain_X[0])
 
-# Train student as doen usually
-student_scratch.compile(
-    optimizer=keras.optimizers.Adam(),
-    loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-    metrics=[keras.metrics.SparseCategoricalAccuracy()],
-)
+  y,yt = CombineData(yTrain,yTest,ttrain_X,ttest_X)
+  print(y.shape)
+  print(yt.shape)
 
-# Train and evaluate student trained from scratch.
-student_scratch.fit(x_train, y_train, epochs=1)
-student_scratch.evaluate(x_test, y_test)
 
-"""
-If the teacher is trained for 5 full epochs and the student is distilled on this teacher
-for 3 full epochs, you should in this example experience a performance boost compared to
-training the same student model from scratch, and even compared to the teacher itself.
-You should expect the teacher to have accuracy around 97.6%, the student trained from
-scratch should be around 97.6%, and the distilled student should be around 98.1%. Remove
-or try out different seeds to use different weight initializations.
-"""
+
+  # quick descriptors of the data
+  # could also do some fancy tricks to data before we send off to cnn
+  print('xTrain dim: ', xTrain.shape)
+  print('yTrain dim: ', yTrain.shape)
+  print('xTest dim: ', xTest.shape)
+  print('yTest dim: ', yTest.shape , end='\n\n')
+
+  # Step 3: Create, compile, train student model
+  student = CreateStudent(xTrain, yTrain, xTest, yTest, config, max(np.max(xTrain), np.max(xTest)))
+  plot_model(student,to_file= args.dump_dir + 'teacher.png',show_shapes=True, show_layer_names=True)
+
+  student.compile(optimizer= config['optimizer'],
+                  loss=lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, config['const']),
+                  metrics=[accuracy, top_5_accuracy, categorical_crossentropy, soft_logloss] )
+
+
+
+
+if __name__ == '__main__':
+  main()
