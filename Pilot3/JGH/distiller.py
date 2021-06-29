@@ -32,7 +32,6 @@ ALPHA = 0.0
 def accuracy(y_true, y_pred):
     y_true = y_true[:, :SPLIT]
     y_pred = y_pred[:, :SPLIT]
-    print('******', categorical_accuracy(y_true, y_pred).numpy())
     return categorical_accuracy(y_true, y_pred)
 
 def top_5_accuracy(y_true, y_pred):
