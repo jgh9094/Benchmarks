@@ -242,6 +242,7 @@ def main():
             callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
 
   print('predict:', student.predict(np.array([np.array(xTrain[0])])))
+  print('label:', yTrain[0])
 
 if __name__ == '__main__':
   main()
