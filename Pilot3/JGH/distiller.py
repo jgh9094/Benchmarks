@@ -80,15 +80,15 @@ def knowledge_distillation_loss(y_true, y_pred):
   # split in
   #    onehot hard true targets
   #    logits from xception
-  y_true, logits = y_true[:, :SPLIT], y_true[:, SPLIT:]
+  y_true, logits = y_true[:, :15], y_true[:, 15:]
 
   # convert logits to soft targets
-  y_soft = K.softmax(logits/TEMP)
+  y_soft = K.softmax(logits/4)
 
   # split in
   #    usual output probabilities
   #    probabilities made softer with temperature
-  y_pred, y_pred_soft = y_pred[:, :SPLIT], y_pred[:, SPLIT:]
+  y_pred, y_pred_soft = y_pred[:, :15], y_pred[:, 15:]
 
   print('*******')
   print(logits)
