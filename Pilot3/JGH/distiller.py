@@ -29,28 +29,6 @@ SPLIT = 0
 TEMP = 0
 ALPHA = 0.0
 
-def accuracy(y_true, y_pred):
-    y_true = y_true[:, :15]
-    y_pred = y_pred[:, :15]
-    return categorical_accuracy(y_true, y_pred)
-
-def top_5_accuracy(y_true, y_pred):
-    y_true = y_true[:, :15]
-    y_pred = y_pred[:, :15]
-    return K.sum(top_k_categorical_accuracy(y_true, y_pred))
-
-def categorical_crossentropy(y_true, y_pred):
-    y_true = y_true[:, :15]
-    y_pred = y_pred[:, :15]
-    return logloss(y_true, y_pred)
-
-# logloss with only soft probabilities and targets
-def soft_logloss(y_true, y_pred):
-  logits = y_true[:, 15:]
-  y_soft = K.softmax(logits/TEMP)
-  y_pred_soft = y_pred[:, 15:]
-  return logloss(y_soft, y_pred_soft)
-
 # return configuration for the experiment
 def GetModelConfig(config):
   # testing configuration
@@ -236,6 +214,18 @@ def main():
       y_true = y_true[:, :SPLIT]
       y_pred = y_pred[:, :SPLIT]
       return categorical_accuracy(y_true, y_pred)
+
+  def categorical_crossentropy(y_true, y_pred):
+    y_true = y_true[:, :SPLIT]
+    y_pred = y_pred[:, :SPLIT]
+    return logloss(y_true, y_pred)
+
+  # logloss with only soft probabilities and targets
+  def soft_logloss(y_true, y_pred):
+    logits = y_true[:, SPLIT:]
+    y_soft = K.softmax(logits/TEMP)
+    y_pred_soft = y_pred[:, SPLIT:]
+    return logloss(y_soft, y_pred_soft)
 
   student.compile(
       #optimizer=optimizers.SGD(lr=1e-1, momentum=0.9, nesterov=True),
