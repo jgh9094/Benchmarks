@@ -189,7 +189,7 @@ print('TEACHER STATS')
 
 # Step 2: Create training/testing data for ensemble model
 xTrain,yTrain,xTest,yTest =  GetData(args.data_dir, config['model_N'])
-global SPLIT, ALPHA
+# global SPLIT, ALPHA
 SPLIT = len(yTrain[0])
 ALPHA = config['alpha']
 
