@@ -57,10 +57,11 @@ def knowledge_distillation_loss(y_true, y_pred, alpha):
 
     # Extract the one-hot encoded values and the softs separately so that we can create two objective functions
     y_true, y_true_softs = y_true[: , :SPLIT], y_true[: , SPLIT:]
-
     y_pred, y_pred_softs = y_pred[: , :SPLIT], y_pred[: , SPLIT:]
 
-    loss = logloss(y_true,y_pred) + logloss(y_true_softs, y_pred_softs)
+    diff_alpha = 1 - alpha
+
+    loss = alpha * logloss(y_true,y_pred) +  diff_alpha * logloss(y_true_softs, y_pred_softs)
 
     return loss
 
