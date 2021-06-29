@@ -241,7 +241,8 @@ student.fit(xTrain, yTrain,
           batch_size=256,
           epochs=EPOCHS,
           verbose=1,
-          validation_data=(xTest, yTest))
+          validation_data=(xTest, yTest),
+          callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
 
 
 # if __name__ == '__main__':
