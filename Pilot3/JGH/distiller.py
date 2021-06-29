@@ -32,7 +32,7 @@ ALPHA = 0.0
 def accuracy(y_true, y_pred):
     y_true = y_true[:, :15]
     y_pred = y_pred[:, :15]
-    return K.sum(categorical_accuracy(y_true, y_pred))
+    return categorical_accuracy(y_true, y_pred)
 
 def top_5_accuracy(y_true, y_pred):
     y_true = y_true[:, :15]
@@ -66,7 +66,8 @@ def GetModelConfig(config):
       'num_filters': 100,
       'filter_sizes': 3,
       'model_N': 4,
-      'alpha': 0.7
+      'alpha': 0.7,
+      'temp': 1.0
     }
 
   else:
@@ -74,30 +75,16 @@ def GetModelConfig(config):
     exit(-1)
 
 # compute
-def knowledge_distillation_loss(y_true, y_pred):
+def knowledge_distillation_loss(y_true, y_pred, alpha):
 
+    # Extract the one-hot encoded values and the softs separately so that we can create two objective functions
+    y_true, y_true_softs = y_true[: , :SPLIT], y_true[: , SPLIT:]
 
-  # split in
-  #    onehot hard true targets
-  #    logits from xception
-  y_true, logits = y_true[:, :15], y_true[:, 15:]
+    y_pred, y_pred_softs = y_pred[: , :SPLIT], y_pred[: , SPLIT:]
 
-  # convert logits to soft targets
-  y_soft = K.softmax(logits/4)
+    loss = alpha*logloss(y_true,y_pred) + logloss(y_true_softs, y_pred_softs)
 
-  # split in
-  #    usual output probabilities
-  #    probabilities made softer with temperature
-  y_pred, y_pred_soft = y_pred[:, :15], y_pred[:, 15:]
-
-  print('*******')
-  print(logits)
-  print(ALPHA*logloss(y_true, y_pred) + logloss(y_soft, y_pred_soft))
-  print(type(y_pred))
-  print(y_pred.shape)
-  print('(((((((((')
-
-  return K.sum(ALPHA*logloss(y_true, y_pred, from_logits=False) + logloss(y_soft, y_pred_soft, from_logits=False))
+    return loss
 
 # return the data for training and testing
 # will need to modify if other means of data gathering
@@ -124,7 +111,7 @@ def CombineData(y,yt,ty,tyt):
   return np.array(Y),np.array(YT)
 
 # create student model
-def CreateStudent(x,y,xT,yT,cfg,em_max):
+def CreateStudent(x,y,cfg,em_max):
   # word vector lengths
   wv_mat = np.random.randn( em_max + 1, cfg['wv_len'] ).astype( 'float32' ) * 0.1
 
@@ -143,19 +130,17 @@ def CreateStudent(x,y,xT,yT,cfg,em_max):
   # dense (output) layer
   dense = Dense(int(int(y.shape[1])/2), name= "Dense1")( concat_drop )
 
-  # hard probabilities
-  probabilities = Activation('softmax')(dense)
-  # softed probabilities
-  logits_T = Lambda(lambda x: x/TEMP)(dense)
-  probabilities_T = Activation('softmax')(logits_T)
-
-  # final output layer
-  cat = concatenate([probabilities, probabilities_T])
-
-  # outlayer = Dense(y.shape[1], name= "Dense2")( cat )
+  act = Activation('softmax')(dense)
 
   # link, compile, and fit model
-  model = Model(inputs=input, outputs = cat)
+  model = Model(inputs=input, outputs = act)
+
+  #sgd = keras.optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+  model.compile(loss='categorical_crossentropy',
+                optimizer='adam',
+                metrics=['accuracy'])
+
+  model.summary()
 
   return model
 
@@ -192,6 +177,7 @@ xTrain,yTrain,xTest,yTest =  GetData(args.data_dir, config['model_N'])
 # global SPLIT, ALPHA
 SPLIT = len(yTrain[0])
 ALPHA = config['alpha']
+TEMP = config['temp']
 
 
 # get the teacher training/testing outputs
@@ -216,18 +202,46 @@ print('xTest dim: ', xTest.shape)
 print('yTest dim: ', yTest.shape , end='\n\n')
 
 # Step 3: Create, compile, train student model
-student = CreateStudent(xTrain, yTrain, xTest, yTest, config, max(np.max(xTrain), np.max(xTest)))
-plot_model(student,to_file= args.dump_dir + 'teacher.png',show_shapes=True, show_layer_names=True)
+student = CreateStudent(xTrain,yTrain,config, max(np.max(xTrain), np.max(xTest)))
+plot_model(student,to_file= args.dump_dir + 'student-0.png',show_shapes=True, show_layer_names=True)
 
-student.compile(optimizer= config['optimizer'],
-                loss=knowledge_distillation_loss,
-                metrics=[accuracy, top_5_accuracy, categorical_crossentropy, soft_logloss] )
+# Remove the softmax layer from the student network
+student.layers.pop()
 
-# validation data
-validation_data = (xTest,yTest)
-student.fit(xTrain,yTrain, batch_size=config['batch_size'],epochs=EPOCHS, verbose=2, validation_data=validation_data,callbacks=[EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
+# Now collect the logits from the last layer
+logits = student.layers[-1].output # This is going to be a tensor. And hence it needs to pass through a Activation layer
+probs = Activation('softmax')(logits)
 
+# softed probabilities at raised temperature
+logits_T = Lambda(lambda x: x / TEMP)(logits)
+probs_T = Activation('softmax')(logits_T)
 
+output = concatenate([probs, probs_T])
+
+# This is our new student model
+student = Model(student.input, output)
+
+student.summary()
+plot_model(student,to_file= args.dump_dir + 'student-1.png',show_shapes=True, show_layer_names=True)
+
+# For testing use regular output probabilities - without temperature
+def acc(y_true, y_pred):
+    y_true = y_true[:, :SPLIT]
+    y_pred = y_pred[:, :SPLIT]
+    return categorical_accuracy(y_true, y_pred)
+
+student.compile(
+    #optimizer=optimizers.SGD(lr=1e-1, momentum=0.9, nesterov=True),
+    optimizer='adadelta',
+    loss=lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, 0.1),
+    #loss='categorical_crossentropy',
+    metrics=[acc] )
+
+student.fit(xTrain, yTrain,
+          batch_size=256,
+          epochs=EPOCHS,
+          verbose=1,
+          validation_data=(xTest, yTest))
 
 
 # if __name__ == '__main__':
