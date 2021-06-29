@@ -76,6 +76,7 @@ def GetModelConfig(config):
 # compute
 def knowledge_distillation_loss(y_true, y_pred):
 
+
   # split in
   #    onehot hard true targets
   #    logits from xception
@@ -92,6 +93,8 @@ def knowledge_distillation_loss(y_true, y_pred):
   print('*******')
   print(logits)
   print(ALPHA*logloss(y_true, y_pred) + logloss(y_soft, y_pred_soft))
+  print(type(y_pred))
+  print(y_pred.shape)
   print('(((((((((')
 
   return ALPHA*logloss(y_true, y_pred, from_logits=False) + logloss(y_soft, y_pred_soft, from_logits=False)
