@@ -123,10 +123,6 @@ def CombineData(y,yt,ty,tyt):
 def CreateStudent(x,y,xT,yT,cfg,em_max):
   # word vector lengths
   wv_mat = np.random.randn( em_max + 1, cfg['wv_len'] ).astype( 'float32' ) * 0.1
-  # validation data
-  validation_data = (xT,yT)
-  # stopping criterion
-  stopper = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)
 
   # set input layer, assuming that all input will have same shape as starting case
   input = Input(shape=([x.shape[1]]), name= "Input")
@@ -141,7 +137,7 @@ def CreateStudent(x,y,xT,yT,cfg,em_max):
   #  drop out layer
   concat_drop = Dropout(cfg['dropout'])(pooling)
   # dense (output) layer
-  dense = Dense(15, name= "Dense")( concat_drop )
+  dense = Dense(int(int(y.shape[1])/2), name= "Dense1")( concat_drop )
 
   # hard probabilities
   probabilities = Activation('softmax')(dense)
@@ -150,7 +146,9 @@ def CreateStudent(x,y,xT,yT,cfg,em_max):
   probabilities_T = Activation('softmax')(logits_T)
 
   # final output layer
-  outlayer = concatenate([probabilities, probabilities_T])
+  cat = concatenate([probabilities, probabilities_T])
+
+  outlayer = Dense(y.shape[1], name= "Dense2")( cat )
 
   # link, compile, and fit model
   model = Model(inputs=input, outputs = outlayer)
