@@ -32,7 +32,7 @@ ALPHA = 0.0
 def accuracy(y_true, y_pred):
     y_true = y_true[:, :SPLIT]
     y_pred = y_pred[:, :SPLIT]
-    return K.cast(categorical_accuracy(y_true, y_pred))
+    return categorical_accuracy(y_true, y_pred)
 
 def top_5_accuracy(y_true, y_pred):
     y_true = y_true[:, :SPLIT]
@@ -97,7 +97,7 @@ def knowledge_distillation_loss(y_true, y_pred):
   print(y_pred.shape)
   print('(((((((((')
 
-  return ALPHA*logloss(y_true, y_pred, from_logits=False) + logloss(y_soft, y_pred_soft, from_logits=False)
+  return K.sum(ALPHA*logloss(y_true, y_pred, from_logits=False) + logloss(y_soft, y_pred_soft, from_logits=False))
 
 # return the data for training and testing
 # will need to modify if other means of data gathering
