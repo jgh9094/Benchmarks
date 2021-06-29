@@ -48,6 +48,7 @@ def soft_logloss(y_true, y_pred):
     logits = y_true[:, SPLIT:]
     y_soft = K.softmax(logits/TEMP)
     y_pred_soft = y_pred[:, SPLIT:]
+    print('****', SPLIT)
     return logloss(y_soft, y_pred_soft)
 
 # return configuration for the experiment
@@ -111,11 +112,11 @@ def GetData(dir,N):
 def CombineData(y,yt,ty,tyt):
   Y = []
   for i in range(len(y)):
-    Y.append(np.concatenate((y[i],ty[i])))
+    Y.append(np.concatenate((y[i],ty[i%5])))
 
   YT = []
   for i in range(len(yt)):
-    YT.append(np.concatenate((yt[i],tyt[i])))
+    YT.append(np.concatenate((yt[i],tyt[i%5])))
 
   return np.array(Y),np.array(YT)
 
