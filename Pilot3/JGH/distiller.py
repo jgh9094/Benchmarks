@@ -32,24 +32,24 @@ ALPHA = 0.0
 def accuracy(y_true, y_pred):
     y_true = y_true[:, :SPLIT]
     y_pred = y_pred[:, :SPLIT]
-    return categorical_accuracy(y_true, y_pred)
+    return K.sum(categorical_accuracy(y_true, y_pred))
 
 def top_5_accuracy(y_true, y_pred):
     y_true = y_true[:, :SPLIT]
     y_pred = y_pred[:, :SPLIT]
-    return top_k_categorical_accuracy(y_true, y_pred)
+    return K.sum(top_k_categorical_accuracy(y_true, y_pred))
 
 def categorical_crossentropy(y_true, y_pred):
     y_true = y_true[:, :SPLIT]
     y_pred = y_pred[:, :SPLIT]
-    return logloss(y_true, y_pred)
+    return K.sum(logloss(y_true, y_pred))
 
 # logloss with only soft probabilities and targets
 def soft_logloss(y_true, y_pred):
     logits = y_true[:, SPLIT:]
     y_soft = K.softmax(logits/TEMP)
     y_pred_soft = y_pred[:, SPLIT:]
-    return logloss(y_soft, y_pred_soft)
+    return K.sum(logloss(y_soft, y_pred_soft))
 
 # return configuration for the experiment
 def GetModelConfig(config):
