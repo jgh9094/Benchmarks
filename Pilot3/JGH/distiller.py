@@ -193,6 +193,7 @@ print(ttest_X.shape)
 print(ttrain_X[0])
 
 yTrain,yTest = CombineData(yTrain,yTest,ttrain_X,ttest_X)
+print(yTrain[0])
 
 # quick descriptors of the data
 # could also do some fancy tricks to data before we send off to cnn
