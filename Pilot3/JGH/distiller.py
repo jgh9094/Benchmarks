@@ -160,75 +160,75 @@ def CreateStudent(x,y,xT,yT,cfg,em_max):
   return model
 
 
-def main():
-  print('\n************************************************************************************', end='\n\n')
-  # generate and get arguments
-  parser = argparse.ArgumentParser(description='Process arguments for model training.')
-  parser.add_argument('config',      type=int, help='What kd model config are we using?')
-  parser.add_argument('data_dir',    type=str, help='Where is the data located?')
-  parser.add_argument('teach_dir',   type=str, help='Where is the student data located?')
-  parser.add_argument('modl_dir',    type=str, help='Where are the models located?')
-  parser.add_argument('dump_dir',    type=str, help='Where are we dumping the output?')
-  parser.add_argument('seed',        type=int, help='Random seed for run')
+# def main():
+print('\n************************************************************************************', end='\n\n')
+# generate and get arguments
+parser = argparse.ArgumentParser(description='Process arguments for model training.')
+parser.add_argument('config',      type=int, help='What kd model config are we using?')
+parser.add_argument('data_dir',    type=str, help='Where is the data located?')
+parser.add_argument('teach_dir',   type=str, help='Where is the student data located?')
+parser.add_argument('modl_dir',    type=str, help='Where are the models located?')
+parser.add_argument('dump_dir',    type=str, help='Where are we dumping the output?')
+parser.add_argument('seed',        type=int, help='Random seed for run')
 
-  # Parse all the arguments & set random seed
-  args = parser.parse_args()
-  print('Seed:', args.seed, end='\n\n')
-  np.random.seed(args.seed)
+# Parse all the arguments & set random seed
+args = parser.parse_args()
+print('Seed:', args.seed, end='\n\n')
+np.random.seed(args.seed)
 
-  # check that dump directory exists
-  if not os.path.isdir(args.dump_dir):
-    print('DUMP DIRECTORY DOES NOT EXIST')
-    exit(-1)
+# check that dump directory exists
+if not os.path.isdir(args.dump_dir):
+  print('DUMP DIRECTORY DOES NOT EXIST')
+  exit(-1)
 
-  # Step 1: Get experiment configurations
-  config = GetModelConfig(args.config)
-  print('run parameters:', config, end='\n\n')
+# Step 1: Get experiment configurations
+config = GetModelConfig(args.config)
+print('run parameters:', config, end='\n\n')
 
-  print('TEACHER STATS')
+print('TEACHER STATS')
 
-  # Step 2: Create training/testing data for ensemble model
-  xTrain,yTrain,xTest,yTest =  GetData(args.data_dir, config['model_N'])
-  global SPLIT, ALPHA
-  SPLIT = len(yTrain[0])
-  ALPHA = config['alpha']
-
-
-  # get the teacher training/testing outputs
-  file = open('./Model-1/training_X.pickle', 'rb')
-  ttrain_X = pk.load(file)
-  file.close
-  file = open('./Model-1/test_X.pickle', 'rb')
-  ttest_X = pk.load(file)
-  file.close
-
-  print(ttrain_X.shape)
-  print(ttest_X.shape)
-  print(ttrain_X[0])
-
-  yTrain,yTest = CombineData(yTrain,yTest,ttrain_X,ttest_X)
-
-  # quick descriptors of the data
-  # could also do some fancy tricks to data before we send off to cnn
-  print('xTrain dim: ', xTrain.shape)
-  print('yTrain dim: ', yTrain.shape)
-  print('xTest dim: ', xTest.shape)
-  print('yTest dim: ', yTest.shape , end='\n\n')
-
-  # Step 3: Create, compile, train student model
-  student = CreateStudent(xTrain, yTrain, xTest, yTest, config, max(np.max(xTrain), np.max(xTest)))
-  plot_model(student,to_file= args.dump_dir + 'teacher.png',show_shapes=True, show_layer_names=True)
-
-  student.compile(optimizer= config['optimizer'],
-                  loss=knowledge_distillation_loss,
-                  metrics=[accuracy, top_5_accuracy, categorical_crossentropy, soft_logloss] )
-
-  # validation data
-  validation_data = (xTest,yTest)
-  student.fit(xTrain,yTrain, batch_size=config['batch_size'],epochs=EPOCHS, verbose=2, validation_data=validation_data,callbacks=[EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
+# Step 2: Create training/testing data for ensemble model
+xTrain,yTrain,xTest,yTest =  GetData(args.data_dir, config['model_N'])
+global SPLIT, ALPHA
+SPLIT = len(yTrain[0])
+ALPHA = config['alpha']
 
 
+# get the teacher training/testing outputs
+file = open('./Model-1/training_X.pickle', 'rb')
+ttrain_X = pk.load(file)
+file.close
+file = open('./Model-1/test_X.pickle', 'rb')
+ttest_X = pk.load(file)
+file.close
+
+print(ttrain_X.shape)
+print(ttest_X.shape)
+print(ttrain_X[0])
+
+yTrain,yTest = CombineData(yTrain,yTest,ttrain_X,ttest_X)
+
+# quick descriptors of the data
+# could also do some fancy tricks to data before we send off to cnn
+print('xTrain dim: ', xTrain.shape)
+print('yTrain dim: ', yTrain.shape)
+print('xTest dim: ', xTest.shape)
+print('yTest dim: ', yTest.shape , end='\n\n')
+
+# Step 3: Create, compile, train student model
+student = CreateStudent(xTrain, yTrain, xTest, yTest, config, max(np.max(xTrain), np.max(xTest)))
+plot_model(student,to_file= args.dump_dir + 'teacher.png',show_shapes=True, show_layer_names=True)
+
+student.compile(optimizer= config['optimizer'],
+                loss=knowledge_distillation_loss,
+                metrics=[accuracy, top_5_accuracy, categorical_crossentropy, soft_logloss] )
+
+# validation data
+validation_data = (xTest,yTest)
+student.fit(xTrain,yTrain, batch_size=config['batch_size'],epochs=EPOCHS, verbose=2, validation_data=validation_data,callbacks=[EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
 
 
-if __name__ == '__main__':
-  main()
+
+
+# if __name__ == '__main__':
+#   main()
