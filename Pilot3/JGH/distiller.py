@@ -148,10 +148,10 @@ def CreateStudent(x,y,xT,yT,cfg,em_max):
   # final output layer
   cat = concatenate([probabilities, probabilities_T])
 
-  outlayer = Dense(y.shape[1], name= "Dense2")( cat )
+  # outlayer = Dense(y.shape[1], name= "Dense2")( cat )
 
   # link, compile, and fit model
-  model = Model(inputs=input, outputs = outlayer)
+  model = Model(inputs=input, outputs = cat)
 
   return model
 
