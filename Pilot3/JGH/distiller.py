@@ -45,7 +45,7 @@ def GetModelConfig(config):
       'filter_sizes': 3,
       'model_N': 4,
       'alpha': 0.7,
-      'temp': 1.0
+      'temp': 7.0
     }
 
   else:
@@ -213,7 +213,6 @@ def main():
   def acc(y_true, y_pred):
       y_true = y_true[:, :SPLIT]
       y_pred = y_pred[:, :SPLIT]
-      print('*****', y_pred)
       return categorical_accuracy(y_true, y_pred)
 
   def categorical_crossentropy(y_true, y_pred):
