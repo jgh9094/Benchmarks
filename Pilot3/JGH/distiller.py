@@ -48,7 +48,7 @@ def soft_logloss(y_true, y_pred):
     logits = y_true[:, SPLIT:]
     y_soft = K.softmax(logits/TEMP)
     y_pred_soft = y_pred[:, SPLIT:]
-    print('############', logloss(y_soft, y_pred_soft)
+    print('############', logloss(y_soft, y_pred_soft))
     return logloss(y_soft, y_pred_soft)
 
 # return configuration for the experiment
