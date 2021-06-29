@@ -231,7 +231,7 @@ def main():
   student.compile(
       #optimizer=optimizers.SGD(lr=1e-1, momentum=0.9, nesterov=True),
       optimizer='adam',
-      loss=lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, 0.1),
+      loss=lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, 0.5),
       #loss='categorical_crossentropy',
       metrics=[acc,categorical_crossentropy,soft_logloss] )
 
