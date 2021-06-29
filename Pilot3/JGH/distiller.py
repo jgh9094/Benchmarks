@@ -27,6 +27,7 @@ from keras.metrics import categorical_accuracy, top_k_categorical_accuracy
 EPOCHS = 100
 SPLIT = 0
 TEMP = 0
+ALPHA = 0.0
 
 def accuracy(y_true, y_pred):
     y_true = y_true[:, :SPLIT]
@@ -48,7 +49,6 @@ def soft_logloss(y_true, y_pred):
     logits = y_true[:, SPLIT:]
     y_soft = K.softmax(logits/TEMP)
     y_pred_soft = y_pred[:, SPLIT:]
-    print('############', logloss(y_soft, y_pred_soft))
     return logloss(y_soft, y_pred_soft)
 
 # return configuration for the experiment
@@ -66,7 +66,7 @@ def GetModelConfig(config):
       'num_filters': 100,
       'filter_sizes': 3,
       'model_N': 4,
-      'const': 0.7
+      'alpha': 0.7
     }
 
   else:
@@ -74,7 +74,7 @@ def GetModelConfig(config):
     exit(-1)
 
 # compute
-def knowledge_distillation_loss(y_true, y_pred, lambda_const):
+def knowledge_distillation_loss(y_true, y_pred):
 
   # split in
   #    onehot hard true targets
@@ -91,10 +91,10 @@ def knowledge_distillation_loss(y_true, y_pred, lambda_const):
 
   print('*******')
   print(logits)
-  print(lambda_const*logloss(y_true, y_pred) + logloss(y_soft, y_pred_soft))
+  print(ALPHA*logloss(y_true, y_pred) + logloss(y_soft, y_pred_soft))
   print('(((((((((')
 
-  return lambda_const*logloss(y_true, y_pred, from_logits=False) + logloss(y_soft, y_pred_soft, from_logits=False)
+  return ALPHA*logloss(y_true, y_pred, from_logits=False) + logloss(y_soft, y_pred_soft, from_logits=False)
 
 # return the data for training and testing
 # will need to modify if other means of data gathering
@@ -186,8 +186,10 @@ def main():
 
   # Step 2: Create training/testing data for ensemble model
   xTrain,yTrain,xTest,yTest =  GetData(args.data_dir, config['model_N'])
-  global SPLIT
+  global SPLIT, ALPHA
   SPLIT = len(yTrain[0])
+  ALPHA = config['alpha']
+
 
   # get the teacher training/testing outputs
   file = open('./Model-1/training_X.pickle', 'rb')
@@ -215,7 +217,7 @@ def main():
   plot_model(student,to_file= args.dump_dir + 'teacher.png',show_shapes=True, show_layer_names=True)
 
   student.compile(optimizer= config['optimizer'],
-                  loss=lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, config['const']),
+                  loss=knowledge_distillation_loss,
                   metrics=[accuracy, top_5_accuracy, categorical_crossentropy, soft_logloss] )
 
   # validation data
