@@ -213,6 +213,7 @@ def main():
   def acc(y_true, y_pred):
       y_true = y_true[:, :SPLIT]
       y_pred = y_pred[:, :SPLIT]
+      print('*****', y_pred)
       return categorical_accuracy(y_true, y_pred)
 
   def categorical_crossentropy(y_true, y_pred):
