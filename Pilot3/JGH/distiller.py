@@ -46,10 +46,10 @@ def categorical_crossentropy(y_true, y_pred):
 
 # logloss with only soft probabilities and targets
 def soft_logloss(y_true, y_pred):
-    logits = y_true[:, 15:]
-    y_soft = K.softmax(logits/TEMP)
-    y_pred_soft = y_pred[:, 15:]
-    return logloss(y_soft, y_pred_soft)
+  logits = y_true[:, 15:]
+  y_soft = K.softmax(logits/TEMP)
+  y_pred_soft = y_pred[:, 15:]
+  return logloss(y_soft, y_pred_soft)
 
 # return configuration for the experiment
 def GetModelConfig(config):
@@ -82,7 +82,7 @@ def knowledge_distillation_loss(y_true, y_pred, alpha):
 
     y_pred, y_pred_softs = y_pred[: , :SPLIT], y_pred[: , SPLIT:]
 
-    loss = alpha*logloss(y_true,y_pred) + logloss(y_true_softs, y_pred_softs)
+    loss = logloss(y_true,y_pred) + logloss(y_true_softs, y_pred_softs)
 
     return loss
 
@@ -225,6 +225,12 @@ def main():
   student.summary()
   plot_model(student,to_file= args.dump_dir + 'student-1.png',show_shapes=True, show_layer_names=True)
 
+  print(xTrain[0])
+  print(xTrain[0].shape)
+  print(xTrain[0].reshape(1500,1))
+  print(xTrain[0].reshape(1500,1).shape)
+
+
   # For testing use regular output probabilities - without temperature
   def acc(y_true, y_pred):
       y_true = y_true[:, :SPLIT]
@@ -233,7 +239,7 @@ def main():
 
   student.compile(
       #optimizer=optimizers.SGD(lr=1e-1, momentum=0.9, nesterov=True),
-      optimizer='adadelta',
+      optimizer='adam',
       loss=lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, 0.1),
       #loss='categorical_crossentropy',
       metrics=[acc,categorical_crossentropy,soft_logloss] )
@@ -245,7 +251,7 @@ def main():
             validation_data=(xTest, yTest),
             callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
 
-  print(student.predict(xTrain[0]))
+  print(student.predict(xTrain[0].reshape(1500,1)))
 
 if __name__ == '__main__':
   main()
