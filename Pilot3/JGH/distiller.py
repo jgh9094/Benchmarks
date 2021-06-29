@@ -251,7 +251,7 @@ def main():
             validation_data=(xTest, yTest),
             callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
 
-  print(student.predict(xTrain[0].reshape(1500,1)))
+  print(student.predict([xTrain[0]]))
 
 if __name__ == '__main__':
   main()
