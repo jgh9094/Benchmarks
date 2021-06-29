@@ -45,7 +45,7 @@ def GetModelConfig(config):
       'filter_sizes': 3,
       'model_N': 4,
       'alpha': 0.7,
-      'temp': 7.0
+      'temp': 3.0
     }
 
   else:
