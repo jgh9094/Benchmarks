@@ -42,14 +42,14 @@ def top_5_accuracy(y_true, y_pred):
 def categorical_crossentropy(y_true, y_pred):
     y_true = y_true[:, :15]
     y_pred = y_pred[:, :15]
-    return K.sum(logloss(y_true, y_pred))
+    return logloss(y_true, y_pred)
 
 # logloss with only soft probabilities and targets
 def soft_logloss(y_true, y_pred):
     logits = y_true[:, 15:]
     y_soft = K.softmax(logits/TEMP)
     y_pred_soft = y_pred[:, 15:]
-    return K.sum(logloss(y_soft, y_pred_soft))
+    return logloss(y_soft, y_pred_soft)
 
 # return configuration for the experiment
 def GetModelConfig(config):
@@ -235,7 +235,7 @@ student.compile(
     optimizer='adadelta',
     loss=lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, 0.1),
     #loss='categorical_crossentropy',
-    metrics=[acc] )
+    metrics=[acc,categorical_crossentropy,soft_logloss] )
 
 student.fit(xTrain, yTrain,
           batch_size=256,
