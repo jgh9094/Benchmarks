@@ -75,10 +75,10 @@ def GetData(data_d,tech_d,config):
   YT = to_categorical(np.load( data_d + 'test_Y.npy' )[ :, 0 ])
 
   # get teacher logit outputs
-  file = open(tech_d + 'Ensemble-' + str(config) + 'training_X.pickle', 'rb')
+  file = open(tech_d + 'Ensemble-' + str(config) + '/' + 'training_X.pickle', 'rb')
   teach_x = pk.load(file)
   file.close
-  file = open(tech_d + 'Ensemble-' + str(config) + 'test_X.pickle', 'rb')
+  file = open(tech_d + 'Ensemble-' + str(config) + '/' + 'test_X.pickle', 'rb')
   teach_xt = pk.load(file)
   file.close
 
