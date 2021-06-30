@@ -134,7 +134,7 @@ def main():
   hist, model = BasicModel(xTrain, yTrain, xTest, yTest, config, 0, max(np.max(xTrain),np.max(xTest)))
 
   # create directory to dump all data related to model
-  fdir = args.dump_dir + 'Model-' + args.config +'-' + args.config_id + '/'
+  fdir = args.dump_dir + 'Model-' + str(args.config) +'-' + str(args.config_id) + '/'
   os.mkdir(fdir)
 
   # saving training, testing, softmax values
