@@ -197,6 +197,8 @@ def main():
   print('xTest dim: ', xTest.shape)
   print('yTest dim: ', yTest.shape , end='\n\n')
 
+  exit(-1)
+
   # Step 3: Create, compile, train student model
   student = CreateStudent(xTrain,yTrain,config, max(np.max(xTrain), np.max(xTest)))
   plot_model(student,to_file= args.dump_dir + 'student-0.png',show_shapes=True, show_layer_names=True)
