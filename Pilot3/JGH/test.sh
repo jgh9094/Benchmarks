@@ -20,6 +20,12 @@ python single-model.py /home/60h/GEM-SUMMER-2021/Benchmarks/Data/P3B3_data/ ./ 0
 echo "RUNNING: single-model.py /home/60h/GEM-SUMMER-2021/Benchmarks/Data/P3B3_data/ ./ 0 4 4"
 python single-model.py /home/60h/GEM-SUMMER-2021/Benchmarks/Data/P3B3_data/ ./ 0 4 4
 
+echo "RUNNING: ensemble-model.py /home/60h/GEM-SUMMER-2021/Benchmarks/Data/P3B3_data/ ./ ./ 0 5 0"
+python ensemble-model.py /home/60h/GEM-SUMMER-2021/Benchmarks/Data/P3B3_data/ ./ ./ 0 5 0
+
+echo "RUNNING: python distiller.py /home/60h/GEM-SUMMER-2021/Benchmarks/Data/P3B3_data/ ./ ./ 0 0"
+python distiller.py /home/60h/GEM-SUMMER-2021/Benchmarks/Data/P3B3_data/ ./ ./ 0 0
+
 echo ""
 echo "======================"
 echo "FINISHED RUNNING FILES"
