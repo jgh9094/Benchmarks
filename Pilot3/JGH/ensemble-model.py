@@ -57,44 +57,48 @@ def GetModelConfig(config):
 def GetData(data_d,stud_d,config,con_sz):
   # Get model logit outputs for ensemble
   trainx = []
+  trainxt = []
+
   for i in range(con_sz):
     # get the teacher training/testing outputs
     dir = stud_d + 'Model-' + str(config) + '-' + str(i) + '/'
+
     file = open(dir + 'training_X.pickle', 'rb')
     ttrain_X = pk.load(file)
     trainx.append(ttrain_X)
     file.close
-    # file = open(dir + 'test_X.pickle', 'rb')
-    # ttest_X = pk.load(file)
-    # file.close
 
-  trainx = np.array(trainx)
-  print(trainx.shape)
-  print(trainx)
-  print(trainx[0])
+    file = open(dir + 'test_X.pickle', 'rb')
+    ttest_X = pk.load(file)
+    trainxt.append(ttest_X)
+    file.close
+
   X = []
-
   # loop through all data points
   for y in range(trainx.shape[1]):
     # loop through all model outputs
     row = []
     for x in range(trainx.shape[0]):
       row.append(trainx[x][y])
-
     row = np.concatenate(row)
     X.append(row)
 
-  X = np.array(X)
-  print(X.shape)
-  print(X)
-  print(X[0])
+  XT = []
+  # loop through all data points
+  for y in range(trainxt.shape[1]):
+    # loop through all model outputs
+    row = []
+    for x in range(trainxt.shape[0]):
+      row.append(trainxt[x][y])
+    row = np.concatenate(row)
+    XT.append(row)
 
-
-
+  Y  = np.load( dir + 'train_Y.npy' )[ :, 0 ]
+  YT = np.load( dir + 'test_Y.npy' )[ :, 0 ]
 
 
   # find max class number and adjust test/training y
-  # return np.array(trainX), np.array(to_categorical(trainY)), np.array(testX), np.array(to_categorical(testY))
+  return np.array(X), np.array(to_categorical(Y)), np.array(XT), np.array(to_categorical(YT))
 
 
 
