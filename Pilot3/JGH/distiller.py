@@ -194,7 +194,6 @@ def main():
   # New student model
   student = Model(student.input, output)
   student.summary()
-  plot_model(student,to_file= args.dump_dir + 'student-1.png',show_shapes=True, show_layer_names=True)
 
   # For testing use regular output probabilities - without temperature
   def acc(y_true, y_pred):
@@ -221,15 +220,25 @@ def main():
       #loss='categorical_crossentropy',
       metrics=[acc,categorical_crossentropy,soft_logloss] )
 
-  student.fit(xTrain, yTrain,
+  hist = student.fit(xTrain, yTrain,
             batch_size=256,
             epochs=EPOCHS,
             verbose=1,
             validation_data=(xTest, yTest),
             callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
 
-  print('predict:', student.predict(np.array([np.array(xTrain[0])])))
-  print('label:', yTrain[0])
+  # create directory to dump all data related to model
+  fdir = args.dump_dir + 'Distilled-' + str(args.config) + '/'
+  os.mkdir(fdir)
+  # save history files
+  df = pd.DataFrame({'val_loss': pd.Series(hist.history['val_loss']),'val_acc': pd.Series(hist.history['val_acc']),
+                      'loss': pd.Series(hist.history['loss']),'acc': pd.Series(hist.history['acc'])})
+  df.to_csv(path_or_buf= fdir + 'history' + '.csv', index=False)
+  # save ensemble
+  filename = fdir + 'model.h5'
+  student.save(filename)
+  # save picture of ensemble created
+  plot_model(student, fdir + "model.png", show_shapes=True)
 
 if __name__ == '__main__':
   main()
