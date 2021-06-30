@@ -168,7 +168,8 @@ def main():
 
   # Step 2: Create training/testing data for ensemble model
   xTrain,yTrain,xTest,yTest =  GetData(args.data_dir, args.tech_dir, args.config)
-  global SPLIT,ALPHA,TEMP = int(len(yTrain[0]) / 2), config['alpha'], config['temp']
+  global SPLIT,ALPHA,TEMP
+  SPLIT,ALPHA,TEMP = int(len(yTrain[0]) / 2), config['alpha'], config['temp']
 
   # quick descriptors of the data
   print('xTrain dim: ', xTrain.shape)
