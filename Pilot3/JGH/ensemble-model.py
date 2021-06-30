@@ -59,7 +59,7 @@ def GetData(data_d,stud_d,config,con_sz):
   trainX = []
   for i in range(con_sz):
     # get the teacher training/testing outputs
-    dir = stud_d + 'Model' + str(config) + '-' + str(i) + '/'
+    dir = stud_d + 'Model-' + str(config) + '-' + str(i) + '/'
     file = open(dir + 'training_X.pickle', 'rb')
     ttrain_X = pk.load(file)
     trainX.append(ttrain_X)
