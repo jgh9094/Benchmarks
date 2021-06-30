@@ -54,16 +54,15 @@ def GetModelConfig(config):
 
 # compute
 def knowledge_distillation_loss(y_true, y_pred, alpha):
+  # Extract the one-hot encoded values and the softs separately so that we can create two objective functions
+  y_true, y_true_softs = y_true[: , :SPLIT], y_true[: , SPLIT:]
+  y_pred, y_pred_softs = y_pred[: , :SPLIT], y_pred[: , SPLIT:]
 
-    # Extract the one-hot encoded values and the softs separately so that we can create two objective functions
-    y_true, y_true_softs = y_true[: , :SPLIT], y_true[: , SPLIT:]
-    y_pred, y_pred_softs = y_pred[: , :SPLIT], y_pred[: , SPLIT:]
+  diff_alpha = 1 - alpha
 
-    diff_alpha = 1 - alpha
+  loss = alpha * logloss(y_true,y_pred) +  diff_alpha * logloss(y_true_softs, y_pred_softs)
 
-    loss = alpha * logloss(y_true,y_pred) +  diff_alpha * logloss(y_true_softs, y_pred_softs)
-
-    return loss
+  return loss
 
 # return the data for training and testing
 # will need to modify if other means of data gathering
