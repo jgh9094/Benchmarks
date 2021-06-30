@@ -67,25 +67,35 @@ def knowledge_distillation_loss(y_true, y_pred, alpha):
 
 # return the data for training and testing
 # will need to modify if other means of data gathering
-def GetData(dir,N):
+def GetData(data_d,tech_d,config):
   # load data
-  trainX = np.load( dir + 'train_X.npy' )
-  trainY = np.load( dir + 'train_Y.npy' )[ :, 0 ]
-  testX = np.load( dir + 'test_X.npy' )
-  testY = np.load( dir + 'test_Y.npy' )[ :, 0 ]
+  X = np.load( data_d + 'train_X.npy' )
+  Y = to_categorical(np.load( data_d + 'train_Y.npy' )[ :, 0 ])
+  XT = np.load( data_d + 'test_X.npy' )
+  YT = to_categorical(np.load( data_d + 'test_Y.npy' )[ :, 0 ])
 
-  # find max class number and adjust test/training y
-  return np.array(trainX), np.array(to_categorical(trainY)), np.array(testX), np.array(to_categorical(testY))
+  # get teacher logit outputs
+  file = open(tech_d + 'training_X.pickle', 'rb')
+  teach_x = pk.load(file)
+  file.close
+  file = open(tech_d + 'test_X.pickle', 'rb')
+  teach_xt = pk.load(file)
+  file.close
+
+  # combine hard labels with teacher logits
+  Y,YT = CombineData(Y,YT,teach_x,teach_xt)
+
+  return np.array(X), np.array(to_categorical(Y)), np.array(XT), np.array(to_categorical(YT))
 
 # combine the data output with ground truth and teacher logits
 def CombineData(y,yt,ty,tyt):
   Y = []
   for i in range(len(y)):
-    Y.append(np.concatenate((y[i],ty[i%5])))
+    Y.append(np.concatenate((y[i],ty[i])))
 
   YT = []
   for i in range(len(yt)):
-    YT.append(np.concatenate((yt[i],tyt[i%5])))
+    YT.append(np.concatenate((yt[i],tyt[i])))
 
   return np.array(Y),np.array(YT)
 
@@ -128,18 +138,25 @@ def main():
   print('\n************************************************************************************', end='\n\n')
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
-  parser.add_argument('config',      type=int, help='What kd model config are we using?')
-  parser.add_argument('data_dir',    type=str, help='Where is the data located?')
-  parser.add_argument('teach_dir',   type=str, help='Where is the student data located?')
-  parser.add_argument('modl_dir',    type=str, help='Where are the models located?')
-  parser.add_argument('dump_dir',    type=str, help='Where are we dumping the output?')
-  parser.add_argument('seed',        type=int, help='Random seed for run')
+  parser.add_argument('data_dir',      type=str, help='Where is the teacher data located?')
+  parser.add_argument('tech_dir',      type=str, help='Where is the student data located?')
+  parser.add_argument('dump_dir',      type=str, help='Where are we dumping the output?')
+  parser.add_argument('config',        type=int, help='Configuration used in single model?')
+  parser.add_argument('seed',          type=int, help='Random seed for run')
 
   # Parse all the arguments & set random seed
   args = parser.parse_args()
   print('Seed:', args.seed, end='\n\n')
   np.random.seed(args.seed)
 
+  # check that dump directory exists
+  if not os.path.isdir(args.data_dir):
+    print('DATA DIRECTORY DOES NOT EXIST')
+    exit(-1)
+  # check that dump directory exists
+  if not os.path.isdir(args.tech_dir):
+    print('TEACHER DIRECTORY DOES NOT EXIST')
+    exit(-1)
   # check that dump directory exists
   if not os.path.isdir(args.dump_dir):
     print('DUMP DIRECTORY DOES NOT EXIST')
@@ -149,30 +166,29 @@ def main():
   config = GetModelConfig(args.config)
   print('run parameters:', config, end='\n\n')
 
-  print('TEACHER STATS')
 
   # Step 2: Create training/testing data for ensemble model
-  xTrain,yTrain,xTest,yTest =  GetData(args.data_dir, config['model_N'])
+  xTrain,yTrain,xTest,yTest =  GetData(args.data_dir, args.config)
   # global SPLIT, ALPHA
   SPLIT = len(yTrain[0])
   ALPHA = config['alpha']
   TEMP = config['temp']
 
 
-  # get the teacher training/testing outputs
-  file = open('./Model-1/training_X.pickle', 'rb')
-  ttrain_X = pk.load(file)
-  file.close
-  file = open('./Model-1/test_X.pickle', 'rb')
-  ttest_X = pk.load(file)
-  file.close
+  # # get the teacher training/testing outputs
+  # file = open('./Model-1/training_X.pickle', 'rb')
+  # ttrain_X = pk.load(file)
+  # file.close
+  # file = open('./Model-1/test_X.pickle', 'rb')
+  # ttest_X = pk.load(file)
+  # file.close
 
-  print(ttrain_X.shape)
-  print(ttest_X.shape)
-  print(ttrain_X[0])
+  # print(ttrain_X.shape)
+  # print(ttest_X.shape)
+  # print(ttrain_X[0])
 
-  yTrain,yTest = CombineData(yTrain,yTest,ttrain_X,ttest_X)
-  print(yTrain[0])
+  # yTrain,yTest = CombineData(yTrain,yTest,ttrain_X,ttest_X)
+  # print(yTrain[0])
 
   # quick descriptors of the data
   # could also do some fancy tricks to data before we send off to cnn
