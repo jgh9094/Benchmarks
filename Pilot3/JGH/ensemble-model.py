@@ -162,7 +162,7 @@ def main():
   print('yTest dim: ', yTest.shape , end='\n\n')
 
   # Step 3: Create ensemble predictions
-  ensemble, hist = CreateEnsemble(xTrain,yTrain,xTest,yTest,config)
+  hist,ensemble = CreateEnsemble(xTrain,yTrain,xTest,yTest,config)
 
   # create directory to dump all data related to model
   fdir = args.dump_dir + 'Ensemble-' + str(args.config) + '/'
