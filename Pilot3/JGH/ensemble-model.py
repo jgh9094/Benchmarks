@@ -62,7 +62,7 @@ def GetData(data_d,stud_d,config,con_sz):
     dir = stud_d + 'Model-' + str(config) + '-' + str(i) + '/'
     file = open(dir + 'training_X.pickle', 'rb')
     ttrain_X = pk.load(file)
-    x.append(ttrain_X)
+    trainx.append(ttrain_X)
     file.close
     # file = open(dir + 'test_X.pickle', 'rb')
     # ttest_X = pk.load(file)
