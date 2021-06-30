@@ -104,8 +104,6 @@ def GetData(data_d,stud_d,config,con_sz):
 
 # create ensemble learner
 def CreateEnsemble(x,y,xt,yt,cfg):
-  # stopping criterion
-  stopper = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)
 
   # set input layer, assuming that all input will have same shape as starting case
   input = Input(shape=([x.shape[1]]), name= "Input")
@@ -116,7 +114,8 @@ def CreateEnsemble(x,y,xt,yt,cfg):
   model = Model(inputs=input, outputs = output)
   model.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
 
-  history = model.fit(x,y, batch_size=cfg['batch_size'],epochs=EPOCHS, verbose=2, validation_data=(xt,yt), callbacks=[stopper])
+  history = model.fit(x,y, batch_size=cfg['batch_size'],epochs=EPOCHS, verbose=2, validation_data=(xt,yt),
+                      callbacks=[EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
 
   return history, model
 
@@ -164,6 +163,31 @@ def main():
 
   # Step 3: Create ensemble predictions
   ensemble, hist = CreateEnsemble(xTrain,yTrain,xTest,yTest,config)
+
+  # create directory to dump all data related to model
+  fdir = args.dump_dir + 'Ensemble-' + str(args.config) + '/'
+  os.mkdir(fdir)
+
+  # saving training, testing, softmax values
+  fp = open(fdir + 'training_X.pickle', 'wb')
+  pk.dump(ensemble.predict(xTrain), fp)
+  fp.close()
+
+  fp = open(fdir + 'test_X.pickle', 'wb')
+  pk.dump(ensemble.predict(xTest), fp)
+  fp.close()
+
+  # save history files
+  df = pd.DataFrame({'val_loss': pd.Series(hist.history['val_loss']),'val_acc': pd.Series(hist.history['val_acc']),
+                      'loss': pd.Series(hist.history['loss']),'acc': pd.Series(hist.history['acc'])})
+  df.to_csv(path_or_buf= fdir + 'history' + '.csv', index=False)
+
+  # save ensemble
+  filename = fdir + 'model.h5'
+  ensemble.save(filename)
+
+  # save picture of ensemble created
+  plot_model(ensemble, fdir + "model.png", show_shapes=True)
 
 
 if __name__ == '__main__':
