@@ -168,35 +168,14 @@ def main():
 
   # Step 2: Create training/testing data for ensemble model
   xTrain,yTrain,xTest,yTest =  GetData(args.data_dir, args.tech_dir, args.config)
-  # global SPLIT, ALPHA
-  SPLIT = len(yTrain[0])
-  ALPHA = config['alpha']
-  TEMP = config['temp']
-
-
-  # # get the teacher training/testing outputs
-  # file = open('./Model-1/training_X.pickle', 'rb')
-  # ttrain_X = pk.load(file)
-  # file.close
-  # file = open('./Model-1/test_X.pickle', 'rb')
-  # ttest_X = pk.load(file)
-  # file.close
-
-  # print(ttrain_X.shape)
-  # print(ttest_X.shape)
-  # print(ttrain_X[0])
-
-  # yTrain,yTest = CombineData(yTrain,yTest,ttrain_X,ttest_X)
-  # print(yTrain[0])
+  global SPLIT,ALPHA,TEMP = int(len(yTrain[0]) / 2), config['alpha'], config['temp']
 
   # quick descriptors of the data
-  # could also do some fancy tricks to data before we send off to cnn
   print('xTrain dim: ', xTrain.shape)
   print('yTrain dim: ', yTrain.shape)
   print('xTest dim: ', xTest.shape)
   print('yTest dim: ', yTest.shape , end='\n\n')
 
-  exit(-1)
 
   # Step 3: Create, compile, train student model
   student = CreateStudent(xTrain,yTrain,config, max(np.max(xTrain), np.max(xTest)))
@@ -204,15 +183,13 @@ def main():
 
   # Remove the softmax layer from the student network
   student.layers.pop()
-
   # Now collect the logits from the last layer
   logits = student.layers[-1].output # This is going to be a tensor. And hence it needs to pass through a Activation layer
   probs = Activation('softmax')(logits)
-
   # softed probabilities at raised temperature
   logits_T = Lambda(lambda x: x / TEMP)(logits)
   probs_T = Activation('softmax')(logits_T)
-
+  # output layer
   output = concatenate([probs, probs_T])
 
   # This is our new student model
