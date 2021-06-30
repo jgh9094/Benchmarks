@@ -75,10 +75,10 @@ def GetData(data_d,stud_d,config,con_sz):
   X = []
 
   # loop through all data points
-  for y in trainx.shape[1]:
+  for y in range(trainx.shape[1]):
     # loop through all model outputs
     row = []
-    for x in trainx.shape[0]:
+    for x in range(trainx.shape[0]):
       row.append(trainx[x][y])
 
     row = np.concatenate(row)
