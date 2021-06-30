@@ -56,22 +56,40 @@ def GetModelConfig(config):
 # con_sz: number of models trained by configuration
 def GetData(data_d,stud_d,config,con_sz):
   # Get model logit outputs for ensemble
-  trainX = []
+  trainx = []
   for i in range(con_sz):
     # get the teacher training/testing outputs
     dir = stud_d + 'Model-' + str(config) + '-' + str(i) + '/'
     file = open(dir + 'training_X.pickle', 'rb')
     ttrain_X = pk.load(file)
-    trainX.append(ttrain_X)
+    x.append(ttrain_X)
     file.close
-    file = open(dir + 'test_X.pickle', 'rb')
-    ttest_X = pk.load(file)
-    file.close
+    # file = open(dir + 'test_X.pickle', 'rb')
+    # ttest_X = pk.load(file)
+    # file.close
 
-  trainX = np.array(trainX)
-  print(trainX.shape)
-  print(trainX)
-  print(trainX[0])
+  trainx = np.array(trainx)
+  print(trainx.shape)
+  print(trainx)
+  print(trainx[0])
+  X = []
+
+  # loop through all data points
+  for y in trainx.shape[1]:
+    # loop through all model outputs
+    row = []
+    for x in trainx.shape[0]:
+      row.append(trainx[x][y])
+
+    row = np.concatenate(row)
+    X.append(row)
+
+  print(X.shape)
+  print(X)
+  print(X[0])
+
+
+
 
 
   # find max class number and adjust test/training y
