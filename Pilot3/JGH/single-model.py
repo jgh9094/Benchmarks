@@ -41,7 +41,8 @@ def GetModelConfig(config):
       'emb_l2': 0.001,
       'in_seq_len': 1500,
       'num_filters': [300,300,300,300,300],
-      'filter_sizes': [3,4,4,5,5]
+      'filter_sizes': [3,4,4,5,5],
+      'task': 0
     }
 
   else:
@@ -50,12 +51,12 @@ def GetModelConfig(config):
 
 # return the data for training and testing
 # will need to modify if other means of data gathering
-def GetData(dir):
+def GetData(dir,cfg):
   # load data
   trainX = np.load( dir + 'train_X.npy' )
-  trainY = np.load( dir + 'train_Y.npy' )[ :, 0 ]
+  trainY = np.load( dir + 'train_Y.npy' )[ :, cfg['task'] ]
   testX = np.load( dir + 'test_X.npy' )
-  testY = np.load( dir + 'test_Y.npy' )[ :, 0 ]
+  testY = np.load( dir + 'test_Y.npy' )[ :, cfg['task'] ]
 
   # find max class number and adjust test/training y
   return np.array(trainX), np.array(to_categorical(trainY)), np.array(testX), np.array(to_categorical(testY))
