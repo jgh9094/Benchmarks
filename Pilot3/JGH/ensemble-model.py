@@ -102,7 +102,23 @@ def GetData(data_d,stud_d,config,con_sz):
   # find max class number and adjust test/training y
   return np.array(X), np.array(to_categorical(Y)), np.array(XT), np.array(to_categorical(YT))
 
+# create ensemble learner
+def CreateEnsemble(x,y,xt,yt,cfg):
+  # stopping criterion
+  stopper = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)
 
+  # set input layer, assuming that all input will have same shape as starting case
+  input = Input(shape=([x.shape[1]]), name= "Input")
+  hidden = Dense(x.shape[1], activation='relu')(input)
+  output = Dense(y.shape[1], activation='softmax')(hidden)
+
+  # link, compile, and fit model
+  model = Model(inputs=input, outputs = output)
+  model.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
+
+  history = model.fit(x,y, batch_size=cfg['batch_size'],epochs=EPOCHS, verbose=2, validation_data=(xt,yt), callbacks=[stopper])
+
+  return history, model
 
 def main():
   print('\n************************************************************************************', end='\n\n')
@@ -133,11 +149,9 @@ def main():
     print('DUMP DIRECTORY DOES NOT EXIST')
     exit(-1)
 
-
   # Step 1: Get experiment configurations
   config = GetModelConfig(args.config)
   print('run parameters:', config, end='\n\n')
-
 
   # Step 2: Create training/testing data for ensemble model
   xTrain,yTrain,xTest,yTest =  GetData(args.data_dir, args.stud_dir, args.config, args.config_sz)
@@ -147,6 +161,9 @@ def main():
   print('yTrain dim: ', yTrain.shape)
   print('xTest dim: ', xTest.shape)
   print('yTest dim: ', yTest.shape , end='\n\n')
+
+  # Step 3: Create ensemble predictions
+  ensemble, hist = CreateEnsemble(xTrain,yTrain,xTest,yTest,config)
 
 
 if __name__ == '__main__':
