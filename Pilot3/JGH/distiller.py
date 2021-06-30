@@ -85,7 +85,7 @@ def GetData(data_d,tech_d,config):
   # combine hard labels with teacher logits
   Y,YT = CombineData(Y,YT,teach_x,teach_xt)
 
-  return np.array(X), np.array(to_categorical(Y)), np.array(XT), np.array(to_categorical(YT))
+  return np.array(X), np.array(Y), np.array(XT), np.array(YT)
 
 # combine the data output with ground truth and teacher logits
 def CombineData(y,yt,ty,tyt):
