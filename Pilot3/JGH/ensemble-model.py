@@ -137,11 +137,11 @@ def main():
 
   # check that data directory exists
   if not os.path.isdir(args.data_dir):
-    print('DUMP DIRECTORY DOES NOT EXIST')
+    print('DATA DIRECTORY DOES NOT EXIST')
     exit(-1)
   # check that student directory exists
   if not os.path.isdir(args.stud_dir):
-    print('DUMP DIRECTORY DOES NOT EXIST')
+    print('STUDENT DIRECTORY DOES NOT EXIST')
     exit(-1)
   # check that dump directory exists
   if not os.path.isdir(args.dump_dir):
@@ -181,14 +181,11 @@ def main():
   df = pd.DataFrame({'val_loss': pd.Series(hist.history['val_loss']),'val_acc': pd.Series(hist.history['val_acc']),
                       'loss': pd.Series(hist.history['loss']),'acc': pd.Series(hist.history['acc'])})
   df.to_csv(path_or_buf= fdir + 'history' + '.csv', index=False)
-
   # save ensemble
   filename = fdir + 'model.h5'
   ensemble.save(filename)
-
   # save picture of ensemble created
   plot_model(ensemble, fdir + "model.png", show_shapes=True)
-
 
 if __name__ == '__main__':
   main()
