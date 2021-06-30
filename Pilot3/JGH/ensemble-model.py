@@ -84,6 +84,7 @@ def GetData(data_d,stud_d,config,con_sz):
     row = np.concatenate(row)
     X.append(row)
 
+  X = np.array(X)
   print(X.shape)
   print(X)
   print(X[0])
