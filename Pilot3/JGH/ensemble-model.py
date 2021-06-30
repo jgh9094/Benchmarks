@@ -74,6 +74,7 @@ def GetData(data_d,stud_d,config,con_sz):
     file.close
 
   X = []
+  trainx = np.array(trainx)
   # loop through all data points
   for y in range(trainx.shape[1]):
     # loop through all model outputs
@@ -84,6 +85,7 @@ def GetData(data_d,stud_d,config,con_sz):
     X.append(row)
 
   XT = []
+  trainxt = np.array(trainxt)
   # loop through all data points
   for y in range(trainxt.shape[1]):
     # loop through all model outputs
