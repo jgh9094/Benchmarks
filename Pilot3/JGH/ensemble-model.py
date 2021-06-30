@@ -95,8 +95,8 @@ def GetData(data_d,stud_d,config,con_sz):
     row = np.concatenate(row)
     XT.append(row)
 
-  Y  = np.load( dir + 'train_Y.npy' )[ :, 0 ]
-  YT = np.load( dir + 'test_Y.npy' )[ :, 0 ]
+  Y  = np.load( data_d + 'train_Y.npy' )[ :, 0 ]
+  YT = np.load( data_d + 'test_Y.npy' )[ :, 0 ]
 
 
   # find max class number and adjust test/training y
