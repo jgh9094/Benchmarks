@@ -169,7 +169,7 @@ def main():
   # Step 2: Create training/testing data for ensemble model
   xTrain,yTrain,xTest,yTest =  GetData(args.data_dir, args.tech_dir, args.config)
   global SPLIT,ALPHA,TEMP
-  SPLIT,ALPHA,TEMP = int(len(yTrain[0]) / 2), config['alpha'], config['temp']
+  SPLIT,TEMP = int(len(yTrain[0]) / 2),  config['temp']
 
   # quick descriptors of the data
   print('xTrain dim: ', xTrain.shape)
@@ -180,7 +180,6 @@ def main():
 
   # Step 3: Create, compile, train student model
   student = CreateStudent(xTrain,yTrain,config, max(np.max(xTrain), np.max(xTest)))
-  plot_model(student,to_file= args.dump_dir + 'student-0.png',show_shapes=True, show_layer_names=True)
 
   # Remove the softmax layer from the student network
   student.layers.pop()
@@ -193,17 +192,10 @@ def main():
   # output layer
   output = concatenate([probs, probs_T])
 
-  # This is our new student model
+  # New student model
   student = Model(student.input, output)
-
   student.summary()
   plot_model(student,to_file= args.dump_dir + 'student-1.png',show_shapes=True, show_layer_names=True)
-
-  print(xTrain[0])
-  print(xTrain[0].shape)
-  print(xTrain[0].reshape(1500,1))
-  print(xTrain[0].reshape(1500,1).shape)
-
 
   # For testing use regular output probabilities - without temperature
   def acc(y_true, y_pred):
@@ -226,7 +218,7 @@ def main():
   student.compile(
       #optimizer=optimizers.SGD(lr=1e-1, momentum=0.9, nesterov=True),
       optimizer='adam',
-      loss=lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, 0.5),
+      loss=lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, config['alpha']),
       #loss='categorical_crossentropy',
       metrics=[acc,categorical_crossentropy,soft_logloss] )
 
