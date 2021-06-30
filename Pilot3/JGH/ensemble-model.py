@@ -68,6 +68,7 @@ def GetData(data_d,stud_d,config,con_sz):
     ttest_X = pk.load(file)
     file.close
 
+  trainX = np.array(trainX)
   print(trainX.shape)
   print(trainX)
   print(trainX[0])
