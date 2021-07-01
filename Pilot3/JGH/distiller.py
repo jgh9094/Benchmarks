@@ -118,7 +118,7 @@ def CreateStudent(x,y,cfg,em_max):
   # dense (output) layer
   dense = Dense(int(int(y.shape[1])/2), name= "Dense1")( concat_drop )
 
-  act = Activation('softmax', name="Active")(dense)
+  act = Activation('softmax')(dense)
 
   # link, compile, and fit model
   model = Model(inputs=input, outputs = act)
@@ -189,7 +189,7 @@ def main():
   logits_T = Lambda(lambda x: x / TEMP)(logits)
   probs_T = Activation('softmax')(logits_T)
   # output layer
-  output = concatenate([probs, probs_T])
+  output = concatenate([probs, probs_T], name="Active")
 
   # New student model
   student = Model(student.input, output)
