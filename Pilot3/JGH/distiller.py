@@ -118,7 +118,7 @@ def CreateStudent(x,y,cfg,em_max):
   # dense (output) layer
   dense = Dense(int(int(y.shape[1])/2), name= "Dense1")( concat_drop )
 
-  act = Activation('softmax')(dense)
+  act = Activation('softmax', name="Active")(dense)
 
   # link, compile, and fit model
   model = Model(inputs=input, outputs = act)
@@ -216,7 +216,8 @@ def main():
   student.compile(
       #optimizer=optimizers.SGD(lr=1e-1, momentum=0.9, nesterov=True),
       optimizer='adam',
-      loss=lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, config['alpha']),
+      # loss=lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, config['alpha']),
+      loss={'Active': lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, config['alpha'])},
       #loss='categorical_crossentropy',
       metrics=[acc,categorical_crossentropy,soft_logloss] )
 
