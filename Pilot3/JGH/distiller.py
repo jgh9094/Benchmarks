@@ -44,7 +44,7 @@ def GetModelConfig(config):
       'num_filters': 100,
       'filter_sizes': 3,
       'model_N': 4,
-      'alpha': 0.7,
+      'alpha': 0.5,
       'temp': 7.0
     }
 
@@ -53,14 +53,14 @@ def GetModelConfig(config):
     exit(-1)
 
 # compute
-def knowledge_distillation_loss(y_true, y_pred, alpha):
+def knowledge_distillation_loss(y_true, y_pred):
   # Extract the one-hot encoded values and the softs separately so that we can create two objective functions
   y_true, y_true_softs = y_true[: , :SPLIT], y_true[: , SPLIT:]
   y_pred, y_pred_softs = y_pred[: , :SPLIT], y_pred[: , SPLIT:]
 
-  diff_alpha = 1 - alpha
+  diff_alpha = 1 - ALPHA
 
-  loss = alpha * logloss(y_true,y_pred) +  diff_alpha * logloss(y_true_softs, y_pred_softs)
+  loss = ALPHA * logloss(y_true,y_pred) +  diff_alpha * logloss(y_true_softs, y_pred_softs)
 
   return loss
 
@@ -168,7 +168,7 @@ def main():
   # Step 2: Create training/testing data for ensemble model
   xTrain,yTrain,xTest,yTest =  GetData(args.data_dir, args.tech_dir, args.config)
   global SPLIT,ALPHA,TEMP
-  SPLIT,TEMP = int(len(yTrain[0]) / 2),  config['temp']
+  SPLIT,TEMP,ALPHA = int(len(yTrain[0]) / 2), config['temp'],config['alpha']
 
   # quick descriptors of the data
   print('xTrain dim: ', xTrain.shape)
@@ -217,7 +217,7 @@ def main():
       #optimizer=optimizers.SGD(lr=1e-1, momentum=0.9, nesterov=True),
       optimizer='adam',
       # loss=lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, config['alpha']),
-      loss={'Active': lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, config['alpha'])},
+      loss={'Active': knowledge_distillation_loss},
       #loss='categorical_crossentropy',
       metrics=[acc,categorical_crossentropy,soft_logloss] )
 
