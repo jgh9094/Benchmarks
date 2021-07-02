@@ -27,7 +27,7 @@ from keras.metrics import categorical_accuracy, top_k_categorical_accuracy
 from keras.layers.merge import Concatenate
 
 # global variables
-EPOCHS = 100
+EPOCHS = 1
 TEMP = 0
 ALPHA = 0.0
 
@@ -239,11 +239,8 @@ def main():
   X,Y,XT,YT,classes =  GetData(args.data_dir, args.tech_dir)
 
   # Step 3: Create the studen mtcnn model
-  # mtcnn = CreateMTCnn(classes, max(np.max(X),np.max(XT)),config)
-  mtcnn = CreateMTCnn([15,3,3,3], 50,config)
+  mtcnn = CreateMTCnn(classes, max(np.max(X),np.max(XT)),config)
 
-
-  # plot_model(mtcnn, "before.png", show_shapes=True)
   #Step 4: Create knowledge distilled student topology
 
   # remove the last activation layers
