@@ -27,7 +27,7 @@ from keras.metrics import categorical_accuracy, top_k_categorical_accuracy
 from keras.layers.merge import Concatenate
 
 # global variables
-EPOCHS = 100
+EPOCHS = 5
 TEMP = 0
 ALPHA = 0.0
 
@@ -310,8 +310,8 @@ def main():
             batch_size=256,
             epochs=EPOCHS,
             verbose=1,
-            validation_data=(XT, YT),
-            callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
+            validation_data=(XT, YT))
+            # callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
 
 
   # Step 5: Save everything
