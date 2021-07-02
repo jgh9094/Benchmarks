@@ -197,8 +197,8 @@ def main():
 
   for i in range(len(pred)):
     print('task:',str(i))
-    print('---len(pred[0])', len(pred[0]))
-    print('---len(pred[0][0])', len(pred[0][0]))
+    print('---len(pred['+str(i)+'])', len(pred[i]))
+    print('---len(pred['+str(i)+'][0])', len(pred[i][0]))
 
   # convert the history.history dict to a pandas DataFrame:
   hist_df = pd.DataFrame(hist.history)
