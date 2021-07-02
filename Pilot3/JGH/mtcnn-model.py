@@ -85,21 +85,21 @@ def GetData(dir):
   for t in yt:
     YT.append(to_categorical(t))
 
-  print('Number of tasks for Training Y: ',len(Y))
+  print('Training Output Data')
   i = 0
   for y in Y:
-    print('type(y), y in Y', type(y))
-    print('task', str(i), 'cases:', len(y))
-    print('task', str(i), 'classes:',len(y[0]))
+    print('task', i)
+    print('--cases:', len(y))
+    print('--classes:',len(y[0]))
     i += 1
   print()
 
-  print('Number of tasks for Testing Y: ',len(Y))
+  print('Testing Output Data')
   i = 0
   for y in YT:
-    print('type(y), y in Y', type(y))
-    print('task', str(i), 'cases:', len(y))
-    print('task', str(i), 'classes:',len(y[0]))
+    print('task', i)
+    print('--cases:', len(y))
+    print('--classes:',len(y[0]))
     i += 1
   print()
 
@@ -188,15 +188,25 @@ def main():
   os.mkdir(fdir)
 
   pred = mtcnn.predict(X)
-  print(type(pred))
+  predT = mtcnn.predict(XT)
 
+  print('Saving Training Softmax Output')
   for i in range(len(pred)):
     print('task:',str(i))
     print('--Number of data points: ', len(pred[i]))
     print('--Size of each data point', len(pred[i][0]))
 
-    fname = fdir + 'task-output-' + str(i) + '.npy'
+    fname = fdir + 'training-task-' + str(i) + '.npy'
     np.save(fname, pred[i])
+
+  print('Saving Testing Softmax Output')
+  for i in range(len(predT)):
+    print('task:',str(i))
+    print('--Number of data points: ', len(predT[i]))
+    print('--Size of each data point', len(predT[i][0]))
+
+    fname = fdir + 'testing-task-' + str(i) + '.npy'
+    np.save(fname, predT[i])
 
   # convert the history.history dict to a pandas DataFrame:
   hist_df = pd.DataFrame(hist.history)
