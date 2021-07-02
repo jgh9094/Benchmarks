@@ -287,14 +287,22 @@ def main():
   # create loss dictionary for each task
   losses = {}
   for i in range(len(classes)):
-    losses['Active'+str(i)] = lambda y_true, y_pred: knowledge_distillation_loss(y_true,y_pred,config['alpha'],classes[i])
+    l = lambda y_true, y_pred: knowledge_distillation_loss(y_true,y_pred,config['alpha'],classes[i])
+    l.__name__ = 'kdl'
+    losses['Active'+str(i)] = l
   # create metric dictionary per task
   metrics = {}
   for i in range(len(classes)):
     metrics['Active'+str(i)] = []
-    metrics['Active'+str(i)].append(lambda y_true, y_pred: acc(y_true,y_pred,classes[i]))
-    metrics['Active'+str(i)].append(lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,classes[i]))
-    metrics['Active'+str(i)].append(lambda y_true, y_pred: soft_logloss(y_true,y_pred,classes[i]))
+    l1 = lambda y_true, y_pred: acc(y_true,y_pred,classes[i])
+    l1.__name__ = 'acc'
+    metrics['Active'+str(i)].append(l1)
+    l2 = lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,classes[i])
+    l2.__name__ = 'cc'
+    metrics['Active'+str(i)].append(l2)
+    l3 = lambda y_true, y_pred: soft_logloss(y_true,y_pred,classes[i])
+    l3.__name__ = 'sl'
+    metrics['Active'+str(i)].append(l3)
 
 
   mtcnn.compile(optimizer='adam', loss=losses, metrics=metrics)
