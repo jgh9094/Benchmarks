@@ -237,6 +237,8 @@ def main():
 
   # Step 2: Create training/testing data for models
   X,Y,XT,YT,classes =  GetData(args.data_dir, args.tech_dir)
+  global TEMP
+  TEMP = config['temp']
 
   # Step 3: Create the studen mtcnn model
   mtcnn = CreateMTCnn(classes, max(np.max(X),np.max(XT)),config)
