@@ -192,10 +192,11 @@ def main():
 
   for i in range(len(pred)):
     print('task:',str(i))
-    print('---len(pred['+str(i)+'])', len(pred[i]))
-    print('---len(pred['+str(i)+'][0])', len(pred[i][0]))
-    print('---type(pred['+str(i)+'])', type(pred[i]))
-    print('---type(pred['+str(i)+'][0])', type(pred[i][0]))
+    print('--Number of data points: ', len(pred[i]))
+    print('--Size of each data point', len(pred[i][0]))
+
+    fname = fdir + 'task-output-' + str(i) + '.npy'
+    np.save(fname, pred[i])
 
   # convert the history.history dict to a pandas DataFrame:
   hist_df = pd.DataFrame(hist.history)
