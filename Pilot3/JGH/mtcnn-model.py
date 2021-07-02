@@ -27,7 +27,7 @@ from keras.utils import to_categorical
 from keras.layers.merge import Concatenate
 
 # global variables
-EPOCHS = 1
+EPOCHS = 100
 
 # return configuration for the experiment
 def GetModelConfig(config):
