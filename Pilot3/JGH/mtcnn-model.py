@@ -43,7 +43,6 @@ def GetModelConfig(config):
       'in_seq_len': 1500,
       'num_filters': [3,4,5],
       'filter_sizes': [300,300,300],
-      'model_N': 4
     }
 
   else:
@@ -212,11 +211,9 @@ def main():
   hist_df = pd.DataFrame(hist.history)
   hist_df.to_csv(path_or_buf= fdir + 'history.csv', index=False)
   print('History Saved!')
-
   # save model
   mtcnn.save(fdir + 'model.h5')
   print('Model Saved!')
-
   # save picture of model created
   plot_model(mtcnn, fdir + "model.png", show_shapes=True)
   print('Model Topology Picture Saved!')

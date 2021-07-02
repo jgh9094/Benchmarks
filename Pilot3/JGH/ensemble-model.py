@@ -177,13 +177,13 @@ def main():
   pk.dump(ensemble.predict(xTest), fp)
   fp.close()
 
-  # save history files
-  df = pd.DataFrame({'val_loss': pd.Series(hist.history['val_loss']),'val_acc': pd.Series(hist.history['val_acc']),
-                      'loss': pd.Series(hist.history['loss']),'acc': pd.Series(hist.history['acc'])})
-  df.to_csv(path_or_buf= fdir + 'history' + '.csv', index=False)
-  # save ensemble
-  filename = fdir + 'model.h5'
-  ensemble.save(filename)
+  # convert the history.history dict to a pandas DataFrame:
+  hist_df = pd.DataFrame(hist.history)
+  hist_df.to_csv(path_or_buf= fdir + 'history.csv', index=False)
+  print('History Saved!')
+  # save model
+  ensemble.save(fdir + 'model.h5')
+  print('Model Saved!')
   # save picture of ensemble created
   plot_model(ensemble, fdir + "model.png", show_shapes=True)
 

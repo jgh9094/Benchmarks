@@ -314,14 +314,21 @@ def main():
             callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
 
 
-  # begin saving everything
-  # fdir = args.dump_dir + 'MTEnsemble-' + str(args.config) + '/'
-  # os.mkdir(fdir)
+  # Step 5: Save everything
 
+  # create directory to dump all data related to model
+  fdir = args.dump_dir + 'MTDistilled-' + str(args.config) + '/'
+  os.mkdir(fdir)
+
+  # convert the history.history dict to a pandas DataFrame:
+  hist_df = pd.DataFrame(hist.history)
+  hist_df.to_csv(path_or_buf= fdir + 'history.csv', index=False)
+  print('History Saved!')
+  # save model
+  mtcnn.save(fdir + 'model.h5')
+  print('Model Saved!')
   # save picture of model created
-  # plot_model(mtcnn, fdir + "model.png", show_shapes=True)
-  # plot_model(mtcnn, "after.png", show_shapes=True)
-  print('Model Topology Picture Saved!')
+  plot_model(mtcnn, fdir + "model.png", show_shapes=True)
 
 if __name__ == '__main__':
   main()

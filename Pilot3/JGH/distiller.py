@@ -240,13 +240,14 @@ def main():
   # create directory to dump all data related to model
   fdir = args.dump_dir + 'Distilled-' + str(args.config) + '/'
   os.mkdir(fdir)
-  # save history files
-  df = pd.DataFrame({'val_loss': pd.Series(hist.history['val_loss']),'val_acc': pd.Series(hist.history['val_acc']),
-                      'loss': pd.Series(hist.history['loss']),'acc': pd.Series(hist.history['acc'])})
-  df.to_csv(path_or_buf= fdir + 'history' + '.csv', index=False)
-  # save ensemble
-  filename = fdir + 'model.h5'
-  student.save(filename)
+  # convert the history.history dict to a pandas DataFrame:
+  hist_df = pd.DataFrame(hist.history)
+  hist_df.to_csv(path_or_buf= fdir + 'history.csv', index=False)
+  print('History Saved!')
+  # save model
+  student.save(fdir + 'model.h5')
+  print('Model Saved!')
+  # save picture of model created
   # save picture of ensemble created
   plot_model(student, fdir + "model.png", show_shapes=True)
 
