@@ -178,7 +178,7 @@ def main():
     layer = 'Dense' + str(i)
     val_dict[layer] = YT[i]
 
-  history = mtcnn.fit(
+  hist = mtcnn.fit(
       x= X,
       y= Y,
       batch_size= config['batch_size'],
@@ -194,10 +194,21 @@ def main():
 
   pred = mtcnn.predict(X)
   print(type(pred))
-  print('predictions:',pred)
-  print('predictions shape:',pred.shape)
 
-  # plot_model(mtcnn, fdir + "model.png", show_shapes=True)
+  for i in range(len(pred)):
+    print('task:',str(i))
+    print('---len(pred[0])', len(pred[0]))
+    print('---len(pred[0][0])', len(pred[0][0]))
+
+  # convert the history.history dict to a pandas DataFrame:
+  hist_df = pd.DataFrame(hist.history)
+  hist_df.to_csv(path_or_buf= fdir + 'history.csv', index=False)
+
+  # save model
+  mtcnn.save(fdir + 'model.h5')
+
+  # save picture of model created
+  plot_model(mtcnn, fdir + "model.png", show_shapes=True)
 
 
 if __name__ == '__main__':
