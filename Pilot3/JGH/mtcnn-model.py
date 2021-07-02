@@ -27,7 +27,7 @@ from keras.utils import to_categorical
 from keras.layers.merge import Concatenate
 
 # global variables
-EPOCHS = 100
+EPOCHS = 1
 
 # return configuration for the experiment
 def GetModelConfig(config):
@@ -192,7 +192,10 @@ def main():
   fdir = args.dump_dir + 'MTModel-' + str(args.config) + '/'
   os.mkdir(fdir)
 
-  print('predictions:',mtcnn.predict(X))
+  pred = mtcnn.predict(X)
+  print(type(pred))
+  print('predictions:',pred)
+  print('predictions shape:',pred.shape)
 
   # plot_model(mtcnn, fdir + "model.png", show_shapes=True)
 
