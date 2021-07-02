@@ -129,12 +129,10 @@ def GetData(d_dir,t_dir):
   # number of tasks dictates number of output files expecting
   for i in range(len(classes)):
     file = t_dir + 'training-task-' + str(i) + '.npy'
-    teach_y = pk.load(file)
-    file.close
+    teach_y = np.load(file)
 
     file = t_dir + 'testing-task-' + str(i) + '.npy'
-    teach_yt = pk.load(file)
-    file.close
+    teach_yt = np.load(file)
 
     CombineData(Y[i],YT[i],teach_y,teach_yt)
 
