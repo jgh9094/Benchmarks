@@ -287,14 +287,14 @@ def main():
   # create loss dictionary for each task
   losses = {}
   for i in range(len(classes)):
-    losses['Active-'+str(i)] = lambda y_true, y_pred: knowledge_distillation_loss(y_true,y_pred,config['alpha'],classes[i])
+    losses['Active'+str(i)] = lambda y_true, y_pred: knowledge_distillation_loss(y_true,y_pred,config['alpha'],classes[i])
   # create metric dictionary per task
   metrics = {}
   for i in range(len(classes)):
-    metrics['Active-'+str(i)] = []
-    metrics['Active-'+str(i)].append(lambda y_true, y_pred: acc(y_true,y_pred,classes[i]))
-    metrics['Active-'+str(i)].append(lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,classes[i]))
-    metrics['Active-'+str(i)].append(lambda y_true, y_pred: soft_logloss(y_true,y_pred,classes[i]))
+    metrics['Active'+str(i)] = []
+    metrics['Active'+str(i)].append(lambda y_true, y_pred: acc(y_true,y_pred,classes[i]))
+    metrics['Active'+str(i)].append(lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,classes[i]))
+    metrics['Active'+str(i)].append(lambda y_true, y_pred: soft_logloss(y_true,y_pred,classes[i]))
 
 
   mtcnn.compile(optimizer='adam', loss=losses, metrics=metrics)
