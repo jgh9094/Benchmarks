@@ -27,7 +27,7 @@ from keras.metrics import categorical_accuracy, top_k_categorical_accuracy
 from keras.layers.merge import Concatenate
 
 # global variables
-EPOCHS = 1
+EPOCHS = 100
 TEMP = 0
 ALPHA = 0.0
 
