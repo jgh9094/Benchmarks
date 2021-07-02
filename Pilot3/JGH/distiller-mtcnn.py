@@ -47,7 +47,6 @@ def GetModelConfig(config):
       'filter_sizes': [150,150,150],
       'model_N': 4,
       'alpha': 0.5,
-      'temp': 7.0
     }
 
   else:
@@ -212,6 +211,7 @@ def main():
   parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
   parser.add_argument('config',       type=int, help='What model config are we using?')
   parser.add_argument('seed',         type=int, help='Random seed for run')
+  parser.add_argument('temp',         type=float, help='What temperature are we running')
 
   # Parse all the arguments & set random seed
   args = parser.parse_args()
@@ -238,7 +238,7 @@ def main():
   # Step 2: Create training/testing data for models
   X,Y,XT,YT,classes =  GetData(args.data_dir, args.tech_dir)
   global TEMP
-  TEMP = config['temp']
+  TEMP = args.temp
 
   # Step 3: Create the studen mtcnn model
   mtcnn = CreateMTCnn(classes, max(np.max(X),np.max(XT)),config)
