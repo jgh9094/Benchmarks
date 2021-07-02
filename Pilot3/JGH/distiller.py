@@ -217,13 +217,13 @@ def main():
     y_pred_soft = y_pred[:, SPLIT:]
     return logloss(y_soft, y_pred_soft)
 
-  lam = lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, config['alpha'])
+  # lam = lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, config['alpha'])
 
   student.compile(
       #optimizer=optimizers.SGD(lr=1e-1, momentum=0.9, nesterov=True),
       optimizer='adam',
-      # loss=lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, config['alpha']),
-      loss={'Active': lam},
+      loss=lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, config['alpha']),
+      # loss={'Active': lam},
       #loss='categorical_crossentropy',
       metrics=[acc,categorical_crossentropy,soft_logloss] )
 
