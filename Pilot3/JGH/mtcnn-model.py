@@ -4,8 +4,8 @@ Email: jgh9094@gmail.com
 
 export PATH=$HOME/anaconda3/bin:$PATH
 
-Python file will constuct an ensemble with the logit outputs from
-N other smaller models. We then save those ensemble output and logits.
+Python file will constuct an Multi-Task CNN with any number of tasks.
+The number of tasks is calculate during run time from the Y training and testing data.
 '''
 
 # general python imports
@@ -27,7 +27,7 @@ from keras.utils import to_categorical
 from keras.layers.merge import Concatenate
 
 # global variables
-EPOCHS = 1
+EPOCHS = 100
 
 # return configuration for the experiment
 def GetModelConfig(config):
@@ -110,6 +110,7 @@ def GetData(dir):
 
   return np.array(rawX),Y,np.array(rawXT),YT,classes
 
+# will return a mt-cnn with a certain configuration
 def CreateMTCnn(num_classes,vocab_size,cfg):
     # define network layers ----------------------------------------------------
     input_shape = tuple([cfg['in_seq_len']])
@@ -139,7 +140,6 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
     model.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
 
     return model
-
 
 def main():
   print('\n************************************************************************************', end='\n\n')
@@ -178,15 +178,10 @@ def main():
     layer = 'Dense' + str(i)
     val_dict[layer] = YT[i]
 
-  hist = mtcnn.fit(
-      x= X,
-      y= Y,
-      batch_size= config['batch_size'],
-      epochs= EPOCHS,
-      verbose= 2,
-      validation_data= ({'Input': XT}, val_dict),
-      callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)]
-    )
+  hist = mtcnn.fit(x= X, y= Y, batch_size= config['batch_size'],
+          epochs= EPOCHS, verbose= 2, validation_data= ({'Input': XT}, val_dict),
+          callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)]
+          )
 
   # create directory to dump all data related to model
   fdir = args.dump_dir + 'MTModel-' + str(args.config) + '/'
@@ -203,13 +198,15 @@ def main():
   # convert the history.history dict to a pandas DataFrame:
   hist_df = pd.DataFrame(hist.history)
   hist_df.to_csv(path_or_buf= fdir + 'history.csv', index=False)
+  print('History Saved!')
 
   # save model
   mtcnn.save(fdir + 'model.h5')
+  print('Model Saved!')
 
   # save picture of model created
   plot_model(mtcnn, fdir + "model.png", show_shapes=True)
-
+  print('Model Topology Picture Saved!')
 
 if __name__ == '__main__':
   main()
