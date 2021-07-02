@@ -95,11 +95,49 @@ def GetData(d_dir,t_dir):
     yt[t] = rawYT[:,t]
 
   # make to catagorical data and pack up
-  Y,YT = [],[]
+  tempY,tempYT = [],[]
   for t in y:
-    Y.append(to_categorical(t))
+    tempY.append(to_categorical(t))
   for t in yt:
-    YT.append(to_categorical(t))
+    tempYT.append(to_categorical(t))
+
+  print('Temp Training Output Data')
+  i = 0
+  for y in tempY:
+    print('task', i)
+    print('--cases:', len(y))
+    print('--classes:',len(y[0]))
+    i += 1
+  print()
+
+  print('Temp Testing Output Data')
+  i = 0
+  for y in tempYT:
+    print('task', i)
+    print('--cases:', len(y))
+    print('--classes:',len(y[0]))
+    i += 1
+  print()
+
+  # number of classes per task
+  classes = []
+  for y in tempY:
+    classes.append(len(y[0]))
+
+  # append teacher softmax outputs to the hard label output
+  Y,YT = [],[]
+  # number of tasks dictates number of output files expecting
+  for i in range(len(classes)):
+    # load data
+    file = t_dir + 'training-task-' + str(i) + '.npy'
+    teach_y = np.load(file)
+    file = t_dir + 'testing-task-' + str(i) + '.npy'
+    teach_yt = np.load(file)
+
+    # combine and save data
+    y,yt = CombineData(tempY[i],tempYT[i],teach_y,teach_yt)
+    Y.append(y)
+    YT.append(yt)
 
   print('Training Output Data')
   i = 0
@@ -118,24 +156,6 @@ def GetData(d_dir,t_dir):
     print('--classes:',len(y[0]))
     i += 1
   print()
-
-  # number of classes per task
-  classes = []
-  for y in Y:
-    classes.append(len(y[0]))
-
-  # append teacher softmax outputs to the hard label output
-  teacher_out = []
-  # number of tasks dictates number of output files expecting
-  for i in range(len(classes)):
-    file = t_dir + 'training-task-' + str(i) + '.npy'
-    teach_y = np.load(file)
-
-    file = t_dir + 'testing-task-' + str(i) + '.npy'
-    teach_yt = np.load(file)
-
-    CombineData(Y[i],YT[i],teach_y,teach_yt)
-
 
   return np.array(rawX),Y,np.array(rawXT),YT,classes
 
