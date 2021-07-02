@@ -53,14 +53,15 @@ def GetModelConfig(config):
     exit(-1)
 
 # compute
-def knowledge_distillation_loss(y_true, y_pred):
+# def knowledge_distillation_loss(y_true, y_pred):
+def knowledge_distillation_loss(y_true, y_pred,alpha):
   # Extract the one-hot encoded values and the softs separately so that we can create two objective functions
   y_true, y_true_softs = y_true[: , :SPLIT], y_true[: , SPLIT:]
   y_pred, y_pred_softs = y_pred[: , :SPLIT], y_pred[: , SPLIT:]
 
-  diff_alpha = 1 - ALPHA
+  diff_alpha = 1 - alpha
 
-  loss = ALPHA * logloss(y_true,y_pred) +  diff_alpha * logloss(y_true_softs, y_pred_softs)
+  loss = alpha * logloss(y_true,y_pred) +  diff_alpha * logloss(y_true_softs, y_pred_softs)
 
   return loss
 
@@ -132,7 +133,7 @@ def CreateStudent(x,y,cfg,em_max):
 
   return model
 
-
+# main program that has workflow
 def main():
   print('\n************************************************************************************', end='\n\n')
   # generate and get arguments
@@ -180,6 +181,9 @@ def main():
   # Step 3: Create, compile, train student model
   student = CreateStudent(xTrain,yTrain,config, max(np.max(xTrain), np.max(xTest)))
 
+
+  # Step 4: Create knowledge distilled student topology
+
   # Remove the softmax layer from the student network
   student.layers.pop()
   # Now collect the logits from the last layer
@@ -213,11 +217,13 @@ def main():
     y_pred_soft = y_pred[:, SPLIT:]
     return logloss(y_soft, y_pred_soft)
 
+  lam = lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, config['alpha'])
+
   student.compile(
       #optimizer=optimizers.SGD(lr=1e-1, momentum=0.9, nesterov=True),
       optimizer='adam',
       # loss=lambda y_true, y_pred: knowledge_distillation_loss(y_true, y_pred, config['alpha']),
-      loss={'Active': knowledge_distillation_loss},
+      loss={'Active': lam},
       #loss='categorical_crossentropy',
       metrics=[acc,categorical_crossentropy,soft_logloss] )
 
@@ -227,6 +233,9 @@ def main():
             verbose=1,
             validation_data=(xTest, yTest),
             callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
+
+
+  # Step 5: Save everything
 
   # create directory to dump all data related to model
   fdir = args.dump_dir + 'Distilled-' + str(args.config) + '/'
