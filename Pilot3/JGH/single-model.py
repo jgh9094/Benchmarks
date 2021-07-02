@@ -51,12 +51,12 @@ def GetModelConfig(config):
 
 # return the data for training and testing
 # will need to modify if other means of data gathering
-def GetData(dir,cfg):
+def GetData(dir,task):
   # load data
   trainX = np.load( dir + 'train_X.npy' )
-  trainY = np.load( dir + 'train_Y.npy' )[ :, cfg['task'] ]
+  trainY = np.load( dir + 'train_Y.npy' )[ :, task ]
   testX = np.load( dir + 'test_X.npy' )
-  testY = np.load( dir + 'test_Y.npy' )[ :, cfg['task'] ]
+  testY = np.load( dir + 'test_Y.npy' )[ :, task ]
 
   # find max class number and adjust test/training y
   return np.array(trainX), np.array(to_categorical(trainY)), np.array(testX), np.array(to_categorical(testY))
@@ -67,6 +67,8 @@ def GetData(dir,cfg):
 # cfg: configuration we are using for this experiment
 # em_max: embedding layer maximum
 def BasicModel(x,y,xT,yT,cfg,cid,em_max):
+  print('Using Configuration ID:', cid)
+
   # word vector lengths
   wv_mat = np.random.randn( em_max + 1, cfg['wv_len'] ).astype( 'float32' ) * 0.1
   # validation data
@@ -97,7 +99,6 @@ def BasicModel(x,y,xT,yT,cfg,cid,em_max):
 
   return history, model
 
-
 def main():
   print('\n************************************************************************************', end='\n\n')
   # generate and get arguments
@@ -107,6 +108,7 @@ def main():
   parser.add_argument('config',       type=int, help='What model config are we using?')
   parser.add_argument('config_id',    type=int, help='What model config are we using?')
   parser.add_argument('seed',         type=int, help='Random seed for run')
+  parser.add_argument('task',         type=int, help='What task are we grabbing')
 
   # Parse all the arguments & set random seed
   args = parser.parse_args()
@@ -123,7 +125,7 @@ def main():
   print('run parameters:', config, end='\n\n')
 
   # Step 2: Create training/testing data for models
-  xTrain,yTrain,xTest,yTest =  GetData(args.data_dir)
+  xTrain,yTrain,xTest,yTest =  GetData(args.data_dir,args.task)
 
   # quick descriptors of the data
   print('xTrain dim: ', xTrain.shape)
@@ -132,9 +134,9 @@ def main():
   print('yTest dim: ', yTest.shape , end='\n\n')
 
   # Step 3: Generate, create, and store  models
-  hist, model = BasicModel(xTrain, yTrain, xTest, yTest, config, 0, max(np.max(xTrain),np.max(xTest)))
+  hist, model = BasicModel(xTrain, yTrain, xTest, yTest, config, args.config_id, max(np.max(xTrain),np.max(xTest)))
 
-  # create directory to dump all data related to model
+  # create directory to dump all training/testing data predictions
   fdir = args.dump_dir + 'Model-' + str(args.config) +'-' + str(args.config_id) + '/'
   os.mkdir(fdir)
 
@@ -148,17 +150,18 @@ def main():
   fp.close()
 
   # save history files
-  df = pd.DataFrame({'val_loss': pd.Series(hist.history['val_loss']),'val_acc': pd.Series(hist.history['val_acc']),
-                      'loss': pd.Series(hist.history['loss']),'acc': pd.Series(hist.history['acc'])})
+  df = pd.DataFrame(hist.history)
   df.to_csv(path_or_buf= fdir + 'history' + '.csv', index=False)
+  print('History Saved!')
 
   # save model
   filename = fdir + 'model.h5'
   model.save(filename)
+  print('Model Saved!')
 
   # save picture of model created
   plot_model(model, fdir + "model.png", show_shapes=True)
-
+  print('Model Topology Picture Saved!')
 
 if __name__ == '__main__':
   main()
