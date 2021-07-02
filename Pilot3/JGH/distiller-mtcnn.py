@@ -24,10 +24,10 @@ from keras.utils import to_categorical,plot_model
 from keras.losses import categorical_crossentropy as logloss
 from keras import backend as K
 from keras.metrics import categorical_accuracy, top_k_categorical_accuracy
+from keras.layers.merge import Concatenate
 
 # global variables
 EPOCHS = 100
-SPLIT = 0
 TEMP = 0
 ALPHA = 0.0
 
@@ -43,8 +43,8 @@ def GetModelConfig(config):
       'wv_len': 300,
       'emb_l2': 0.001,
       'in_seq_len': 1500,
-      'num_filters': 100,
-      'filter_sizes': 3,
+      'num_filters': [3,4,5],
+      'filter_sizes': [150,150,150],
       'model_N': 4,
       'alpha': 0.5,
       'temp': 7.0
@@ -55,14 +55,14 @@ def GetModelConfig(config):
     exit(-1)
 
 # compute
-def knowledge_distillation_loss(y_true, y_pred):
+def knowledge_distillation_loss(y_true, y_pred,alpha,split):
   # Extract the one-hot encoded values and the softs separately so that we can create two objective functions
-  y_true, y_true_softs = y_true[: , :SPLIT], y_true[: , SPLIT:]
-  y_pred, y_pred_softs = y_pred[: , :SPLIT], y_pred[: , SPLIT:]
+  y_true, y_true_softs = y_true[: , :split], y_true[: , split:]
+  y_pred, y_pred_softs = y_pred[: , :split], y_pred[: , split:]
 
-  diff_alpha = 1 - ALPHA
+  diff_alpha = 1 - alpha
 
-  loss = ALPHA * logloss(y_true,y_pred) +  diff_alpha * logloss(y_true_softs, y_pred_softs)
+  loss = alpha * logloss(y_true,y_pred) +  diff_alpha * logloss(y_true_softs, y_pred_softs)
 
   return loss
 
@@ -159,7 +159,6 @@ def GetData(d_dir,t_dir):
 
   return np.array(rawX),Y,np.array(rawXT),YT,classes
 
-
 # combine the data output with ground truth and teacher logits
 def CombineData(y,yt,ty,tyt):
   Y = []
@@ -172,6 +171,37 @@ def CombineData(y,yt,ty,tyt):
 
   return np.array(Y),np.array(YT)
 
+# will return a mt-cnn with a certain configuration
+def CreateMTCnn(num_classes,vocab_size,cfg):
+    # define network layers ----------------------------------------------------
+    input_shape = tuple([cfg['in_seq_len']])
+    model_input = Input(shape=input_shape, name= "Input")
+    # embedding lookup
+    emb_lookup = Embedding(vocab_size, cfg['wv_len'], input_length=cfg['in_seq_len'],
+                           name="embedding", embeddings_regularizer=l2(cfg['emb_l2']))(model_input)
+
+    # convolutional layer and dropout
+    conv_blocks = []
+    for ith_filter,sz in enumerate(cfg['filter_sizes']):
+        conv = Conv1D(filters=cfg['num_filters'][ ith_filter ], kernel_size=sz, padding="same",
+                             activation="relu", strides=1, name=str(ith_filter) + "_thfilter")(emb_lookup)
+        conv_blocks.append(GlobalMaxPooling1D()(conv))
+
+    concat = Concatenate()(conv_blocks) if len(conv_blocks) > 1 else conv_blocks[0]
+    concat_drop = Dropout(cfg['dropout'])(concat)
+
+    # different dense layer per tasks
+    FC_models = []
+    for i in range(len(num_classes)):
+        dense = Dense(num_classes[i], name= "Dense"+str(i), )( concat_drop )
+        act = Activation('softmax', name= "Active"+str(i))(dense)
+        FC_models.append(act)
+
+    # the multitsk model
+    model = Model(inputs=model_input, outputs = FC_models)
+    model.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
+
+    return model
 
 def main():
   print('\n************************************************************************************', end='\n\n')
@@ -189,6 +219,14 @@ def main():
   np.random.seed(args.seed)
 
   # check that dump directory exists
+  if not os.path.isdir(args.data_dir):
+    print('DATA DIRECTORY DOES NOT EXIST')
+    exit(-1)
+  # check that dump directory exists
+  if not os.path.isdir(args.tech_dir):
+    print('TEACHER DIRECTORY DOES NOT EXIST')
+    exit(-1)
+  # check that dump directory exists
   if not os.path.isdir(args.dump_dir):
     print('DUMP DIRECTORY DOES NOT EXIST')
     exit(-1)
@@ -200,6 +238,83 @@ def main():
   # Step 2: Create training/testing data for models
   X,Y,XT,YT,classes =  GetData(args.data_dir, args.tech_dir)
 
+  # Step 3: Create the studen mtcnn model
+  # mtcnn = CreateMTCnn(classes, max(np.max(X),np.max(XT)),config)
+  mtcnn = CreateMTCnn([15,3,3,3], 50,config)
+
+
+  # plot_model(mtcnn, "before.png", show_shapes=True)
+  #Step 4: Create knowledge distilled student topology
+
+  # remove the last activation layers
+  for i in range(4):
+    mtcnn.layers.pop()
+
+  # add new distlled layers
+  new_out = []
+  for i in range(len(classes)):
+    logits = mtcnn.get_layer('Dense'+str(i)).output
+    probs = Activation('softmax', name='Logits'+str(i))(logits)
+    # softed probabilities at raised temperature
+    logits_T = Lambda(lambda x: x / TEMP)(logits)
+    probs_T = Activation('softmax', name='TLogits'+str(i))(logits_T)
+    # output layer
+    output = concatenate([probs, probs_T], name="Active"+str(i))
+    new_out.append(output)
+
+  # mtcnn distillation model ready to go!
+  mtcnn = Model(mtcnn.input, new_out)
+  mtcnn.summary()
+
+  # For testing use regular output probabilities - without temperature
+  def acc(y_true, y_pred, split):
+      y_true = y_true[:, :split]
+      y_pred = y_pred[:, :split]
+      return categorical_accuracy(y_true, y_pred)
+
+  def categorical_crossentropy(y_true, y_pred, split):
+    y_true = y_true[:, :split]
+    y_pred = y_pred[:, :split]
+    return logloss(y_true, y_pred)
+
+  # logloss with only soft probabilities and targets
+  def soft_logloss(y_true, y_pred, split):
+    logits = y_true[:, split:]
+    y_soft = K.softmax(logits/TEMP)
+    y_pred_soft = y_pred[:, split:]
+    return logloss(y_soft, y_pred_soft)
+
+  # create loss dictionary for each task
+  losses = {}
+  for i in range(len(classes)):
+    losses['Active-'+str(i)] = lambda y_true, y_pred: knowledge_distillation_loss(y_true,y_pred,config['alpha'],classes[i])
+  # create metric dictionary per task
+  metrics = {}
+  for i in range(len(classes)):
+    metrics['Active-'+str(i)] = []
+    metrics['Active-'+str(i)].append(lambda y_true, y_pred: acc(y_true,y_pred,classes[i]))
+    metrics['Active-'+str(i)].append(lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,classes[i]))
+    metrics['Active-'+str(i)].append(lambda y_true, y_pred: soft_logloss(y_true,y_pred,classes[i]))
+
+
+  mtcnn.compile(optimizer='adam', loss=losses, metrics=metrics)
+
+  hist = mtcnn.fit(X, Y,
+            batch_size=256,
+            epochs=EPOCHS,
+            verbose=1,
+            validation_data=(XT, YT),
+            callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
+
+
+  # begin saving everything
+  # fdir = args.dump_dir + 'MTEnsemble-' + str(args.config) + '/'
+  # os.mkdir(fdir)
+
+  # save picture of model created
+  # plot_model(mtcnn, fdir + "model.png", show_shapes=True)
+  # plot_model(mtcnn, "after.png", show_shapes=True)
+  print('Model Topology Picture Saved!')
 
 if __name__ == '__main__':
   main()
