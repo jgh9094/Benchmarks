@@ -188,11 +188,11 @@ def main():
       callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)]
     )
 
-  print('history:', history.history)
+  # create directory to dump all data related to model
+  fdir = args.dump_dir + 'MTModel-' + str(args.config) + '/'
+  os.mkdir(fdir)
 
-
-
-  # fdir = args.dump_dir
+  print('predictions:',mtcnn.predict(X))
 
   # plot_model(mtcnn, fdir + "model.png", show_shapes=True)
 
