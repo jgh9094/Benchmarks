@@ -42,8 +42,8 @@ def GetData(dir,task):
   return np.array(trainX), np.array(to_categorical(trainY)), np.array(testX), np.array(to_categorical(testY))
 
 # transform data into expected format
-def TransformData(xTrain, xVal, xTest, yTrain, yVal, yTest):
-  return np.array(xTrain), np.array(xVal), np.array(xTest), np.array(to_categorical(yTrain)), np.array(to_categorical(yVal)), np.array(to_categorical(yTest))
+def TransformData(X, XV, XT, Y, YV, YT):
+  return np.array(X), np.array(XV), np.array(XT), np.array(to_categorical(Y)), np.array(to_categorical(YV)), np.array(to_categorical(YT))
 
 # return configuration for the experiment
 def GetModelConfig(config):
@@ -124,10 +124,10 @@ def BasicModel(x,y,xV,yV,cfg,cid,em_max):
 def main():
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
-  parser.add_argument('data_dir',     type=str, help='Where is the data located?')
+  # parser.add_argument('data_dir',     type=str, help='Where is the data located?')
   parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
   parser.add_argument('config',       type=int, help='What model config are we using?')
-  parser.add_argument('config_id',    type=int, help='What model config are we using?')
+  parser.add_argument('config_id',    type=int, help='What model config id are we using?')
   parser.add_argument('seed',         type=int, help='Random seed for run')
   parser.add_argument('task',         type=int, help='What task are we grabbing')
 
@@ -146,20 +146,20 @@ def main():
   print('run parameters:', config, end='\n\n')
 
   # Step 2: Get and transform training/testing data for models
-  # xTrain,yTrain,xTest,yTest =  GetData(args.data_dir,args.task)
-  xTrain, xVal, xTest, yTrain, yVal, yTest = loadSingleTask(GetTask(args.task),print_shapes = True)
-  xTrain, xVal, xTest, yTrain, yVal, yTest = TransformData(xTrain, xVal, xTest, yTrain, yVal, yTest)
+  # X,Y,XT,YT =  GetData(args.data_dir,args.task)
+  X, XV, XT, Y, YV, YT = loadSingleTask(GetTask(args.task),print_shapes = True)
+  X, XV, XT, Y, YV, YT = TransformData(X, XV, XT, Y, YV, YT)
 
   # quick descriptors of the data
-  print('xTrain dim: ', xTrain.shape)
-  print('yTrain dim: ', yTrain.shape)
-  print('xVal dim: ', xVal.shape)
-  print('yVal dim: ', yVal.shape)
-  print('xTest dim: ', xTest.shape)
-  print('yTest dim: ', yTest.shape , end='\n\n')
+  print('X dim: ', X.shape)
+  print('Y dim: ', Y.shape)
+  print('XV dim: ', XV.shape)
+  print('YV dim: ', YV.shape)
+  print('XT dim: ', XT.shape)
+  print('YT dim: ', YT.shape , end='\n\n')
 
   # Step 3: Generate, create, and store  models
-  hist, model = BasicModel(xTrain, yTrain, xVal, yVal, config, args.config_id, max(np.max(xTrain),np.max(xTest)) + 1)
+  hist, model = BasicModel(X, Y, XV, YV, config, args.config_id, max(np.max(X),np.max(XT)) + 1)
 
   # create directory to dump all training/testing data predictions
   fdir = args.dump_dir + 'Model-' + str(args.config) +'-' + str(args.config_id) + '/'
@@ -167,17 +167,20 @@ def main():
 
   # saving training, testing, softmax values
   fp = open(fdir + 'training_X.pickle', 'wb')
-  pk.dump(model.predict(xTrain), fp)
+  pk.dump(model.predict(X), fp)
   fp.close()
+  print('Training X Predictions Saved!')
 
   fp = open(fdir + 'val_X.pickle', 'wb')
-  pk.dump(model.predict(xVal), fp)
+  pk.dump(model.predict(XV), fp)
   fp.close()
+  print('Validation X Predictions Saved!')
 
   # save model predictions on testing data
   fp = open(fdir + 'test_X.pickle', 'wb')
-  pk.dump(model.predict(xTest), fp)
+  pk.dump(model.predict(XT), fp)
   fp.close()
+  print('Testing X Predictions Saved!')
 
   # save history files
   df = pd.DataFrame(hist.history)
