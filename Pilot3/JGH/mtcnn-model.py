@@ -231,7 +231,8 @@ def main():
   # check that dump directory exists
   if not os.path.isdir(args.dump_dir):
     print('DUMP DIRECTORY DOES NOT EXIST', flush= True)
-    exit(-1)
+    args.dump_dir = "//gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/joseOutput/"
+    #exit(-1)
 
   # Step 1: Get experiment configurations
   config = GetModelConfig(args.config)
