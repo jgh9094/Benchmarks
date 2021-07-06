@@ -25,6 +25,8 @@ from keras.utils import plot_model
 from keras.callbacks import EarlyStopping
 from keras.utils import to_categorical
 
+from loaddata6reg import loadSingleTask
+
 # global variables
 EPOCHS = 100
 
@@ -51,14 +53,14 @@ def GetModelConfig(config):
   if config == 0:
     return {
       'learning_rate': 0.01,
-      'batch_size': 10,
+      'batch_size': 256,
       'dropout': 0.5,
       'optimizer': 'adam',
       'wv_len': 300,
       'emb_l2': 0.001,
       'in_seq_len': 1500,
-      'num_filters': [300,300,300,300,300],
-      'filter_sizes': [3,4,4,5,5],
+      'num_filters': [300,300,300],
+      'filter_sizes': [3,4,5],
       'task': 0
     }
 
@@ -82,10 +84,12 @@ def GetTask(t):
     print('UNKNOWN TASK')
     exit(-1)
 
+'''
 # @Kevin todo
 def loadSingleTask():
 
   return 0
+'''
 
 # Create models, save them and their outputs
 # x,y: training input, output
@@ -119,7 +123,7 @@ def BasicModel(x,y,xV,yV,cfg,cid,em_max):
   model = Model(inputs=input, outputs = outlayer)
   model.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
 
-  history = model.fit(x,y, batch_size=cfg['batch_size'],epochs=EPOCHS, verbose=2, validation_data=validation_data,
+  history = model.fit(x,y, batch_size=cfg['batch_size'],epochs=EPOCHS, verbose=1, validation_data=validation_data,
               callbacks=[EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
 
   return history, model
@@ -136,17 +140,17 @@ def main():
 
   # Parse all the arguments & set random seed
   args = parser.parse_args()
-  print('Seed:', args.seed, end='\n\n')
+  print('Seed:', args.seed, end='\n\n', flush= True )
   np.random.seed(args.seed)
 
   # check that dump directory exists
   if not os.path.isdir(args.dump_dir):
-    print('DUMP DIRECTORY DOES NOT EXIST')
+    print('DUMP DIRECTORY DOES NOT EXIST', flush= True)
     exit(-1)
 
   # Step 1: Get experiment configurations
   config = GetModelConfig(args.config)
-  print('run parameters:', config, end='\n\n')
+  print('run parameters:', config, end='\n\n', flush= True)
 
   # Step 2: Get and transform training/testing data for models
   # X,Y,XT,YT =  GetData(args.data_dir,args.task)
@@ -154,12 +158,12 @@ def main():
   X, XV, XT, Y, YV, YT = TransformData(X, XV, XT, Y, YV, YT)
 
   # quick descriptors of the data
-  print('X dim: ', X.shape)
-  print('Y dim: ', Y.shape)
-  print('XV dim: ', XV.shape)
-  print('YV dim: ', YV.shape)
-  print('XT dim: ', XT.shape)
-  print('YT dim: ', YT.shape , end='\n\n')
+  print('X dim: ', X.shape, flush= True)
+  print('Y dim: ', Y.shape, flush= True)
+  print('XV dim: ', XV.shape, flush= True)
+  print('YV dim: ', YV.shape, flush= True)
+  print('XT dim: ', XT.shape, flush= True)
+  print('YT dim: ', YT.shape , end='\n\n', flush= True)
 
   # Step 3: Generate, create, and store  models
   hist, model = BasicModel(X, Y, XV, YV, config, args.config_id, max(np.max(X),np.max(XT)) + 1)
@@ -172,32 +176,32 @@ def main():
   fp = open(fdir + 'training_X.pickle', 'wb')
   pk.dump(model.predict(X), fp)
   fp.close()
-  print('Training X Predictions Saved!')
+  print('Training X Predictions Saved!', flush= True)
 
   fp = open(fdir + 'val_X.pickle', 'wb')
   pk.dump(model.predict(XV), fp)
   fp.close()
-  print('Validation X Predictions Saved!')
+  print('Validation X Predictions Saved!', flush= True)
 
   # save model predictions on testing data
   fp = open(fdir + 'test_X.pickle', 'wb')
   pk.dump(model.predict(XT), fp)
   fp.close()
-  print('Testing X Predictions Saved!')
+  print('Testing X Predictions Saved!', flush= True)
 
   # save history files
   df = pd.DataFrame(hist.history)
   df.to_csv(path_or_buf= fdir + 'history' + '.csv', index=False)
-  print('History Saved!')
+  print('History Saved!', flush= True)
 
   # save model
   filename = fdir + 'model.h5'
   model.save(filename)
-  print('Model Saved!')
+  print('Model Saved!', flush= True)
 
   # save picture of model created
   plot_model(model, fdir + "model.png", show_shapes=True)
-  print('Model Topology Picture Saved!')
+  print('Model Topology Picture Saved!', flush= True)
 
 if __name__ == '__main__':
   main()
