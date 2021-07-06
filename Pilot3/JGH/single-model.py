@@ -28,6 +28,23 @@ from keras.utils import to_categorical
 # global variables
 EPOCHS = 100
 
+# return the data for training and testing
+# will need to modify if other means of data gathering
+# USED FOR LOCAL TESTING PURPOSES: EXPECTING DATA TO BE ON LOCAL MACHINE
+def GetData(dir,task):
+  # load data
+  trainX = np.load( dir + 'train_X.npy' )
+  trainY = np.load( dir + 'train_Y.npy' )[ :, task ]
+  testX = np.load( dir + 'test_X.npy' )
+  testY = np.load( dir + 'test_Y.npy' )[ :, task ]
+
+  # find max class number and adjust test/training y
+  return np.array(trainX), np.array(to_categorical(trainY)), np.array(testX), np.array(to_categorical(testY))
+
+# transform data into expected format
+def TransformData(xTrain, xVal, xTest, yTrain, yVal, yTest):
+  return np.array(xTrain), np.array(xVal), np.array(xTest), np.array(to_categorical(yTrain)), np.array(to_categorical(yVal)), np.array(to_categorical(yTest))
+
 # return configuration for the experiment
 def GetModelConfig(config):
   # testing configuration
@@ -49,37 +66,41 @@ def GetModelConfig(config):
     print('MODEL CONFIGURATION DOES NOT EXIST')
     exit(-1)
 
-# return the data for training and testing
-# will need to modify if other means of data gathering
-def GetData(dir,task):
-  # load data
-  trainX = np.load( dir + 'train_X.npy' )
-  trainY = np.load( dir + 'train_Y.npy' )[ :, task ]
-  testX = np.load( dir + 'test_X.npy' )
-  testY = np.load( dir + 'test_Y.npy' )[ :, task ]
+# return task we are doing
+def GetTask(t):
+  if t == 0:
+    return'behavior'
+  elif t == 1:
+    return 'histology'
+  elif t == 2:
+    return 'laterality site'
+  elif t == 3:
+    return 'subsite'
+  else:
+    print('UNKNOWN TASK')
+    exit(-1)
 
-  # find max class number and adjust test/training y
-  return np.array(trainX), np.array(to_categorical(trainY)), np.array(testX), np.array(to_categorical(testY))
+def loadSingleTask():
+
+  return 0
 
 # Create models, save them and their outputs
 # x,y: training input, output
-# xT,yT: testing input, output
+# xV,yV: testing input, output
 # cfg: configuration we are using for this experiment
 # em_max: embedding layer maximum
-def BasicModel(x,y,xT,yT,cfg,cid,em_max):
+def BasicModel(x,y,xV,yV,cfg,cid,em_max):
   print('Using Configuration ID:', cid)
 
   # word vector lengths
-  wv_mat = np.random.randn( em_max + 1, cfg['wv_len'] ).astype( 'float32' ) * 0.1
+  # wv_mat = np.random.randn( em_max, cfg['wv_len'] ).astype( 'float32' ) * 0.1
   # validation data
-  validation_data = ( { 'Input-' + str(cid+1): xT }, {'Dense-' + str(cid+1) : yT})
-  # stopping criterion
-  stopper = EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)
+  validation_data = ( { 'Input-' + str(cid+1): xV }, {'Dense-' + str(cid+1) : yV})
 
   # set input layer, assuming that all input will have same shape as starting case
   input = Input(shape=([x.shape[1]]), name= "Input-" + str(cid+1))
   # embedding lookup
-  embed = Embedding(len(wv_mat), cfg['wv_len'], input_length=cfg['in_seq_len'], name="embedding-"+ str(cid+1),
+  embed = Embedding(em_max, cfg['wv_len'], input_length=cfg['in_seq_len'], name="embedding-"+ str(cid+1),
                       embeddings_regularizer=l2(cfg['emb_l2']))(input)
   # convolutional layer
   conv = Conv1D(filters=cfg['num_filters'][cid], kernel_size=cfg['filter_sizes'][cid], padding="same",
@@ -95,12 +116,12 @@ def BasicModel(x,y,xT,yT,cfg,cid,em_max):
   model = Model(inputs=input, outputs = outlayer)
   model.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
 
-  history = model.fit(x,y, batch_size=cfg['batch_size'],epochs=EPOCHS, verbose=2, validation_data=validation_data, callbacks=[stopper])
+  history = model.fit(x,y, batch_size=cfg['batch_size'],epochs=EPOCHS, verbose=2, validation_data=validation_data,
+              callbacks=[EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
 
   return history, model
 
 def main():
-  print('\n************************************************************************************', end='\n\n')
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
   parser.add_argument('data_dir',     type=str, help='Where is the data located?')
@@ -124,17 +145,21 @@ def main():
   config = GetModelConfig(args.config)
   print('run parameters:', config, end='\n\n')
 
-  # Step 2: Create training/testing data for models
-  xTrain,yTrain,xTest,yTest =  GetData(args.data_dir,args.task)
+  # Step 2: Get and transform training/testing data for models
+  # xTrain,yTrain,xTest,yTest =  GetData(args.data_dir,args.task)
+  xTrain, xVal, xTest, yTrain, yVal, yTest = loadSingleTask(GetTask(args.task),print_shapes = True)
+  xTrain, xVal, xTest, yTrain, yVal, yTest = TransformData(xTrain, xVal, xTest, yTrain, yVal, yTest)
 
   # quick descriptors of the data
   print('xTrain dim: ', xTrain.shape)
   print('yTrain dim: ', yTrain.shape)
+  print('xVal dim: ', xVal.shape)
+  print('yVal dim: ', yVal.shape)
   print('xTest dim: ', xTest.shape)
   print('yTest dim: ', yTest.shape , end='\n\n')
 
   # Step 3: Generate, create, and store  models
-  hist, model = BasicModel(xTrain, yTrain, xTest, yTest, config, args.config_id, max(np.max(xTrain),np.max(xTest)))
+  hist, model = BasicModel(xTrain, yTrain, xVal, yVal, config, args.config_id, max(np.max(xTrain),np.max(xTest)) + 1)
 
   # create directory to dump all training/testing data predictions
   fdir = args.dump_dir + 'Model-' + str(args.config) +'-' + str(args.config_id) + '/'
@@ -145,6 +170,11 @@ def main():
   pk.dump(model.predict(xTrain), fp)
   fp.close()
 
+  fp = open(fdir + 'val_X.pickle', 'wb')
+  pk.dump(model.predict(xVal), fp)
+  fp.close()
+
+  # save model predictions on testing data
   fp = open(fdir + 'test_X.pickle', 'wb')
   pk.dump(model.predict(xTest), fp)
   fp.close()
