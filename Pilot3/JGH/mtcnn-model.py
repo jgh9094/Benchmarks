@@ -26,6 +26,8 @@ from keras.callbacks import EarlyStopping
 from keras.utils import to_categorical
 from keras.layers.merge import Concatenate
 
+from loaddata6reg import loadAllTasks
+
 # global variables
 EPOCHS = 100
 
@@ -40,14 +42,14 @@ def GetData(dir):
   rawYT = np.load( dir + 'test_Y.npy' )
 
   # raw data descriptions
-  print('RAW DATA DIMS')
-  print('rawX dim: ', rawX.shape)
-  print('rawY dim: ', rawY.shape)
-  print('rawXT dim: ', rawXT.shape)
-  print('rawYT dim: ', rawYT.shape , end='\n\n')
+  print('RAW DATA DIMS', flush= True)
+  print('rawX dim: ', rawX.shape, flush= True)
+  print('rawY dim: ', rawY.shape, flush= True)
+  print('rawXT dim: ', rawXT.shape, flush= True)
+  print('rawYT dim: ', rawYT.shape , end='\n\n', flush= True)
 
   if rawY.shape[1] != rawYT.shape[1]:
-    print('NUMBER OF TASKS NOT THE SAME BETWEEN DATA SETS')
+    print('NUMBER OF TASKS NOT THE SAME BETWEEN DATA SETS', flush= True)
     exit(-1)
 
   # create array for each task output
@@ -65,21 +67,21 @@ def GetData(dir):
   for t in yt:
     YT.append(to_categorical(t))
 
-  print('Training Output Data')
+  print('Training Output Data', flush= True)
   i = 0
   for y in Y:
-    print('task', i)
-    print('--cases:', len(y))
-    print('--classes:',len(y[0]))
+    print('task', i, flush= True)
+    print('--cases:', len(y), flush= True)
+    print('--classes:',len(y[0]), flush= True)
     i += 1
   print()
 
-  print('Testing Output Data')
+  print('Testing Output Data', flush= True)
   i = 0
   for y in YT:
-    print('task', i)
-    print('--cases:', len(y))
-    print('--classes:',len(y[0]))
+    print('task', i, flush= True)
+    print('--cases:', len(y), flush= True)
+    print('--classes:',len(y[0]), flush= True)
     i += 1
   print()
 
@@ -96,7 +98,7 @@ def GetModelConfig(config):
   if config == 0:
     return {
       'learning_rate': 0.01,
-      'batch_size': 10,
+      'batch_size': 256,
       'dropout': 0.5,
       'optimizer': 'adam',
       'wv_len': 300,
@@ -107,23 +109,23 @@ def GetModelConfig(config):
     }
 
   else:
-    print('MODEL CONFIGURATION DOES NOT EXIST')
+    print('MODEL CONFIGURATION DOES NOT EXIST', flush= True)
     exit(-1)
 
 # transform data and return number of classes
 def TransformData(rawX, rawXV, rawXT, rawY, rawYV, rawYT):
   # raw data descriptions
-  print('RAW DATA DIMS')
-  print('rawX dim: ', rawX.shape)
-  print('rawY dim: ', rawY.shape)
-  print('rawXV dim: ', rawXV.shape)
-  print('rawYV dim: ', rawYV.shape)
-  print('rawXT dim: ', rawXT.shape)
-  print('rawYT dim: ', rawYT.shape , end='\n\n')
+  print('RAW DATA DIMS', flush= True)
+  print('rawX dim: ', rawX.shape, flush= True)
+  print('rawY dim: ', rawY.shape, flush= True)
+  print('rawXV dim: ', rawXV.shape, flush= True)
+  print('rawYV dim: ', rawYV.shape, flush= True)
+  print('rawXT dim: ', rawXT.shape, flush= True)
+  print('rawYT dim: ', rawYT.shape , end='\n\n', flush= True)
 
   # make sure number of tasks between data sets is consistent
   if rawY.shape[1] != rawYT.shape[1] or rawYT.shape[1] != rawYV.shape[1]:
-    print('NUMBER OF TASKS NOT THE SAME BETWEEN DATA SETS')
+    print('NUMBER OF TASKS NOT THE SAME BETWEEN DATA SETS', flush= True)
     exit(-1)
 
   # create array for each task output
@@ -146,30 +148,30 @@ def TransformData(rawX, rawXV, rawXT, rawY, rawYV, rawYT):
   for t in yt:
     YT.append(to_categorical(t))
 
-  print('Training Output Data')
+  print('Training Output Data', flush= True)
   i = 0
   for y in Y:
-    print('task', i)
-    print('--cases:', len(y))
-    print('--classes:',len(y[0]))
+    print('task', i, flush= True)
+    print('--cases:', len(y), flush= True)
+    print('--classes:',len(y[0]), flush= True)
     i += 1
   print()
 
-  print('Validation Output Data')
+  print('Validation Output Data', flush= True)
   i = 0
   for y in YV:
-    print('task', i)
-    print('--cases:', len(y))
-    print('--classes:',len(y[0]))
+    print('task', i, flush= True)
+    print('--cases:', len(y), flush= True)
+    print('--classes:',len(y[0]), flush= True)
     i += 1
   print()
 
-  print('Testing Output Data')
+  print('Testing Output Data', flush= True)
   i = 0
   for y in YT:
-    print('task', i)
-    print('--cases:', len(y))
-    print('--classes:',len(y[0]))
+    print('task', i, flush= True)
+    print('--cases:', len(y), flush= True)
+    print('--classes:',len(y[0]), flush= True)
     i += 1
   print()
 
@@ -180,10 +182,7 @@ def TransformData(rawX, rawXV, rawXT, rawY, rawYV, rawYT):
 
   return np.array(rawX),np.array(rawXV),np.array(rawXT),Y,YV,YT,classes
 
-# @Kevin todo
-def loadAllTasks():
 
-  return 0
 
 # will return a mt-cnn with a certain configuration
 def CreateMTCnn(num_classes,vocab_size,cfg):
@@ -226,17 +225,17 @@ def main():
 
   # Parse all the arguments & set random seed
   args = parser.parse_args()
-  print('Seed:', args.seed, end='\n\n')
+  print('Seed:', args.seed, end='\n\n', flush= True)
   np.random.seed(args.seed)
 
   # check that dump directory exists
   if not os.path.isdir(args.dump_dir):
-    print('DUMP DIRECTORY DOES NOT EXIST')
+    print('DUMP DIRECTORY DOES NOT EXIST', flush= True)
     exit(-1)
 
   # Step 1: Get experiment configurations
   config = GetModelConfig(args.config)
-  print('run parameters:', config, end='\n\n')
+  print('run parameters:', config, end='\n\n', flush= True)
 
   # Step 2: Create training/testing data for models
   # X,Y,XT,YT,classes =  GetData(args.data_dir)
@@ -269,31 +268,31 @@ def main():
   predV = mtcnn.predict(XV)
   predT = mtcnn.predict(XT)
 
-  print('Saving Training Softmax Output')
+  print('Saving Training Softmax Output', flush= True)
   for i in range(len(pred)):
     print('task:',str(i))
-    print('--Number of data points: ', len(pred[i]))
-    print('--Size of each data point', len(pred[i][0]))
+    print('--Number of data points: ', len(pred[i]), flush= True)
+    print('--Size of each data point', len(pred[i][0]), flush= True)
 
     fname = fdir + 'training-task-' + str(i) + '.npy'
     np.save(fname, pred[i])
   print()
 
-  print('Saving Validation Softmax Output')
+  print('Saving Validation Softmax Output', flush= True)
   for i in range(len(predV)):
-    print('task:',str(i))
-    print('--Number of data points: ', len(predV[i]))
-    print('--Size of each data point', len(predV[i][0]))
+    print('task:',str(i), flush= True)
+    print('--Number of data points: ', len(predV[i]), flush= True)
+    print('--Size of each data point', len(predV[i][0]), flush= True)
 
     fname = fdir + 'validating-task-' + str(i) + '.npy'
     np.save(fname, pred[i])
   print()
 
-  print('Saving Testing Softmax Output')
+  print('Saving Testing Softmax Output', flush= True)
   for i in range(len(predT)):
     print('task:',str(i))
-    print('--Number of data points: ', len(predT[i]))
-    print('--Size of each data point', len(predT[i][0]))
+    print('--Number of data points: ', len(predT[i]), flush= True)
+    print('--Size of each data point', len(predT[i][0]), flush= True)
 
     fname = fdir + 'testing-task-' + str(i) + '.npy'
     np.save(fname, predT[i])
@@ -302,15 +301,15 @@ def main():
   # convert the history.history dict to a pandas DataFrame:
   hist_df = pd.DataFrame(hist.history)
   hist_df.to_csv(path_or_buf= fdir + 'history.csv', index=False)
-  print('History Saved!')
+  print('History Saved!', flush= True)
 
   # save model
   mtcnn.save(fdir + 'model.h5')
-  print('Model Saved!')
+  print('Model Saved!', flush= True)
 
   # save picture of model created
   plot_model(mtcnn, fdir + "model.png", show_shapes=True)
-  print('Model Topology Picture Saved!')
+  print('Model Topology Picture Saved!', flush= True)
 
 if __name__ == '__main__':
   main()
