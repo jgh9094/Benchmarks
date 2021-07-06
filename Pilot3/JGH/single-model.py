@@ -69,13 +69,15 @@ def GetModelConfig(config):
 # return task we are doing
 def GetTask(t):
   if t == 0:
-    return'behavior'
+    return'Behavior'
   elif t == 1:
-    return 'histology'
+    return 'Histology'
   elif t == 2:
-    return 'laterality site'
+    return 'Laterality'
   elif t == 3:
-    return 'subsite'
+    return 'Site'
+  elif t == 4:
+    return 'Subsite'
   else:
     print('UNKNOWN TASK')
     exit(-1)
