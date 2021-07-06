@@ -260,7 +260,7 @@ def main():
           )
 
   # create directory to dump all data related to model
-  fdir = args.dump_dir + 'MTModel-' + str(args.config) + '/'
+  fdir = args.dump_dir + 'MTModel-' + str(args.config) + '-' + args.seed + '/'
   os.mkdir(fdir)
 
   # save predictions from all data inputs
