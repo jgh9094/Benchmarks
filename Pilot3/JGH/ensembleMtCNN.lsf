@@ -12,7 +12,7 @@
 cd //gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/JoseFolder/Benchmarks/Pilot3/JGH/
 
 # Directory where we are dumping the data
-DUMP=//gpfs/alpine/world-shared/med106/yoonh/storageFolder/TrialRun
+DUMP=//gpfs/alpine/world-shared/med106/yoonh/storageFolder/TrialRun/
 # MT-CNN configuration we are using
 CONFIG=0
 # Proportion of testcases we are using (10%)
