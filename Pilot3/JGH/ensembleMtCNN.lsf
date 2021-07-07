@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#BSUB -P MED107
+#BSUB -P MED106
 #BSUB -J mtCNN
 #BSUB -o logs/mtCNN.o%J
 #BSUB -e ErrorFile_Ensemble
