@@ -230,7 +230,8 @@ def main():
   #parser.add_argument('data_dir',     type=str, help='Where is the data located?')
   #parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
   parser.add_argument('config',       type=int, help='What model config are we using?')
-  parser.add_argument('seed',         type=int, help='Random seed for run')
+  #parser.add_argument('seed',         type=int, help='Random seed for run')
+
 
   #It's too complicated to pass the directory as an argument for each model.
   dump_dir = "//gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/joseOutput/" + str(RANK) + "/"
