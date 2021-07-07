@@ -14,4 +14,4 @@ cd //gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/JoseFolder
 module load ibm-wml-ce
 conda activate kevindeangeli
 
-jsrun -n6 -a1 -g1 -c7 python mtcnn-model.py 0 0
+jsrun -n6 -a1 -g1 -c7 python mtcnn-model.py 0
