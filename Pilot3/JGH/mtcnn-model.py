@@ -232,7 +232,7 @@ def main():
 
 
   #just put this here to make it simple for now:
-  dump_dir = "//gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/joseOutput/" + str(RANK) + "/"
+  dump_dir = "//gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/joseOutput/" 
 
 
 
