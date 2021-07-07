@@ -114,6 +114,7 @@ def GetModelConfig(config):
       'in_seq_len': 1500,
       'num_filters': [3,4,5],
       'filter_sizes': [300,300,300],
+      'dump': '//gpfs/alpine/world-shared/med106/yoonh/storageFolder/TrialRun/',
     }
 
   else:
@@ -225,13 +226,9 @@ def main():
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
   #parser.add_argument('data_dir',     type=str, help='Where is the data located?')
-  parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
+  # parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
   parser.add_argument('config',       type=int, help='What model config are we using?')
   parser.add_argument('prop',         type=int, help='proportion of testcases being used')
-
-
-  #just put this here to make it simple for now:
-  # dump_dir = "/gpfs/alpine/world-shared/med106/yoonh/storageFolder/" #you should probably create a folder inside that folder
 
   # Parse all the arguments & set random seed
   args = parser.parse_args()
@@ -239,15 +236,19 @@ def main():
   seed = int(RANK) #<-- if you want to use this, just replace "seed" with "args.seed". It also shows up in the file name
   np.random.seed(seed)
 
-  # check that dump directory exists
-  print('DUMP Directory:', args.dump_config)
-  if not os.path.isdir(args.dump_dir):
-    print('DUMP DIRECTORY DOES NOT EXIST', flush= True)
-    exit(-1)
-
   # Step 1: Get experiment configurations
   config = GetModelConfig(args.config)
   print('run parameters:', config, end='\n\n', flush= True)
+
+  #just put this here to make it simple for now:
+  dump_dir = config['dump']
+
+  # check that dump directory exists
+  print('DUMP Directory:', dump_dir)
+  if not os.path.isdir(dump_dir):
+    print('DUMP DIRECTORY DOES NOT EXIST', flush= True)
+    exit(-1)
+
 
   # Step 2: Create training/testing data for models
   # X,Y,XT,YT,classes =  GetData(args.data_dir)
@@ -281,7 +282,7 @@ def main():
           )
 
   # create directory to dump all data related to model
-  fdir = args.dump_dir + 'MTModel-' + str(args.config) + "_Rank-" + str(RANK) +'/'
+  fdir = dump_dir + 'MTModel-' + str(args.config) + "_Rank-" + str(RANK) +'/'
   if not os.path.exists(fdir):
     os.makedirs(fdir)
 
