@@ -349,6 +349,8 @@ def main():
   micMac = []
   # data_path = "val_site/"+self.file_names[k]+".csv"
   data_path = fdir + "MicMacTest_R" + str(RANK) + ".csv"
+  X, XV, XT, Y, YV, YT= loadAllTasks(print_shapes = False)
+
 
   for t in range(5):
     preds = np.argmax(predT[t], axis=1)
