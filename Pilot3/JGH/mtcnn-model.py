@@ -340,6 +340,10 @@ def main():
   # print()
 
 
+
+  print(len(XT))
+  print(len(XT[0]))
+  print(len(XT[0][0]))
   '''
   Save final micro/macro:
   '''
