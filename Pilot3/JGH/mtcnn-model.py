@@ -232,7 +232,7 @@ def main():
 
 
   #just put this here to make it simple for now:
-  dump_dir = "//gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/joseOutput/" 
+  dump_dir = "//gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/joseOutput/"
 
 
 
@@ -337,6 +337,32 @@ def main():
   #   fname = fdir + 'testing-task-' + str(i) + '.npy'
   #   np.save(fname, predT[i])
   # print()
+
+
+  '''
+  Save final micro/macro:
+  '''
+  micMac = []
+  # data_path = "val_site/"+self.file_names[k]+".csv"
+  data_path = fdir + "MicMacTest_R" + str(RANK) + ".csv"
+
+  for t in range(5):
+    preds = [np.argmax(x) for x in predT]
+    micro = f1_score(YT[:, t], preds, average='micro')
+    macro = f1_score(YT[:, t], preds, average='macro')
+    micMac.append(micro)
+    micMac.append(macro)
+
+  data = np.zeros(shape=(1, 10))
+  data = np.vstack((data, micMac))
+  df0 = pd.DataFrame(data,
+                     columns=['Beh_Mic', 'Beh_Mac', 'His_Mic', 'His_Mac', 'Lat_Mic', 'Lat_Mac', 'Site_Mic',
+                              'Site_Mac', 'Subs_Mic', 'Subs_Mac'])
+  df0.to_csv(data_path)
+
+
+
+
 
   # convert the history.history dict to a pandas DataFrame:
   hist_df = pd.DataFrame(hist.history)
