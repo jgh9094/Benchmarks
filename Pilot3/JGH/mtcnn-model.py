@@ -350,6 +350,12 @@ def main():
   # data_path = "val_site/"+self.file_names[k]+".csv"
   data_path = fdir + "MicMacTest_R" + str(RANK) + ".csv"
   X, XV, XT, Y, YV, YT= loadAllTasks(print_shapes = False)
+  X = X[0:512]
+  XV = XV[0:512]
+  XT = XT[0:512]
+  Y = Y[0:512]
+  YV = YV[0:512]
+  YT = YT[0:512]
 
 
   for t in range(5):
