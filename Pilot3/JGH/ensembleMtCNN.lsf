@@ -1,0 +1,17 @@
+#!/bin/bash
+
+#BSUB -P MED107
+#BSUB -J mtCNN
+#BSUB -o logs/mtCNN.o%J
+#BSUB -e ErrorFile_Ensemble
+#BSUB -W 12:00
+#BSUB -nnodes 1
+#BSUB -q killable
+
+
+cd //gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/JoseFolder/Benchmarks/Pilot3/JGH/
+
+module load ibm-wml-ce
+conda activate kevindeangeli
+
+jsrun -n6 -a1 -g1 -c7 python mtcnn-model.py
