@@ -242,7 +242,8 @@ def main():
   # Parse all the arguments & set random seed
   args = parser.parse_args()
   #print('Seed:', args.seed, end='\n\n', flush= True)
-  np.random.seed(RANK)
+  seed = RANK
+  np.random.seed(seed)
 
   # check that dump directory exists
   # if not os.path.isdir(dump_dir):
@@ -287,7 +288,7 @@ def main():
           )
 
   # create directory to dump all data related to model
-  fdir = dump_dir + 'MTModel-' + str(args.config) + '-' + args.seed + "_Rank" + str(RANK) +'/'
+  fdir = dump_dir + 'MTModel-' + str(args.config) + '-' + seed + "_Rank" + str(RANK) +'/'
   os.mkdir(fdir)
 
   # save predictions from all data inputs
