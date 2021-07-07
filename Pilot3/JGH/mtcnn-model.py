@@ -344,6 +344,8 @@ def main():
   print(len(predT))
   print(len(predT[0]))
   print(len(predT[0][0]))
+  print(len(predT[1][0]))
+
   '''
   Save final micro/macro:
   '''
