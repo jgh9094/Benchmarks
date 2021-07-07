@@ -298,46 +298,46 @@ def main():
   predT = mtcnn.predict(XT)
 
   print('Saving Training Softmax Output', flush= True)
-  fname = fdir + 'training-task.pickle'
-  file = open(fname, 'wb')
-  pickle.dump(pred, file)
-  file.close()
-  # for i in range(len(pred)):
-  #   print('task:',str(i))
-  #   print('--Number of data points: ', len(pred[i]), flush= True)
-  #   print('--Size of each data point', len(pred[i][0]), flush= True)
-  #
-  #   fname = fdir + 'training-task-' + str(i) + '.npy'
-  #   np.save(fname, pred[i])
-  # print()
+  # fname = fdir + 'training-task.pickle'
+  # file = open(fname, 'wb')
+  # pickle.dump(pred, file)
+  # file.close()
+  for i in range(len(pred)):
+    print('task:',str(i))
+    print('--Number of data points: ', len(pred[i]), flush= True)
+    print('--Size of each data point', len(pred[i][0]), flush= True)
+
+    fname = fdir + 'training-task-' + str(i) + '.npy'
+    np.save(fname, pred[i])
+  print()
 
   print('Saving Validation Softmax Output', flush= True)
-  fname = fdir + 'validating-task.pickle'
-  file = open(fname, 'wb')
-  pickle.dump(predV, file)
-  file.close()
-  # for i in range(len(predV)):
-  #   print('task:',str(i), flush= True)
-  #   print('--Number of data points: ', len(predV[i]), flush= True)
-  #   print('--Size of each data point', len(predV[i][0]), flush= True)
-  #
-  #   fname = fdir + 'validating-task-' + str(i) + '.npy'
-  #   np.save(fname, pred[i])
-  # print()
+  # fname = fdir + 'validating-task.pickle'
+  # file = open(fname, 'wb')
+  # pickle.dump(predV, file)
+  # file.close()
+  for i in range(len(predV)):
+    print('task:',str(i), flush= True)
+    print('--Number of data points: ', len(predV[i]), flush= True)
+    print('--Size of each data point', len(predV[i][0]), flush= True)
+
+    fname = fdir + 'validating-task-' + str(i) + '.npy'
+    np.save(fname, pred[i])
+  print()
 
   print('Saving Testing Softmax Output', flush= True)
-  fname = fdir + 'testing-task.pickle'
-  file = open(fname, 'wb')
-  pickle.dump(predT, file)
-  file.close()
-  # for i in range(len(predT)):
-  #   print('task:',str(i))
-  #   print('--Number of data points: ', len(predT[i]), flush= True)
-  #   print('--Size of each data point', len(predT[i][0]), flush= True)
-  #
-  #   fname = fdir + 'testing-task-' + str(i) + '.npy'
-  #   np.save(fname, predT[i])
-  # print()
+  # fname = fdir + 'testing-task.pickle'
+  # file = open(fname, 'wb')
+  # pickle.dump(predT, file)
+  # file.close()
+  for i in range(len(predT)):
+    print('task:',str(i))
+    print('--Number of data points: ', len(predT[i]), flush= True)
+    print('--Size of each data point', len(predT[i][0]), flush= True)
+
+    fname = fdir + 'testing-task-' + str(i) + '.npy'
+    np.save(fname, predT[i])
+  print()
 
 
 
