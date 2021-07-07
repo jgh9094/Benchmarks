@@ -260,12 +260,12 @@ def main():
 
   # Take the proportion of test cases
   print('PROP:', config['prop'])
-  X = X[0:int(config['prop'] * len(X))]
-  XV = XV[0:int(config['prop'] * len(XV))]
-  XT = XT[0:int(config['prop'] * len(XT))]
-  Y = Y[0:int(config['prop'] * len(Y))]
-  YV = YV[0:int(config['prop'] * len(YV))]
-  YT = YT[0:int(config['prop'] * len(YT))]
+  X = X[0:20000]
+  XV = XV[0:20000]
+  XT = XT[0:20000]
+  Y = Y[0:20000]
+  YV = YV[0:20000]
+  YT = YT[0:20000]
 
   X, XV, XT, Y, YV, YT, classes = TransformData(X, XV, XT, Y, YV, YT)
 
