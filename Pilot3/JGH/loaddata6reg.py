@@ -16,6 +16,7 @@ from sklearn import preprocessing
 import pickle
 DataPath = "/gpfs/alpine/proj-shared/med107/NCI_Data/tokenized20210406/"
 newDataPath = "//gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/preprocessedData/"
+HardLabelsPath = "/gpfs/alpine/world-shared/med106/yoonh/storageFolder/HardLabels/"
 
 taskDic = {"Behavior": 0, "Histology": 1, "Laterality": 2, "Site": 3, "Subsite": 4}
 
@@ -137,9 +138,9 @@ def test_le():
     print(encoded_labels[0:10])
 
 def loadY():
-    train_y = pickle.load(open(newDataPath+'train_y.pickle', "rb"))
-    test_y = pickle.load(open(newDataPath+'test_y.pickle', "rb"))
-    val_y = pickle.load(open(newDataPath+'val_y.pickle', "rb"))
+    train_y = pickle.load(open(HardLabelsPath+'train_y.pickle', "rb"))
+    test_y = pickle.load(open(HardLabelsPath+'test_y.pickle', "rb"))
+    val_y = pickle.load(open(HardLabelsPath+'val_y.pickle', "rb"))
     #get number of classes
     #print(np.max(np.concatenate((train_y,test_y,val_y)),axis=0)) #[  3. 638.   6.  69. 325.]
     # print(train_y.shape)

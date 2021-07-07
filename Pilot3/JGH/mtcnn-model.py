@@ -33,7 +33,7 @@ from mpi4py import MPI
 
 
 # global variables
-EPOCHS = 1 #<--------------------------- debugging
+EPOCHS = 100
 COMM = MPI.COMM_WORLD
 RANK = COMM.Get_rank()
 SIZE = COMM.size #Node count. size-1 = max rank.
@@ -258,13 +258,14 @@ def main():
 
   ''''
   For debugging purposes:
-  '''
+ 
   X = X[0:512]
   XV = XV[0:512]
   XT = XT[0:512]
   Y = Y[0:512]
   YV = YV[0:512]
   YT = YT[0:512]
+   '''
 
 
   X, XV, XT, Y, YV, YT, classes = TransformData(X, XV, XT, Y, YV, YT)
@@ -350,12 +351,6 @@ def main():
   # data_path = "val_site/"+self.file_names[k]+".csv"
   data_path = fdir + "MicMacTest_R" + str(RANK) + ".csv"
   X, XV, XT, Y, YV, YT= loadAllTasks(print_shapes = False)
-  X = X[0:512]
-  XV = XV[0:512]
-  XT = XT[0:512]
-  Y = Y[0:512]
-  YV = YV[0:512]
-  YT = YT[0:512]
 
 
   for t in range(5):
