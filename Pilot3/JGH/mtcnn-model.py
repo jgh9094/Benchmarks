@@ -15,7 +15,7 @@ import argparse
 import os
 import pandas as pd
 import pickle as pk
-import pickle 
+import pickle
 
 # keras python inputs
 from keras.models import Model
@@ -233,8 +233,7 @@ def main():
 
   #It's too complicated to pass the directory as an argument for each model.
   dump_dir = "//gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/joseOutput/" + str(RANK) + "/"
-  if not os.path.exists(dump_dir):
-    os.makedirs(dump_dir)
+
 
 
   # Parse all the arguments & set random seed
@@ -287,7 +286,9 @@ def main():
 
   # create directory to dump all data related to model
   fdir = dump_dir + 'MTModel-' + str(args.config) + '-' + str(seed) + "_Rank" + str(RANK) +'/'
-  os.mkdir(fdir)
+  #os.mkdir(fdir)
+  if not os.path.exists(fdir):
+    os.makedirs(fdir)
 
   # save predictions from all data inputs
 
