@@ -227,7 +227,7 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
 def main():
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
-  parser.add_argument('data_dir',     type=str, help='Where is the data located?')
+  #parser.add_argument('data_dir',     type=str, help='Where is the data located?')
   parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
   parser.add_argument('config',       type=int, help='What model config are we using?')
   parser.add_argument('seed',         type=int, help='Random seed for run')
