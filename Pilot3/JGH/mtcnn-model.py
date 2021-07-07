@@ -228,14 +228,14 @@ def main():
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
   #parser.add_argument('data_dir',     type=str, help='Where is the data located?')
-  parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
+  #parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
   parser.add_argument('config',       type=int, help='What model config are we using?')
   parser.add_argument('seed',         type=int, help='Random seed for run')
 
   #It's too complicated to pass the directory as an argument for each model.
-  args.dump_dir = "//gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/joseOutput/" + str(RANK) + "/"
-  if not os.path.exists(args.dump_dir):
-    os.makedirs(args.dump_dir)
+  dump_dir = "//gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/joseOutput/" + str(RANK) + "/"
+  if not os.path.exists(dump_dir):
+    os.makedirs(dump_dir)
 
 
   # Parse all the arguments & set random seed
@@ -244,7 +244,7 @@ def main():
   np.random.seed(args.seed)
 
   # check that dump directory exists
-  # if not os.path.isdir(args.dump_dir):
+  # if not os.path.isdir(dump_dir):
   #   print('DUMP DIRECTORY DOES NOT EXIST', flush= True)
   #   exit(-1)
 
@@ -274,7 +274,7 @@ def main():
           )
 
   # create directory to dump all data related to model
-  fdir = args.dump_dir + 'MTModel-' + str(args.config) + '-' + args.seed + "_Rank" + str(RANK) +'/'
+  fdir = dump_dir + 'MTModel-' + str(args.config) + '-' + args.seed + "_Rank" + str(RANK) +'/'
   os.mkdir(fdir)
 
   # save predictions from all data inputs
