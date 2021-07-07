@@ -4,9 +4,9 @@
 #BSUB -J mtCNN
 #BSUB -o logs/mtCNN.o%J
 #BSUB -e ErrorFile_Ensemble
-#BSUB -W 12:00
+#BSUB -W 02:00
 #BSUB -nnodes 1
-#BSUB -q killable
+
 
 
 cd //gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/JoseFolder/Benchmarks/Pilot3/JGH/
