@@ -231,7 +231,7 @@ def main():
   #parser.add_argument('seed',         type=int, help='Random seed for run') #Assign Rank to this <------------
 
 
-  #It's too complicated to pass the directory as an argument for each model.
+  #just put this here to make it simple for now:
   dump_dir = "//gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/joseOutput/" + str(RANK) + "/"
 
 
