@@ -61,7 +61,7 @@ def GetData(dir):
     yt[t] = rawYT[:,t]
 
   # make to catagorical data and pack up
-  Y,YT = [],[]
+  Y,YT = [],[],[]
   for t in y:
     Y.append(to_categorical(t))
   for t in yt:
@@ -140,7 +140,7 @@ def TransformData(rawX, rawXV, rawXT, rawY, rawYV, rawYT):
     yt[t] = rawYT[:,t]
 
   # make to catagorical data and pack up
-  Y,YV,YT = [],[]
+  Y,YV,YT = [],[],[]
   for t in y:
     Y.append(to_categorical(t))
   for t in yv:
