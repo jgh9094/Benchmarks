@@ -345,7 +345,7 @@ def main():
   print(len(predT[0]))
   print(len(predT[0][0]))
   print(len(predT[1][0]))
-
+  #predT has this shape: [numTasks, numSamples, numLabelsInTask]
   '''
   Save final micro/macro:
   '''
