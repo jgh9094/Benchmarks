@@ -11,7 +11,14 @@
 
 cd //gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/JoseFolder/Benchmarks/Pilot3/JGH/
 
+# Directory where we are dumping the data
+DUMP=//gpfs/alpine/world-shared/med106/yoonh/storageFolder/TrialRun
+# MT-CNN configuration we are using
+CONFIG=0
+# Proportion of testcases we are using (10%)
+PROP=0.1
+
 module load ibm-wml-ce
 conda activate kevindeangeli
 
-jsrun -n6 -a1 -g1 -c7 python mtcnn-model.py 0
+jsrun -n6 -a1 -g1 -c7 python mtcnn-model.py ${DUMP} ${CONFIG} ${PROP}
