@@ -227,26 +227,24 @@ def main():
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
   #parser.add_argument('data_dir',     type=str, help='Where is the data located?')
-  #parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
+  parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
   parser.add_argument('config',       type=int, help='What model config are we using?')
-  #parser.add_argument('seed',         type=int, help='Random seed for run') #Assign Rank to this <------------
+  parser.add_argument('prop',         type=int, help='proportion of testcases being used')
 
 
   #just put this here to make it simple for now:
-  dump_dir = "/gpfs/alpine/world-shared/med106/yoonh/storageFolder/" #you should probably create a folder inside that folder
-
-
+  # dump_dir = "/gpfs/alpine/world-shared/med106/yoonh/storageFolder/" #you should probably create a folder inside that folder
 
   # Parse all the arguments & set random seed
   args = parser.parse_args()
   #print('Seed:', args.seed, end='\n\n', flush= True)
-  seed = RANK #<-- if you want to use this, just replace "seed" with "args.seed". It also shows up in the file name
+  seed = int(RANK) #<-- if you want to use this, just replace "seed" with "args.seed". It also shows up in the file name
   np.random.seed(seed)
 
   # check that dump directory exists
-  # if not os.path.isdir(dump_dir):
-  #   print('DUMP DIRECTORY DOES NOT EXIST', flush= True)
-  #   exit(-1)
+  if not os.path.isdir(args.dump_dir):
+    print('DUMP DIRECTORY DOES NOT EXIST', flush= True)
+    exit(-1)
 
   # Step 1: Get experiment configurations
   config = GetModelConfig(args.config)
@@ -256,17 +254,14 @@ def main():
   # X,Y,XT,YT,classes =  GetData(args.data_dir)
   X, XV, XT, Y, YV, YT= loadAllTasks(print_shapes = False)
 
-  ''''
-  For debugging purposes:
- 
-  X = X[0:512]
-  XV = XV[0:512]
-  XT = XT[0:512]
-  Y = Y[0:512]
-  YV = YV[0:512]
-  YT = YT[0:512]
-   '''
-
+  # Take the proportion of test cases
+  prop = int(args.prop * len(X))
+  X = X[0:prop]
+  XV = XV[0:prop]
+  XT = XT[0:prop]
+  Y = Y[0:prop]
+  YV = YV[0:prop]
+  YT = YT[0:prop]
 
   X, XV, XT, Y, YV, YT, classes = TransformData(X, XV, XT, Y, YV, YT)
 
@@ -287,7 +282,7 @@ def main():
           )
 
   # create directory to dump all data related to model
-  fdir = dump_dir + 'MTModel-' + str(args.config) + '-' + str(seed) + "_Rank" + str(RANK) +'/'
+  fdir = args.dump_dir + 'MTModel-' + str(args.config) + '-' + str(seed) + "_Rank" + str(RANK) +'/'
   #os.mkdir(fdir)
   if not os.path.exists(fdir):
     os.makedirs(fdir)
@@ -299,10 +294,6 @@ def main():
   predT = mtcnn.predict(XT)
 
   print('Saving Training Softmax Output', flush= True)
-  # fname = fdir + 'training-task.pickle'
-  # file = open(fname, 'wb')
-  # pickle.dump(pred, file)
-  # file.close()
   for i in range(len(pred)):
     print('task:',str(i))
     print('--Number of data points: ', len(pred[i]), flush= True)
@@ -313,10 +304,6 @@ def main():
   print()
 
   print('Saving Validation Softmax Output', flush= True)
-  # fname = fdir + 'validating-task.pickle'
-  # file = open(fname, 'wb')
-  # pickle.dump(predV, file)
-  # file.close()
   for i in range(len(predV)):
     print('task:',str(i), flush= True)
     print('--Number of data points: ', len(predV[i]), flush= True)
@@ -327,10 +314,6 @@ def main():
   print()
 
   print('Saving Testing Softmax Output', flush= True)
-  # fname = fdir + 'testing-task.pickle'
-  # file = open(fname, 'wb')
-  # pickle.dump(predT, file)
-  # file.close()
   for i in range(len(predT)):
     print('task:',str(i))
     print('--Number of data points: ', len(predT[i]), flush= True)
@@ -339,9 +322,6 @@ def main():
     fname = fdir + 'testing-task-' + str(i) + '.npy'
     np.save(fname, predT[i])
   print()
-
-
-
 
   #predT has this shape: [numTasks, numSamples, numLabelsInTask]
   '''
@@ -367,10 +347,6 @@ def main():
                      columns=['Beh_Mic', 'Beh_Mac', 'His_Mic', 'His_Mac', 'Lat_Mic', 'Lat_Mac', 'Site_Mic',
                               'Site_Mac', 'Subs_Mic', 'Subs_Mac'])
   df0.to_csv(data_path)
-
-
-
-
 
 
   # convert the history.history dict to a pandas DataFrame:
