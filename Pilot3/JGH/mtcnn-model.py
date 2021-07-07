@@ -355,8 +355,8 @@ def main():
   for t in range(5):
     preds = np.argmax(predT[t], axis=1)
     # preds = [np.argmax(x) for x in predT[t]]
-    micro = f1_score(YT[t], preds, average='micro')
-    macro = f1_score(YT[t], preds, average='macro')
+    micro = f1_score(YT[:,t], preds, average='micro')
+    macro = f1_score(YT[:,t], preds, average='macro')
     micMac.append(micro)
     micMac.append(macro)
 
