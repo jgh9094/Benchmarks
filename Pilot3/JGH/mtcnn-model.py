@@ -255,7 +255,7 @@ def main():
     val_dict[layer] = YV[i]
 
   hist = mtcnn.fit(x= X, y= Y, batch_size= config['batch_size'],
-          epochs= EPOCHS, verbose= 2, validation_data= ({'Input': XV}, val_dict),
+          epochs= EPOCHS, verbose= 1, validation_data= ({'Input': XV}, val_dict),
           callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)]
           )
 
