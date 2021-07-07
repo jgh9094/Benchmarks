@@ -115,6 +115,7 @@ def GetModelConfig(config):
       'num_filters': [3,4,5],
       'filter_sizes': [300,300,300],
       'dump': '//gpfs/alpine/world-shared/med106/yoonh/storageFolder/TrialRun/',
+      'prop': 0.1,
     }
 
   else:
@@ -227,17 +228,20 @@ def main():
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
   #parser.add_argument('data_dir',     type=str, help='Where is the data located?')
   # parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
-  parser.add_argument('config',       type=int, help='What model config are we using?')
-  parser.add_argument('prop',         type=int, help='proportion of testcases being used')
+  # parser.add_argument('config',       type=int, help='What model config are we using?')
+  # parser.add_argument('prop',         type=int, help='proportion of testcases being used')
 
   # Parse all the arguments & set random seed
-  args = parser.parse_args()
+  # args = parser.parse_args()
   #print('Seed:', args.seed, end='\n\n', flush= True)
-  seed = int(RANK) #<-- if you want to use this, just replace "seed" with "args.seed". It also shows up in the file name
+  seed = int(RANK)
+  print('Seed:', seed)
   np.random.seed(seed)
 
   # Step 1: Get experiment configurations
-  config = GetModelConfig(args.config)
+  cfg = 0
+  print('Config Using:', cfg)
+  config = GetModelConfig(cfg)
   print('run parameters:', config, end='\n\n', flush= True)
 
   #just put this here to make it simple for now:
@@ -255,13 +259,13 @@ def main():
   X, XV, XT, Y, YV, YT= loadAllTasks(print_shapes = False)
 
   # Take the proportion of test cases
-  print('PROP:', args.prop)
-  X = X[0:int(args.prop * len(X))]
-  XV = XV[0:int(args.prop * len(XV))]
-  XT = XT[0:int(args.prop * len(XT))]
-  Y = Y[0:int(args.prop * len(Y))]
-  YV = YV[0:int(args.prop * len(YV))]
-  YT = YT[0:int(args.prop * len(YT))]
+  print('PROP:', config['prop'])
+  X = X[0:int(config['prop'] * len(X))]
+  XV = XV[0:int(config['prop'] * len(XV))]
+  XT = XT[0:int(config['prop'] * len(XT))]
+  Y = Y[0:int(config['prop'] * len(Y))]
+  YV = YV[0:int(config['prop'] * len(YV))]
+  YT = YT[0:int(config['prop'] * len(YT))]
 
   X, XV, XT, Y, YV, YT, classes = TransformData(X, XV, XT, Y, YV, YT)
 
@@ -282,7 +286,7 @@ def main():
           )
 
   # create directory to dump all data related to model
-  fdir = dump_dir + 'MTModel-' + str(args.config) + "_Rank-" + str(RANK) +'/'
+  fdir = dump_dir + 'MTModel-' + str(cfg) + "_Rank-" + str(RANK) +'/'
   if not os.path.exists(fdir):
     os.makedirs(fdir)
 
