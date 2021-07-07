@@ -341,9 +341,9 @@ def main():
 
 
 
-  print(len(XT))
-  print(len(XT[0]))
-  print(len(XT[0][0]))
+  print(len(predT))
+  print(len(predT[0]))
+  print(len(predT[0][0]))
   '''
   Save final micro/macro:
   '''
