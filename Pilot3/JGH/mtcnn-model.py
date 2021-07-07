@@ -26,6 +26,7 @@ from keras.utils import plot_model
 from keras.callbacks import EarlyStopping
 from keras.utils import to_categorical
 from keras.layers.merge import Concatenate
+from sklearn.metrics import f1_score
 
 from loaddata6reg import loadAllTasks
 from mpi4py import MPI
