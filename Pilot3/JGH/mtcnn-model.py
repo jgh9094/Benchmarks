@@ -341,13 +341,8 @@ def main():
 
 
 
-  print(len(predT))
-  print(len(predT[0]))
-  print(len(predT[0][0]))
-  print(len(predT[1][0]))
-  #predT has this shape: [numTasks, numSamples, numLabelsInTask]
-  X, XV, XT, Y, YV, YT= loadAllTasks(print_shapes = False)
 
+  #predT has this shape: [numTasks, numSamples, numLabelsInTask]
   '''
   Save final micro/macro:
   '''
@@ -356,9 +351,10 @@ def main():
   data_path = fdir + "MicMacTest_R" + str(RANK) + ".csv"
 
   for t in range(5):
-    preds = [np.argmax(x) for x in predT[t]]
-    micro = f1_score(YT[:, t], preds, average='micro')
-    macro = f1_score(YT[:, t], preds, average='macro')
+    preds = np.argmax(predT[t], axis=1)
+    # preds = [np.argmax(x) for x in predT[t]]
+    micro = f1_score(YT[t], preds, average='micro')
+    macro = f1_score(YT[t], preds, average='macro')
     micMac.append(micro)
     micMac.append(macro)
 
@@ -368,6 +364,7 @@ def main():
                      columns=['Beh_Mic', 'Beh_Mac', 'His_Mic', 'His_Mac', 'Lat_Mic', 'Lat_Mac', 'Site_Mic',
                               'Site_Mac', 'Subs_Mic', 'Subs_Mac'])
   df0.to_csv(data_path)
+
 
 
 
