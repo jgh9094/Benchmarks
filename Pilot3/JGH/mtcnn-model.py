@@ -11,7 +11,7 @@ The number of tasks is calculate during run time from the Y training and testing
 # general python imports
 import numpy as np
 from matplotlib import pyplot as plt
-import argparse
+# import argparse
 import os
 import pandas as pd
 import pickle as pk
@@ -225,8 +225,8 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
 
 def main():
   # generate and get arguments
-  parser = argparse.ArgumentParser(description='Process arguments for model training.')
-  #parser.add_argument('data_dir',     type=str, help='Where is the data located?')
+  # parser = argparse.ArgumentParser(description='Process arguments for model training.')
+  # parser.add_argument('data_dir',     type=str, help='Where is the data located?')
   # parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
   # parser.add_argument('config',       type=int, help='What model config are we using?')
   # parser.add_argument('prop',         type=int, help='proportion of testcases being used')
