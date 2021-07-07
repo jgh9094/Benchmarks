@@ -348,7 +348,7 @@ def main():
   data_path = fdir + "MicMacTest_R" + str(RANK) + ".csv"
 
   for t in range(5):
-    preds = [np.argmax(x) for x in predT]
+    preds = [np.argmax(x) for x in predT[:,t]]
     micro = f1_score(YT[:, t], preds, average='micro')
     macro = f1_score(YT[:, t], preds, average='macro')
     micMac.append(micro)
