@@ -233,7 +233,7 @@ def main():
 
 
   #just put this here to make it simple for now:
-  dump_dir = "//gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/joseOutput/"
+  dump_dir = "/gpfs/alpine/world-shared/med106/yoonh/storageFolder/" #you should probably create a folder inside that folder
 
 
 
