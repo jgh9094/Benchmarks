@@ -34,7 +34,7 @@ from mpi4py import MPI
 
 
 # global variables
-EPOCHS = 100
+EPOCHS = 1
 COMM = MPI.COMM_WORLD
 RANK = COMM.Get_rank()
 SIZE = COMM.size #Node count. size-1 = max rank.
