@@ -190,8 +190,6 @@ def TransformData(rawX, rawXV, rawXT, rawY, rawYV, rawYT):
 
   return np.array(rawX),np.array(rawXV),np.array(rawXT),Y,YV,YT,classes
 
-
-
 # will return a mt-cnn with a certain configuration
 def CreateMTCnn(num_classes,vocab_size,cfg):
     # define network layers ----------------------------------------------------
@@ -242,6 +240,7 @@ def main():
   np.random.seed(seed)
 
   # check that dump directory exists
+  print('DUMP Directory:', args.dump_config)
   if not os.path.isdir(args.dump_dir):
     print('DUMP DIRECTORY DOES NOT EXIST', flush= True)
     exit(-1)
@@ -255,13 +254,13 @@ def main():
   X, XV, XT, Y, YV, YT= loadAllTasks(print_shapes = False)
 
   # Take the proportion of test cases
-  prop = int(args.prop * len(X))
-  X = X[0:prop]
-  XV = XV[0:prop]
-  XT = XT[0:prop]
-  Y = Y[0:prop]
-  YV = YV[0:prop]
-  YT = YT[0:prop]
+  print('PROP:', args.prop)
+  X = X[0:int(args.prop * len(X))]
+  XV = XV[0:int(args.prop * len(XV))]
+  XT = XT[0:int(args.prop * len(XT))]
+  Y = Y[0:int(args.prop * len(Y))]
+  YV = YV[0:int(args.prop * len(YV))]
+  YT = YT[0:int(args.prop * len(YT))]
 
   X, XV, XT, Y, YV, YT, classes = TransformData(X, XV, XT, Y, YV, YT)
 
@@ -282,8 +281,7 @@ def main():
           )
 
   # create directory to dump all data related to model
-  fdir = args.dump_dir + 'MTModel-' + str(args.config) + '-' + str(seed) + "_Rank" + str(RANK) +'/'
-  #os.mkdir(fdir)
+  fdir = args.dump_dir + 'MTModel-' + str(args.config) + "_Rank-" + str(RANK) +'/'
   if not os.path.exists(fdir):
     os.makedirs(fdir)
 
