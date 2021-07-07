@@ -230,7 +230,7 @@ def main():
   #parser.add_argument('data_dir',     type=str, help='Where is the data located?')
   #parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
   parser.add_argument('config',       type=int, help='What model config are we using?')
-  #parser.add_argument('seed',         type=int, help='Random seed for run')
+  #parser.add_argument('seed',         type=int, help='Random seed for run') #Assign Rank to this <------------
 
 
   #It's too complicated to pass the directory as an argument for each model.
@@ -241,8 +241,8 @@ def main():
 
   # Parse all the arguments & set random seed
   args = parser.parse_args()
-  print('Seed:', args.seed, end='\n\n', flush= True)
-  np.random.seed(args.seed)
+  #print('Seed:', args.seed, end='\n\n', flush= True)
+  np.random.seed(RANK)
 
   # check that dump directory exists
   # if not os.path.isdir(dump_dir):
