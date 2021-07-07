@@ -348,8 +348,8 @@ def main():
   print('Model Saved!', flush= True)
 
   # save picture of model created
-  plot_model(mtcnn, fdir + "model.png", show_shapes=True)
-  print('Model Topology Picture Saved!', flush= True)
+  # plot_model(mtcnn, fdir + "model.png", show_shapes=True)
+  # print('Model Topology Picture Saved!', flush= True)
 
 if __name__ == '__main__':
   main()
