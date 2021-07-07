@@ -30,11 +30,8 @@ from loaddata6reg import loadAllTasks
 from mpi4py import MPI
 
 
-
-
-
 # global variables
-EPOCHS = 1
+EPOCHS = 1 #<--------------------------- debugging
 COMM = MPI.COMM_WORLD
 RANK = COMM.Get_rank()
 SIZE = COMM.size #Node count. size-1 = max rank.
@@ -242,7 +239,7 @@ def main():
   # Parse all the arguments & set random seed
   args = parser.parse_args()
   #print('Seed:', args.seed, end='\n\n', flush= True)
-  seed = RANK
+  seed = RANK #<-- if you want to use this, just replace "seed" with "args.seed". It also shows up in the file name
   np.random.seed(seed)
 
   # check that dump directory exists
@@ -288,7 +285,7 @@ def main():
           )
 
   # create directory to dump all data related to model
-  fdir = dump_dir + 'MTModel-' + str(args.config) + '-' + seed + "_Rank" + str(RANK) +'/'
+  fdir = dump_dir + 'MTModel-' + str(args.config) + '-' + str(seed) + "_Rank" + str(RANK) +'/'
   os.mkdir(fdir)
 
   # save predictions from all data inputs
@@ -302,8 +299,6 @@ def main():
   file = open(fname, 'wb')
   pickle.dump(pred, file)
   file.close()
-
-
   # for i in range(len(pred)):
   #   print('task:',str(i))
   #   print('--Number of data points: ', len(pred[i]), flush= True)
@@ -332,7 +327,6 @@ def main():
   file = open(fname, 'wb')
   pickle.dump(predT, file)
   file.close()
-
   # for i in range(len(predT)):
   #   print('task:',str(i))
   #   print('--Number of data points: ', len(predT[i]), flush= True)
