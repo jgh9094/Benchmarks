@@ -27,13 +27,22 @@ from keras.utils import to_categorical
 from keras.layers.merge import Concatenate
 
 from loaddata6reg import loadAllTasks
+from mpi4py import MPI
+
+
+
+
 
 # global variables
 EPOCHS = 100
+COMM = MPI.COMM_WORLD
+RANK = COMM.Get_rank()
+SIZE = COMM.size #Node count. size-1 = max rank.
 
 # return the data for training and testing
 # will need to modify if other means of data gathering
 # USED FOR LOCAL TESTING PURPOSES: EXPECTING DATA TO BE ON LOCAL MACHINE
+'''
 def GetData(dir):
   # load data
   rawX = np.load( dir + 'train_X.npy' )
@@ -91,7 +100,7 @@ def GetData(dir):
     classes.append(len(y[0]))
 
   return np.array(rawX),Y,np.array(rawXT),YT,classes
-
+'''
 # return configuration for the experiment
 def GetModelConfig(config):
   # testing configuration
@@ -223,16 +232,21 @@ def main():
   parser.add_argument('config',       type=int, help='What model config are we using?')
   parser.add_argument('seed',         type=int, help='Random seed for run')
 
+  #It's too complicated to pass the directory as an argument for each model.
+  args.dump_dir = "//gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/joseOutput/" + str(RANK) + "/"
+  if not os.path.exists(args.dump_dir):
+    os.makedirs(args.dump_dir)
+
+
   # Parse all the arguments & set random seed
   args = parser.parse_args()
   print('Seed:', args.seed, end='\n\n', flush= True)
   np.random.seed(args.seed)
 
   # check that dump directory exists
-  if not os.path.isdir(args.dump_dir):
-    print('DUMP DIRECTORY DOES NOT EXIST', flush= True)
-    args.dump_dir = "//gpfs/alpine/med107/proj-shared/kevindeangeli/EnsembleDestilation/joseOutput/"
-    #exit(-1)
+  # if not os.path.isdir(args.dump_dir):
+  #   print('DUMP DIRECTORY DOES NOT EXIST', flush= True)
+  #   exit(-1)
 
   # Step 1: Get experiment configurations
   config = GetModelConfig(args.config)
@@ -260,7 +274,7 @@ def main():
           )
 
   # create directory to dump all data related to model
-  fdir = args.dump_dir + 'MTModel-' + str(args.config) + '-' + args.seed + '/'
+  fdir = args.dump_dir + 'MTModel-' + str(args.config) + '-' + args.seed + "_Rank" + str(RANK) +'/'
   os.mkdir(fdir)
 
   # save predictions from all data inputs
@@ -270,34 +284,49 @@ def main():
   predT = mtcnn.predict(XT)
 
   print('Saving Training Softmax Output', flush= True)
-  for i in range(len(pred)):
-    print('task:',str(i))
-    print('--Number of data points: ', len(pred[i]), flush= True)
-    print('--Size of each data point', len(pred[i][0]), flush= True)
+  fname = fdir + 'training-task.pickle'
+  file = open(fname, 'wb')
+  pickle.dump(pred, file)
+  file.close()
 
-    fname = fdir + 'training-task-' + str(i) + '.npy'
-    np.save(fname, pred[i])
-  print()
+
+  # for i in range(len(pred)):
+  #   print('task:',str(i))
+  #   print('--Number of data points: ', len(pred[i]), flush= True)
+  #   print('--Size of each data point', len(pred[i][0]), flush= True)
+  #
+  #   fname = fdir + 'training-task-' + str(i) + '.npy'
+  #   np.save(fname, pred[i])
+  # print()
 
   print('Saving Validation Softmax Output', flush= True)
-  for i in range(len(predV)):
-    print('task:',str(i), flush= True)
-    print('--Number of data points: ', len(predV[i]), flush= True)
-    print('--Size of each data point', len(predV[i][0]), flush= True)
-
-    fname = fdir + 'validating-task-' + str(i) + '.npy'
-    np.save(fname, pred[i])
-  print()
+  fname = fdir + 'validating-task.pickle'
+  file = open(fname, 'wb')
+  pickle.dump(predV, file)
+  file.close()
+  # for i in range(len(predV)):
+  #   print('task:',str(i), flush= True)
+  #   print('--Number of data points: ', len(predV[i]), flush= True)
+  #   print('--Size of each data point', len(predV[i][0]), flush= True)
+  #
+  #   fname = fdir + 'validating-task-' + str(i) + '.npy'
+  #   np.save(fname, pred[i])
+  # print()
 
   print('Saving Testing Softmax Output', flush= True)
-  for i in range(len(predT)):
-    print('task:',str(i))
-    print('--Number of data points: ', len(predT[i]), flush= True)
-    print('--Size of each data point', len(predT[i][0]), flush= True)
+  fname = fdir + 'testing-task.pickle'
+  file = open(fname, 'wb')
+  pickle.dump(predT, file)
+  file.close()
 
-    fname = fdir + 'testing-task-' + str(i) + '.npy'
-    np.save(fname, predT[i])
-  print()
+  # for i in range(len(predT)):
+  #   print('task:',str(i))
+  #   print('--Number of data points: ', len(predT[i]), flush= True)
+  #   print('--Size of each data point', len(predT[i][0]), flush= True)
+  #
+  #   fname = fdir + 'testing-task-' + str(i) + '.npy'
+  #   np.save(fname, predT[i])
+  # print()
 
   # convert the history.history dict to a pandas DataFrame:
   hist_df = pd.DataFrame(hist.history)
