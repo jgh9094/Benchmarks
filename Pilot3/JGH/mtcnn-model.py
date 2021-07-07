@@ -256,6 +256,18 @@ def main():
   # Step 2: Create training/testing data for models
   # X,Y,XT,YT,classes =  GetData(args.data_dir)
   X, XV, XT, Y, YV, YT= loadAllTasks(print_shapes = False)
+
+  ''''
+  For debugging purposes:
+  '''
+  X = X[0:512]
+  XV = XV[0:512]
+  XT = XT[0:512]
+  Y = Y[0:512]
+  YV = YV[0:512]
+  YT = YT[0:512]
+
+
   X, XV, XT, Y, YV, YT, classes = TransformData(X, XV, XT, Y, YV, YT)
 
   # Step 3: Create the mtcnn model
