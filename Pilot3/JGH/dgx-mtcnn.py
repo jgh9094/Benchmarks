@@ -231,7 +231,7 @@ def main():
     print('DUMP DIRECTORY DOES NOT EXIST', flush= True)
     exit(-1)
 
-  data_dir = '//gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Data/Pilot3/P3B3_data'
+  data_dir = '//gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Data/Pilot3/P3B3_data/'
   print('data_dir:', data_dir)
   # Step 2: Create training/testing data for models
   X,Y,XT,YT,classes =  GetData(data_dir)
