@@ -9,9 +9,10 @@
 
 
 
-cd //gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH
+cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH
 
-module load ibm-wml-ce
-conda activate kevindeangeli
+#module load ibm-wml-ce
+#conda activate kevindeangeli
+. ~/.bashrc_ttt
 
-jsrun -n6 -a1 -g1 -c7 python mtcnn-model.py
+jsrun -n1 -a1 -g1 -c7 python mtcnn-model.py
