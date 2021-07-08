@@ -29,16 +29,18 @@ def GetFolderName(c):
     return 'MTModel-'
 
 def GetData(dir,task,mods):
-  # iterate through all models for training
+  # store the directories we are lookin in and dimensions of softmax
+  dirs = []
   for i in range(mods):
-    fdir = dir + '_Rank-' + str(i) + '/training-task-' + str(task) + '.npy'
-    print('loading:',fdir)
+    fdir = dir + '_Rank-' + str(i)
+    dirs.append(fdir)
 
-    softmax = np.load(fdir)
-    print(softmax.shape)
-    print(softmax)
+  print('dirs:', dirs)
 
-    print('============================================================\n')
+
+  fdir = dir + '_Rank-' + str(i) + '/training-task-' + str(task) + '.npy'
+  dirs,x,y = [],[],[]
+
 
 
   return 0
