@@ -29,9 +29,9 @@ def GetFolderName(c):
     return 'MTModel-'
 
 def GetData(dir,task,mods):
-
+  # iterate through all models for training
   for i in range(mods):
-    fdir = dir + '_Rank-' + str(i)
+    fdir = dir + '_Rank-' + str(i) + '/training-task-' + str(task) + '.npy'
     print(fdir)
 
 
