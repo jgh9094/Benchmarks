@@ -32,7 +32,12 @@ def GetData(dir,task,mods):
   # iterate through all models for training
   for i in range(mods):
     fdir = dir + '_Rank-' + str(i) + '/training-task-' + str(task) + '.npy'
-    print(fdir)
+    print('loading:',fdir)
+
+    softmax = np.load(fdir)
+    print(softmax)
+
+    print('============================================================\n')
 
 
   return 0
