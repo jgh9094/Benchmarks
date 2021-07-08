@@ -15,7 +15,7 @@ import pandas as pd
 import pickle as pk
 
 # OLCF imports
-from mpi4py import MPI
+# from mpi4py import MPI
 
 # global variables
 # COMM = MPI.COMM_WORLD
@@ -24,6 +24,8 @@ from mpi4py import MPI
 
 def GetFolderName(c):
   if c == 0:
+    return 'Model-'
+  elif c == 1:
     return 'MTModel-'
 
 def GetData():
