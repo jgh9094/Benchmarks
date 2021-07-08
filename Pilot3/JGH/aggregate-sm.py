@@ -40,8 +40,32 @@ def GetData(dir,task,mods):
     print(d)
 
 
-  fdir = dir + '_Rank-' + str(i) + '/training-task-' + str(task) + '.npy'
-  dirs,x,y = [],[],[]
+  # get training data
+  print('Aggregating training data...')
+  train = []
+  # check that dimenstions are the same
+  x,y = [],[]
+  for dir in dirs:
+    print(dir + '/training-task-' + str(task) + '.npy')
+    X = np.load(dir + '/training-task-' + str(task) + '.npy')
+    print(X.shape)
+    train.append(X)
+
+    # store dimensions
+    x.append(X.shape[0])
+    y.append(X.shape[1])
+
+  # make sure that dimensions match for all data
+  if 1 < len(set(x)) or 1 < len(set(y)):
+    print('TRAINING DATA DIMS NOT EQUAL')
+    exit(-1)
+
+  for x in train:
+    print(x)
+    print()
+
+
+
 
 
 
