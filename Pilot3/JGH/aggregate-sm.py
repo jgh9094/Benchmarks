@@ -50,7 +50,7 @@ def main():
   seed = int(RANK)
   print('RANK:', seed)
 
-  fdir = args.data_dir + GetFolderName(args.cnn) + '_Rank-' + RANK
+  fdir = args.data_dir + GetFolderName(args.cnn) + '_Rank-' + str(RANK)
 
   print(fdir)
 
