@@ -60,9 +60,17 @@ def GetData(dir,task,mods):
     print('TRAINING DATA DIMS NOT EQUAL')
     exit(-1)
 
-  for x in train:
-    print(x)
-    print()
+  # create average softmax
+  SOFTMAX = []
+  for i in range(x[0]):
+    current = []
+    for x in train:
+      current.append(x[i])
+      print('current:',current)
+      break
+
+    print('curr:',np.mean((current), axis=0))
+    break
 
 
 
