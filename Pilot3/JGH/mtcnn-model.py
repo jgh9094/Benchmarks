@@ -53,7 +53,7 @@ def GetModelConfig(config):
       'in_seq_len': 1500,
       'num_filters': [3,4,5],
       'filter_sizes': [300,300,300],
-      'dump': '//gpfs/alpine/world-shared/med106/yoonh/storageFolder/TrialRun/',
+      'dump': './',
       'prop': 0.1,
     }
 
@@ -138,7 +138,7 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
     model_input = Input(shape=input_shape, name= "Input")
     # embedding lookup
     emb_lookup = Embedding(vocab_size, cfg['wv_len'], input_length=cfg['in_seq_len'],
-                           name="embedding", embeddings_regularizer=l2(cfg['emb_l2']))(model_input)
+                           name="embedding")(model_input)
 
     # convolutional layer and dropout
     conv_blocks = []
@@ -198,12 +198,20 @@ def main():
 
   # Take the proportion of test cases
   print('PROP:', config['prop'])
-  X = X[0:20000]
-  XV = XV[0:20000]
-  XT = XT[0:20000]
-  Y = Y[0:20000]
-  YV = YV[0:20000]
-  YT = YT[0:20000]
+  propX = int(config['prop'] * len(X))
+  propXV = int(config['prop'] * len(XV))
+  propXT = int(config['prop'] * len(XT))
+  propY = int(config['prop'] * len(Y))
+  propYV = int(config['prop'] * len(YV))
+  propYT = int(config['prop'] * len(YT))
+
+  # subset the data set
+  X = X[0:propX]
+  XV = XV[0:propXV]
+  XT = XT[0:propXT]
+  Y = Y[0:propY]
+  YV = YV[0:propYV]
+  YT = YT[0:propYT]
 
   X, XV, XT, Y, YV, YT, classes = TransformData(X, XV, XT, Y, YV, YT)
 
@@ -269,9 +277,17 @@ def main():
   Save final micro/macro:
   '''
   micMac = []
-  # data_path = "val_site/"+self.file_names[k]+".csv"
+
   data_path = fdir + "MicMacTest_R" + str(RANK) + ".csv"
   X, XV, XT, Y, YV, YT= loadAllTasks(print_shapes = False)
+
+  # subset the data set
+  X = X[0:propX]
+  XV = XV[0:propXV]
+  XT = XT[0:propXT]
+  Y = Y[0:propY]
+  YV = YV[0:propYV]
+  YT = YT[0:propYT]
 
 
   for t in range(5):
