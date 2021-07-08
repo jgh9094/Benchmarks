@@ -11,7 +11,7 @@ The number of tasks is calculate during run time from the Y training and testing
 # general python imports
 import numpy as np
 from matplotlib import pyplot as plt
-# import argparse
+import argparse
 import os
 import pandas as pd
 import pickle as pk
@@ -53,8 +53,8 @@ def GetModelConfig(config):
       'in_seq_len': 1500,
       'num_filters': [3,4,5],
       'filter_sizes': [300,300,300],
-      'dump': './',
-      'prop': 0.1,
+      # 'dump': './',
+      # 'prop': 0.1,
     }
 
   else:
@@ -164,29 +164,29 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
 
 def main():
   # generate and get arguments
-  # parser = argparse.ArgumentParser(description='Process arguments for model training.')
-  # parser.add_argument('data_dir',     type=str, help='Where is the data located?')
-  # parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
-  # parser.add_argument('config',       type=int, help='What model config are we using?')
-  # parser.add_argument('prop',         type=int, help='proportion of testcases being used')
+  parser = argparse.ArgumentParser(description='Process arguments for model training.')
+  parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
+  parser.add_argument('config',       type=int, help='What model config are we using?')
+  parser.add_argument('prop',         type=float, help='proportion of testcases being used')
 
-  # Parse all the arguments & set random seed
-  # args = parser.parse_args()
-  #print('Seed:', args.seed, end='\n\n', flush= True)
+  # parse all the argument
+  args = parser.parse_args()
+
+  # set the seed to the rank
   seed = int(RANK)
   print('Seed:', seed)
   np.random.seed(seed)
 
   # Step 1: Get experiment configurations
-  cfg = 0
-  print('Config Using:', cfg)
-  config = GetModelConfig(cfg)
+  print('Config Using:', args.config)
+  config = GetModelConfig(args.config)
   print('run parameters:', config, end='\n\n', flush= True)
 
-  #just put this here to make it simple for now:
-  dump_dir = config['dump']
+  # save the dump directory
+  dump_dir = args.dump_dir
 
   # check that dump directory exists
+  # we expect the dump dir to be made already
   print('DUMP Directory:', dump_dir)
   if not os.path.isdir(dump_dir):
     print('DUMP DIRECTORY DOES NOT EXIST', flush= True)
@@ -196,14 +196,19 @@ def main():
   # Step 2: Create training/testing data for models
   X, XV, XT, Y, YV, YT= loadAllTasks(print_shapes = False)
 
+  # check that prop is between (0,1]
+  if args.prop <= 0 or args.prop > 1:
+    print('PROP NOT IN CORRECT RANGE')
+    exit(-1)
+
   # Take the proportion of test cases
-  print('PROP:', config['prop'])
-  propX = int(config['prop'] * len(X))
-  propXV = int(config['prop'] * len(XV))
-  propXT = int(config['prop'] * len(XT))
-  propY = int(config['prop'] * len(Y))
-  propYV = int(config['prop'] * len(YV))
-  propYT = int(config['prop'] * len(YT))
+  print('PROP:', args.prop)
+  propX = int(args.prop * len(X))
+  propXV = int(args.prop * len(XV))
+  propXT = int(args.prop * len(XT))
+  propY = int(args.prop * len(Y))
+  propYV = int(args.prop * len(YV))
+  propYT = int(args.prop * len(YT))
 
   # subset the data set
   X = X[0:propX]
@@ -232,7 +237,7 @@ def main():
           )
 
   # create directory to dump all data related to model
-  fdir = dump_dir + 'MTModel-' + str(cfg) + "_Rank-" + str(RANK) +'/'
+  fdir = dump_dir + 'MTModel-' + str(args.config) + "_Rank-" + str(RANK) +'/'
   if not os.path.exists(fdir):
     os.makedirs(fdir)
 
