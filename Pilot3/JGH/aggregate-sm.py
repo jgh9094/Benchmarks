@@ -32,10 +32,12 @@ def GetData(dir,task,mods):
   # store the directories we are lookin in and dimensions of softmax
   dirs = []
   for i in range(mods):
-    fdir = dir + '_Rank-' + str(i)
+    fdir = dir + '_Rank-' + str(i) + '/'
     dirs.append(fdir)
 
-  print('dirs:', dirs)
+  print('DIRS EXPLORING:')
+  for d in dirs:
+    print(d)
 
 
   fdir = dir + '_Rank-' + str(i) + '/training-task-' + str(task) + '.npy'
