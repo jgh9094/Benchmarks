@@ -236,7 +236,7 @@ def main():
   # Step 2: Create training/testing data for models
   X,Y,XT,YT,classes =  GetData(data_dir)
 
-  X, XT, Y, YT, classes = TransformData(X, XT, Y, YT)
+  # X, XT, Y, YT, classes = TransformData(X, XT, Y, YT)
 
   # Step 3: Create the mtcnn model
   mtcnn = CreateMTCnn(classes, max(np.max(X),np.max(XT)) + 1,config)
