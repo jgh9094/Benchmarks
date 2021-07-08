@@ -38,68 +38,7 @@ COMM = MPI.COMM_WORLD
 RANK = COMM.Get_rank()
 SIZE = COMM.size #Node count. size-1 = max rank.
 
-# return the data for training and testing
-# will need to modify if other means of data gathering
-# USED FOR LOCAL TESTING PURPOSES: EXPECTING DATA TO BE ON LOCAL MACHINE
-'''
-def GetData(dir):
-  # load data
-  rawX = np.load( dir + 'train_X.npy' )
-  rawY = np.load( dir + 'train_Y.npy' )
-  rawXT = np.load( dir + 'test_X.npy' )
-  rawYT = np.load( dir + 'test_Y.npy' )
 
-  # raw data descriptions
-  print('RAW DATA DIMS', flush= True)
-  print('rawX dim: ', rawX.shape, flush= True)
-  print('rawY dim: ', rawY.shape, flush= True)
-  print('rawXT dim: ', rawXT.shape, flush= True)
-  print('rawYT dim: ', rawYT.shape , end='\n\n', flush= True)
-
-  if rawY.shape[1] != rawYT.shape[1]:
-    print('NUMBER OF TASKS NOT THE SAME BETWEEN DATA SETS', flush= True)
-    exit(-1)
-
-  # create array for each task output
-  y = [[] for i in range(rawY.shape[1])]
-  yt = [[] for i in range(rawY.shape[1])]
-  # load data
-  for t in range(rawY.shape[1]):
-    y[t] = rawY[:,t]
-    yt[t] = rawYT[:,t]
-
-  # make to catagorical data and pack up
-  Y,YT = [],[],[]
-  for t in y:
-    Y.append(to_categorical(t))
-  for t in yt:
-    YT.append(to_categorical(t))
-
-  print('Training Output Data', flush= True)
-  i = 0
-  for y in Y:
-    print('task', i, flush= True)
-    print('--cases:', len(y), flush= True)
-    print('--classes:',len(y[0]), flush= True)
-    i += 1
-  print()
-
-  print('Testing Output Data', flush= True)
-  i = 0
-  for y in YT:
-    print('task', i, flush= True)
-    print('--cases:', len(y), flush= True)
-    print('--classes:',len(y[0]), flush= True)
-    i += 1
-  print()
-
-  # number of classes per task
-  classes = []
-  for y in Y:
-    classes.append(len(y[0]))
-
-  return np.array(rawX),Y,np.array(rawXT),YT,classes
-'''
 # return configuration for the experiment
 def GetModelConfig(config):
   # testing configuration
@@ -255,7 +194,6 @@ def main():
 
 
   # Step 2: Create training/testing data for models
-  # X,Y,XT,YT,classes =  GetData(args.data_dir)
   X, XV, XT, Y, YV, YT= loadAllTasks(print_shapes = False)
 
   # Take the proportion of test cases
