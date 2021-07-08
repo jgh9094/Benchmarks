@@ -28,7 +28,11 @@ def GetFolderName(c):
   elif c == 1:
     return 'MTModel-'
 
-def GetData():
+def GetData(dir,task,mods):
+
+  for i in range(mods):
+    fdir = dir + str(i) + '_Rank-' + str(task)
+    print(fdir)
 
 
   return 0
@@ -39,8 +43,8 @@ def main():
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
   parser.add_argument('data_dir',     type=str, help='Where are we dumping the output?')
   parser.add_argument('config',       type=int, help='What model config was used')
-  parser.add_argument('models',       type=float, help='Number of models used')
-  parser.add_argument('cnn',          type=float, help='0: Single, 1: MT model')
+  parser.add_argument('models',       type=int, help='Number of models used')
+  parser.add_argument('cnn',          type=int, help='0: Single, 1: MT model')
 
   # parse all the argument
   args = parser.parse_args()
@@ -50,9 +54,12 @@ def main():
   seed = int(RANK)
   print('RANK:', seed)
 
-  fdir = args.data_dir + GetFolderName(args.cnn) + '_Rank-' + str(RANK)
+  dir = args.data_dir + GetFolderName(args.cnn)
 
-  print(fdir)
+  print('dir:', dir)
+  print()
+
+  GetData(dir, seed, args.models)
 
 
 
