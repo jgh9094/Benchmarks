@@ -47,7 +47,7 @@ def GetData(dir,task,mods,dump):
   x,y = [],[]
   for dir in dirs:
     print('adding dir:', dir + '/training-task-' + str(task) + '.npy')
-    X = np.load(dir + '/training-task-' + str(task) + '.npy')
+    X = np.load(file=dir + '/training-task-' + str(task) + '.npy',mmap_mode='r')
     print(X.shape)
     train.append(X)
 
@@ -73,7 +73,7 @@ def GetData(dir,task,mods,dump):
   print(SOFTMAX.shape)
   print(SOFTMAX)
 
-  np.save(dump + 'dis-train-sm.npy', SOFTMAX)
+  np.save(dump + 'train-sm.npy', SOFTMAX)
 
 
 
