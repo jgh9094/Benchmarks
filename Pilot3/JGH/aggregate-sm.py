@@ -66,8 +66,10 @@ def GetData(dir,task,mods):
     current = []
     for x in train:
       current.append(x[i])
-      
-    print('current:',current)
+
+    print('current:')
+    for c in current:
+      print(c)
     print('curr:',np.mean((current), axis=0))
     break
 
