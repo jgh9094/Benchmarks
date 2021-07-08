@@ -231,12 +231,11 @@ def main():
     print('DUMP DIRECTORY DOES NOT EXIST', flush= True)
     exit(-1)
 
-  data_dir = '/home/60h/GEM-SUMMER-2021/Benchmarks/Data/P3B3_data/'
+  data_dir = '//gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Data/Pilot3/P3B3_data'
   print('data_dir:', data_dir)
   # Step 2: Create training/testing data for models
   X,Y,XT,YT,classes =  GetData(data_dir)
 
-  # X, XT, Y, YT, classes = TransformData(X, XT, Y, YT)
 
   # Step 3: Create the mtcnn model
   mtcnn = CreateMTCnn(classes, max(np.max(X),np.max(XT)) + 1,config)
