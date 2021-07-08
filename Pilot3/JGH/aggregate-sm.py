@@ -28,7 +28,7 @@ def GetFolderName(c):
   elif c == 1:
     return 'MTModel-'
 
-def GetData(dir,task,mods):
+def GetData(dir,task,mods,dump):
   # store the directories we are lookin in and dimensions of softmax
   dirs = []
   for i in range(mods):
@@ -46,7 +46,7 @@ def GetData(dir,task,mods):
   # check that dimenstions are the same
   x,y = [],[]
   for dir in dirs:
-    print(dir + '/training-task-' + str(task) + '.npy')
+    print('adding dir:', dir + '/training-task-' + str(task) + '.npy')
     X = np.load(dir + '/training-task-' + str(task) + '.npy')
     print(X.shape)
     train.append(X)
@@ -73,7 +73,7 @@ def GetData(dir,task,mods):
   print(SOFTMAX.shape)
   print(SOFTMAX)
 
-
+  np.save(dump + 'dis-train-sm.npy', SOFTMAX)
 
 
 
@@ -84,6 +84,7 @@ def main():
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
   parser.add_argument('data_dir',     type=str, help='Where are we dumping the output?')
+  parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
   parser.add_argument('config',       type=int, help='What model config was used')
   parser.add_argument('models',       type=int, help='Number of models used')
   parser.add_argument('cnn',          type=int, help='0: Single, 1: MT model')
@@ -101,7 +102,7 @@ def main():
   print('dir:', dir)
   print()
 
-  GetData(dir, seed, args.models)
+  GetData(dir, seed, args.models, args.dump_dir)
 
 
 
