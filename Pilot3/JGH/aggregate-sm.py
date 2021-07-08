@@ -35,6 +35,7 @@ def GetData(dir,task,mods):
     print('loading:',fdir)
 
     softmax = np.load(fdir)
+    print(softmax.shape)
     print(softmax)
 
     print('============================================================\n')
