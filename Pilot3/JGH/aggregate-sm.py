@@ -54,7 +54,7 @@ def main():
   seed = int(RANK)
   print('RANK:', seed)
 
-  dir = args.data_dir + GetFolderName(args.cnn)
+  dir = args.data_dir + GetFolderName(args.cnn) + str(args.config)
 
   print('dir:', dir)
   print()
