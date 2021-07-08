@@ -31,7 +31,7 @@ def GetFolderName(c):
 def GetData(dir,task,mods):
 
   for i in range(mods):
-    fdir = dir + str(i) + '_Rank-' + str(task)
+    fdir = dir + '_Rank-' + str(task)
     print(fdir)
 
 
