@@ -22,11 +22,11 @@ import os
 # RANK = COMM.Get_rank()
 # SIZE = COMM.size #Node count. size-1 = max rank.
 
-def GetFolderName(c):
-  if c == 0:
-    return 'Model-'
-  elif c == 1:
-    return 'MTModel-'
+# def GetFolderName(c):
+#   if c == 0:
+#     return 'Model-'
+#   elif c == 1:
+#     return 'MTModel-'
 
 def GetDataDirs(dir,mods):
   # store the directories we are lookin in and dimensions of softmax
@@ -109,10 +109,10 @@ def main():
   task = int(RANK)
   print('task:', task)
 
-  dir = args.data_dir + GetFolderName(args.cnn) + str(args.config)
+  # dir = args.data_dir + GetFolderName(args.cnn) + str(args.config)
 
   # Step 1: Get data directories we are exploring
-  dirs = GetDataDirs(dir,args.models)
+  dirs = GetDataDirs(args.data_dir,args.models)
 
   # Step 2: Average training data
   # AverageData(dirs,task,args.models,args.dump_dir, 'training')
