@@ -76,8 +76,7 @@ def GetData(dir,task,mods,dump):
   print('matA:', mat)
 
   # divide all elements in matrix by number of models
-  for i in range(len(mat)):
-    mat[i] /= float(mods)
+  mat = [m / float(mods) for m in mat]
 
   print('matB:',mat)
 
