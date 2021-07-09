@@ -63,23 +63,8 @@ def GetData(dir,task,mods,dump):
 
   print('mem1',psutil.virtual_memory())
 
-
-  # create average softmax
-  SOFTMAX = []
-  for i in range(x[0]):
-    current = []
-    for x in train:
-      current.append(x[i])
-
-    SOFTMAX.append(np.mean((current), axis=0))
-
-  SOFTMAX = np.array(SOFTMAX)
-  print(SOFTMAX.shape)
-  print(SOFTMAX)
-
-  np.save(dump + 'train-sm.npy', SOFTMAX)
-  print('mem2',psutil.virtual_memory())
-
+  mat = np.zeros(shape=(x[0],y[0]))
+  print(mat)
 
 
 
