@@ -10,8 +10,6 @@ Python file will aggregate
 # general python imports
 import numpy as np
 import argparse
-import os
-import pandas as pd
 import pickle as pk
 import psutil
 
@@ -61,12 +59,11 @@ def GetData(dir,task,mods,dump):
     print('TRAINING DATA DIMS NOT EQUAL')
     exit(-1)
 
+  # memory checks
   print('mem1',psutil.virtual_memory())
-
+  # matrix that will
   mat = np.zeros(shape=(x[0],y[0]))
-  print('mat.shape:',mat.shape)
-  print('mat[0][0]:', mat[0][0])
-  print(mat)
+
 
 
 
