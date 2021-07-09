@@ -86,7 +86,7 @@ def AverageTraining(dirs,task,mods,dump):
 
   print('mem2',psutil.virtual_memory())
 
-  np.save(dump + 'avg-training-sm.npy')
+  np.save(dump + 'avg-training-sm.npy', mat)
 
 
 def main():
