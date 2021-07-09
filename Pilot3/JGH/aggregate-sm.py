@@ -13,6 +13,7 @@ import argparse
 import os
 import pandas as pd
 import pickle as pk
+import psutil
 
 # OLCF imports
 # from mpi4py import MPI
@@ -60,6 +61,9 @@ def GetData(dir,task,mods,dump):
     print('TRAINING DATA DIMS NOT EQUAL')
     exit(-1)
 
+  print('mem1',psutil.virtual_memory())
+
+
   # create average softmax
   SOFTMAX = []
   for i in range(x[0]):
@@ -74,6 +78,8 @@ def GetData(dir,task,mods,dump):
   print(SOFTMAX)
 
   np.save(dump + 'train-sm.npy', SOFTMAX)
+  print('mem2',psutil.virtual_memory())
+
 
 
 
