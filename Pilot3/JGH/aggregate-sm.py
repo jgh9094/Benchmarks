@@ -76,10 +76,10 @@ def GetData(dir,task,mods,dump):
   print('matA:', mat)
 
   # divide all elements in matrix by number of models
-  for m in mat:
-    print(m / float(mods))
+  for i in range(len(mat)):
+    mat[i] /= float(mods)
 
-  # print('matB:',mat)
+  print('matB:',mat)
 
   print('mem2',psutil.virtual_memory())
 
