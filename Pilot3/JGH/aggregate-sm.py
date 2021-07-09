@@ -12,6 +12,7 @@ import numpy as np
 import argparse
 import pickle as pk
 import psutil
+import os
 
 # OLCF imports
 # from mpi4py import MPI
@@ -29,10 +30,10 @@ def GetFolderName(c):
 
 def GetDataDirs(dir,mods):
   # store the directories we are lookin in and dimensions of softmax
-  dirs = []
-  for i in range(mods):
-    fdir = dir + '_Rank-' + str(i) + '/'
-    dirs.append(fdir)
+  dirs = [f for f in os.listdir(dir) if f.isdir()]
+  # for i in range(mods):
+  #   fdir = dir + '_Rank-' + str(i) + '/'
+  #   dirs.append(fdir)
 
   print('DIRS EXPLORING:')
   for d in dirs:
@@ -90,7 +91,6 @@ def AverageData(dirs,task,mods,dump,data):
   print('finished saving:', dump + data + '-task-' + str(task) +'.npy')
   print()
 
-
 def main():
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
@@ -114,13 +114,13 @@ def main():
   dirs = GetDataDirs(dir,args.models)
 
   # Step 2: Average training data
-  AverageData(dirs,task,args.models,args.dump_dir, 'training')
+  # AverageData(dirs,task,args.models,args.dump_dir, 'training')
 
   # Step 3: Average testing data
-  AverageData(dirs,task,args.models,args.dump_dir, 'testing')
+  # AverageData(dirs,task,args.models,args.dump_dir, 'testing')
 
   # Step 3: Average testing data
-  AverageData(dirs,task,args.models,args.dump_dir, 'validating')
+  # AverageData(dirs,task,args.models,args.dump_dir, 'validating')
 
 
 if __name__ == '__main__':
