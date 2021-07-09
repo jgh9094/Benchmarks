@@ -32,9 +32,7 @@ def GetDataDirs(dir,mods):
   # store the directories we are lookin in and dimensions of softmax
   print(os.listdir(dir))
   dirs = filter(os.path.isdir, [os.path.join(dir, o) for o in os.listdir(dir)])
-  # for i in range(mods):
-  #   fdir = dir + '_Rank-' + str(i) + '/'
-  #   dirs.append(fdir)
+  dirs = [dir + '/' for dir in dirs]
 
   print('DIRS EXPLORING:')
   for d in dirs:
