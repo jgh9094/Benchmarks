@@ -82,13 +82,8 @@ def AverageData(dirs,task,seed,dump,data):
   # memory checks
   print('memory:',psutil.virtual_memory())
 
-  # create dir to store data in
-  fdir = dump + 'SEED-' + str(seed) + '/'
-  if not os.path.exists(fdir):
-    os.makedirs(fdir)
-
-  np.save(fdir + data + '-task-' + str(task) +'.npy', mat)
-  print('finished saving:', fdir + data + '-task-' + str(task) +'.npy')
+  np.save(dump + data + '-task-' + str(task) +'.npy', mat)
+  print('finished saving:', dump + data + '-task-' + str(task) +'.npy')
   print()
 
 def main():
