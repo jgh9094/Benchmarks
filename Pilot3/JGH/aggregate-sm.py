@@ -30,7 +30,8 @@ def GetFolderName(c):
 
 def GetDataDirs(dir,mods):
   # store the directories we are lookin in and dimensions of softmax
-  dirs = [f for f in os.listdir(dir) if f.isdir()]
+  print(os.listdir(dir))
+  dirs = []
   # for i in range(mods):
   #   fdir = dir + '_Rank-' + str(i) + '/'
   #   dirs.append(fdir)
