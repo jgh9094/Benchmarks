@@ -77,9 +77,9 @@ def GetData(dir,task,mods,dump):
 
   # divide all elements in matrix by number of models
   for m in mat:
-    m = m / float(mods)
+    print(m / float(mods))
 
-  print('matB:',mat)
+  # print('matB:',mat)
 
   print('mem2',psutil.virtual_memory())
 
