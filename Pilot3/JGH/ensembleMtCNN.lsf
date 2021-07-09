@@ -4,7 +4,7 @@
 #BSUB -J mtCNN
 #BSUB -o logs/mtCNN.o%J
 #BSUB -e ErrorFile_Ensemble
-#BSUB -W 05:00
+#BSUB -W 02:00
 #BSUB -nnodes 1
 
 cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH
@@ -14,7 +14,7 @@ DUMP=//gpfs/alpine/world-shared/med106/yoonh/storageFolder/FinalTrialRun/
 # config: mtcnn configuration we are using
 CONFIG=0
 # prop: proportion of cases we are using
-PROP=0.25
+PROP=0.10
 
 . ~/.bashrc_ttt
 
