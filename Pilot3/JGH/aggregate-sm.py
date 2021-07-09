@@ -49,6 +49,7 @@ def AverageData(dirs,task,mods,dump,data):
   print('CHECKING DATA DIMENSIONS...')
   for dir in dirs:
     X = np.load(file=dir + data +'-task-' + str(task) + '.npy', mmap_mode='r')
+    print('X[0]:',X[0])
     # store dimensions
     x.append(X.shape[0])
     y.append(X.shape[1])
@@ -84,9 +85,11 @@ def AverageData(dirs,task,mods,dump,data):
 
   print('mem2',psutil.virtual_memory())
 
-  np.save(dump + data + '-task-' + str(task) +'.npy', mat)
-  print('finished saving:', dump + data + '-task-' + str(task) +'.npy')
-  print()
+  print(mat[0])
+
+  # np.save(dump + data + '-task-' + str(task) +'.npy', mat)
+  # print('finished saving:', dump + data + '-task-' + str(task) +'.npy')
+  # print()
 
 def main():
   # generate and get arguments
