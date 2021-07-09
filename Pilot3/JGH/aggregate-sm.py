@@ -44,9 +44,10 @@ def GetData(dir,task,mods,dump):
   train = []
   # check that dimenstions are the same
   x,y = [],[]
+  # go through all files and check the dimensions
   for dir in dirs:
     print('adding dir:', dir + '/training-task-' + str(task) + '.npy')
-    X = np.load(file=dir + '/training-task-' + str(task) + '.npy',mmap_mode='r')
+    X = np.load(file=dir + '/training-task-' + str(task) + '.npy', mmap_mode='r')
 
     # store dimensions
     x.append(X.shape[0])
@@ -60,9 +61,27 @@ def GetData(dir,task,mods,dump):
 
   # matrix that will
   mat = np.zeros(shape=(x[0],y[0]))
+  del x,y
 
   # memory checks
   print('mem1',psutil.virtual_memory())
+
+  for dir in dirs:
+    print('adding dir:', dir + '/training-task-' + str(task) + '.npy')
+    X = np.load(file=dir + '/training-task-' + str(task) + '.npy', mmap_mode='r')
+    # iteratate through each file and update the matrix
+    for i in range(X.shape[0]):
+      for j in range(X.shape[1]):
+        mat[i][j] += X[i][j]
+
+  print('mat:',mat)
+
+  print('mem2',psutil.virtual_memory())
+
+
+
+
+
 
 
 
