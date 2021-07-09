@@ -116,7 +116,7 @@ def main():
 
 
   # check to see if the file actualy is there
-  X = np.load(args.dump_dir + 'avg-training-sm.npy', mmap_mode='r')
+  X = np.load(args.dump_dir + 'avg-training-sm.npy')
   print('X')
   print(X.shape)
   print(type(X))
