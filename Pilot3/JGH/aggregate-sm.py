@@ -39,7 +39,7 @@ def GetDataDirs(dir,p):
 
   return dirs
 
-def AverageData(dirs,task,mods,dump,data):
+def AverageData(dirs,task,seed,dump,data):
   # get training data
   print('AVERAGING',data.upper(),'DATA...')
 
@@ -108,14 +108,15 @@ def main():
   args = parser.parse_args()
 
   # set seed for rng
-  print('RANDOM SEED:', task+args.offset)
-  np.random.seed(task+args.offset)
+  seed = int(task+args.offset)
+  print('RANDOM SEED:', seed)
+  np.random.seed(seed)
 
   # Step 1: Get data directories we are exploring
   dirs = GetDataDirs(args.data_dir,args.proportion)
 
   # Step 2: Average training data
-  AverageData(dirs,task,args.dump_dir, 'training')
+  AverageData(dirs,task,seed,args.dump_dir, 'training')
 
   # Step 3: Average testing data
   # AverageData(dirs,task,args.dump_dir, 'testing')
