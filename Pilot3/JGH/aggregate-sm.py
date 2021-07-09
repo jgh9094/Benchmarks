@@ -22,17 +22,15 @@ import os
 # RANK = COMM.Get_rank()
 # SIZE = COMM.size #Node count. size-1 = max rank.
 
-# def GetFolderName(c):
-#   if c == 0:
-#     return 'Model-'
-#   elif c == 1:
-#     return 'MTModel-'
-
-def GetDataDirs(dir,mods):
+#
+def GetDataDirs(dir,p):
   # store the directories we are lookin in and dimensions of softmax
   print(os.listdir(dir))
   dirs = filter(os.path.isdir, [os.path.join(dir, o) for o in os.listdir(dir)])
   dirs = [dir + '/' for dir in dirs]
+
+  sub = int(p * len(dirs))
+  dirs = np.random.choice(dirs, sub)
 
   print('DIRS EXPLORING:')
   for d in dirs:
@@ -82,7 +80,7 @@ def AverageData(dirs,task,mods,dump,data):
     del X
 
   # divide all elements in matrix by number of models
-  mat = np.array([m / float(mods) for m in mat])
+  mat = np.array([m / float(len(dirs)) for m in mat])
 
   print('mem2',psutil.virtual_memory())
 
@@ -93,11 +91,9 @@ def AverageData(dirs,task,mods,dump,data):
 def main():
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
-  parser.add_argument('data_dir',     type=str, help='Where are we dumping the output?')
-  parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
-  parser.add_argument('config',       type=int, help='What model config was used')
-  parser.add_argument('models',       type=int, help='Number of models used')
-  parser.add_argument('cnn',          type=int, help='0: Single, 1: MT model')
+  parser.add_argument('data_dir',     type=str,      help='Where are we dumping the output?')
+  parser.add_argument('dump_dir',     type=str,      help='Where are we dumping the output?')
+  parser.add_argument('proportion',   type=float,    help='What model config was used')
 
   # parse all the argument
   args = parser.parse_args()
@@ -110,16 +106,16 @@ def main():
   # dir = args.data_dir + GetFolderName(args.cnn) + str(args.config)
 
   # Step 1: Get data directories we are exploring
-  dirs = GetDataDirs(args.data_dir,args.models)
+  dirs = GetDataDirs(args.data_dir,args.proportion)
 
   # Step 2: Average training data
-  AverageData(dirs,task,args.models,args.dump_dir, 'training')
+  # AverageData(dirs,task,args.dump_dir, 'training')
 
   # Step 3: Average testing data
-  AverageData(dirs,task,args.models,args.dump_dir, 'testing')
+  # AverageData(dirs,task,args.dump_dir, 'testing')
 
   # Step 3: Average testing data
-  AverageData(dirs,task,args.models,args.dump_dir, 'validating')
+  # AverageData(dirs,task,args.dump_dir, 'validating')
 
 
 if __name__ == '__main__':
