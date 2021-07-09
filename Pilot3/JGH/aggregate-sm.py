@@ -64,6 +64,8 @@ def GetData(dir,task,mods,dump):
   print('mem1',psutil.virtual_memory())
 
   mat = np.zeros(shape=(x[0],y[0]))
+  print('mat.shape:',mat.shape)
+  print('mat[0][0]:', mat[0][0])
   print(mat)
 
 
