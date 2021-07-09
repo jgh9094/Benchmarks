@@ -47,8 +47,8 @@ def GetData(dir,task,mods,dump):
   for dir in dirs:
     print('adding dir:', dir + '/training-task-' + str(task) + '.npy')
     X = np.load(file=dir + '/training-task-' + str(task) + '.npy',mmap_mode='r')
-    print(X.shape)
-    train.append(X)
+    # print(X.shape)
+    # train.append(X)
 
     # store dimensions
     x.append(X.shape[0])
@@ -63,6 +63,7 @@ def GetData(dir,task,mods,dump):
   print('mem1',psutil.virtual_memory())
   # matrix that will
   mat = np.zeros(shape=(x[0],y[0]))
+
 
 
 
