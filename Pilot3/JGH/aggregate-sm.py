@@ -86,7 +86,7 @@ def AverageData(dirs,task,mods,dump,data):
 
   print('mem2',psutil.virtual_memory())
 
-  np.save(dump + 'avg-training-sm.npy', mat)
+  np.save(dump + 'avg-'+ data +'-sm.npy', mat)
 
 
 def main():
@@ -115,6 +115,10 @@ def main():
   AverageData(dirs,task,args.models,args.dump_dir, 'training')
 
   # Step 3: Average testing data
+  AverageData(dirs,task,args.models,args.dump_dir, 'training')
+
+  # Step 3: Average testing data
+  AverageData(dirs,task,args.models,args.dump_dir, 'validating')
 
 
 if __name__ == '__main__':
