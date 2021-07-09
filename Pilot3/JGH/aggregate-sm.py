@@ -90,6 +90,7 @@ def AverageTraining(dirs,task,mods,dump):
 
   print('mem2',psutil.virtual_memory())
 
+  # np.save(dump + 'avg-training-sm.npy')
 
   return 0
 
@@ -108,13 +109,16 @@ def main():
 
   # RANK is synonomous with the task task being evaluated
   RANK = 0 # used for example right now
-  seed = int(RANK)
-  print('RANK:', seed)
+  task = int(RANK)
+  print('task:', task)
 
   dir = args.data_dir + GetFolderName(args.cnn) + str(args.config)
 
+  # Step 1: Get data directories we are exploring
   dirs = GetDataDirs(dir,args.models)
 
+  # Step 2: Average training data
+  AverageTraining(dirs,task,args.models,args.dump_dir)
 
 
 
