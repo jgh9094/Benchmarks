@@ -53,6 +53,7 @@ def GetData(dir,task,mods,dump):
     # store dimensions
     x.append(X.shape[0])
     y.append(X.shape[1])
+    del X
 
   # make sure that dimensions match for all data
   if 1 < len(set(x)) or 1 < len(set(y)):
