@@ -73,6 +73,8 @@ def GetData(dir,task,mods,dump):
       for j in range(X.shape[1]):
         mat[i][j] += X[i][j]
 
+    del X
+
   print('matA:', mat)
 
   # divide all elements in matrix by number of models
