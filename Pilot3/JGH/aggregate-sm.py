@@ -27,7 +27,7 @@ def GetFolderName(c):
   elif c == 1:
     return 'MTModel-'
 
-def GetData(dir,task,mods,dump):
+def GetDataDirs(dir,mods):
   # store the directories we are lookin in and dimensions of softmax
   dirs = []
   for i in range(mods):
@@ -38,7 +38,9 @@ def GetData(dir,task,mods,dump):
   for d in dirs:
     print(d)
 
+  return dirs
 
+def AverageTraining(dirs,task,mods,dump):
   # get training data
   print('Aggregating training data...')
   # check that dimenstions are the same
@@ -68,6 +70,7 @@ def GetData(dir,task,mods,dump):
   for dir in dirs:
     print('processing:', dir + '/training-task-' + str(task) + '.npy')
     X = np.load(file=dir + '/training-task-' + str(task) + '.npy', mmap_mode='r')
+
     # iteratate through each file and update the matrix
     for i in range(X.shape[0]):
       for j in range(X.shape[1]):
@@ -110,10 +113,7 @@ def main():
 
   dir = args.data_dir + GetFolderName(args.cnn) + str(args.config)
 
-  print('dir:', dir)
-  print()
-
-  GetData(dir, seed, args.models, args.dump_dir)
+  dirs = GetDataDirs(dir,args.models)
 
 
 
