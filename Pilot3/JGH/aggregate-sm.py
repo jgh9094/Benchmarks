@@ -119,10 +119,10 @@ def main():
   AverageData(dirs,task,seed,args.dump_dir, 'training')
 
   # Step 3: Average testing data
-  # AverageData(dirs,task,args.dump_dir, 'testing')
+  AverageData(dirs,task,args.dump_dir, 'testing')
 
   # Step 3: Average testing data
-  # AverageData(dirs,task,args.dump_dir, 'validating')
+  AverageData(dirs,task,args.dump_dir, 'validating')
 
 
 if __name__ == '__main__':
