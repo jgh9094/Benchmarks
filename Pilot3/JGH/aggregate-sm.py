@@ -81,18 +81,12 @@ def AverageTraining(dirs,task,mods,dump):
 
     del X
 
-  print('matA:', mat)
-
   # divide all elements in matrix by number of models
   mat = np.array([m / float(mods) for m in mat])
 
-  print('type', type(mat[0]))
-
   print('mem2',psutil.virtual_memory())
 
-  # np.save(dump + 'avg-training-sm.npy')
-
-  return 0
+  np.save(dump + 'avg-training-sm.npy')
 
 
 def main():
