@@ -37,19 +37,20 @@ def GetDataDirs(dir,mods):
   print('DIRS EXPLORING:')
   for d in dirs:
     print(d)
+  print()
 
   return dirs
 
 def AverageTraining(dirs,task,mods,dump):
   # get training data
-  print('Aggregating training data...')
+  print('AVERAGING TRAINING DATA...')
+
   # check that dimenstions are the same
   x,y = [],[]
   # go through all files and check the dimensions
+  print('CHECKING DATA DIMENSIONS...')
   for dir in dirs:
-    print('adding dir:', dir + '/training-task-' + str(task) + '.npy')
     X = np.load(file=dir + '/training-task-' + str(task) + '.npy', mmap_mode='r')
-
     # store dimensions
     x.append(X.shape[0])
     y.append(X.shape[1])
@@ -59,6 +60,8 @@ def AverageTraining(dirs,task,mods,dump):
   if 1 < len(set(x)) or 1 < len(set(y)):
     print('TRAINING DATA DIMS NOT EQUAL')
     exit(-1)
+  else:
+    print('DATA DIMENSIONS MATCH!')
 
   # matrix that will
   mat = np.zeros(shape=(x[0],y[0]))
@@ -83,10 +86,7 @@ def AverageTraining(dirs,task,mods,dump):
   # divide all elements in matrix by number of models
   mat = np.array([m / float(mods) for m in mat])
 
-  print('mat.shape:',mat.shape)
-  for m in mat:
-    print(m)
-    break;
+  print('type', type(mat[0]))
 
   print('mem2',psutil.virtual_memory())
 
