@@ -41,16 +41,16 @@ def GetDataDirs(dir,mods):
 
   return dirs
 
-def AverageTraining(dirs,task,mods,dump):
+def AverageData(dirs,task,mods,dump,data):
   # get training data
-  print('AVERAGING TRAINING DATA...')
+  print('AVERAGING',data.upper(),'DATA...')
 
   # check that dimenstions are the same
   x,y = [],[]
   # go through all files and check the dimensions
   print('CHECKING DATA DIMENSIONS...')
   for dir in dirs:
-    X = np.load(file=dir + '/training-task-' + str(task) + '.npy', mmap_mode='r')
+    X = np.load(file=dir + data +'-task-' + str(task) + '.npy', mmap_mode='r')
     # store dimensions
     x.append(X.shape[0])
     y.append(X.shape[1])
@@ -71,8 +71,8 @@ def AverageTraining(dirs,task,mods,dump):
   print('mem1',psutil.virtual_memory())
 
   for dir in dirs:
-    print('processing:', dir + '/training-task-' + str(task) + '.npy')
-    X = np.load(file=dir + '/training-task-' + str(task) + '.npy', mmap_mode='r')
+    print('processing:', dir + data +'-task-' + str(task) + '.npy')
+    X = np.load(file=dir + data +'-task-' + str(task) + '.npy', mmap_mode='r')
 
     # iteratate through each file and update the matrix
     for i in range(X.shape[0]):
@@ -112,17 +112,9 @@ def main():
   dirs = GetDataDirs(dir,args.models)
 
   # Step 2: Average training data
-  AverageTraining(dirs,task,args.models,args.dump_dir)
+  AverageData(dirs,task,args.models,args.dump_dir, 'training')
 
-
-  # check to see if the file actualy is there
-  X = np.load(args.dump_dir + 'avg-training-sm.npy')
-  print('X')
-  print(X.shape)
-  print(type(X))
-  print(type(X[0]))
-  print(X[0])
-
+  # Step 3: Average testing data
 
 
 if __name__ == '__main__':
