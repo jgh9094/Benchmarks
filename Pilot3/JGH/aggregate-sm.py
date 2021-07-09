@@ -76,7 +76,7 @@ def GetData(dir,task,mods,dump):
   print('matA:', mat)
 
   # divide all elements in matrix by number of models
-  mat = [m / float(mods) for m in mat]
+  mat = np.array([m / float(mods) for m in mat])
 
   print('mat.shape:',mat.shape)
   for m in mat:
