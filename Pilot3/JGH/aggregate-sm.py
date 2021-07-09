@@ -81,6 +81,7 @@ def GetData(dir,task,mods,dump):
   print('mat.shape:',mat.shape)
   for m in mat:
     print(m)
+    break;
 
   print('mem2',psutil.virtual_memory())
 
