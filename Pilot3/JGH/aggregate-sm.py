@@ -113,13 +113,13 @@ def main():
   dirs = GetDataDirs(args.data_dir,args.models)
 
   # Step 2: Average training data
-  # AverageData(dirs,task,args.models,args.dump_dir, 'training')
+  AverageData(dirs,task,args.models,args.dump_dir, 'training')
 
   # Step 3: Average testing data
-  # AverageData(dirs,task,args.models,args.dump_dir, 'testing')
+  AverageData(dirs,task,args.models,args.dump_dir, 'testing')
 
   # Step 3: Average testing data
-  # AverageData(dirs,task,args.models,args.dump_dir, 'validating')
+  AverageData(dirs,task,args.models,args.dump_dir, 'validating')
 
 
 if __name__ == '__main__':
