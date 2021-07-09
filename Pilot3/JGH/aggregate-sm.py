@@ -86,7 +86,7 @@ def AverageData(dirs,task,mods,dump,data):
 
   print('mem2',psutil.virtual_memory())
 
-  np.save(dump + data + '-task-' + str(task) +'npy', mat)
+  np.save(dump + data + '-task-' + str(task) +'.npy', mat)
   print('finished saving:', dump + data + '-task-' + str(task) +'npy')
   print()
 
