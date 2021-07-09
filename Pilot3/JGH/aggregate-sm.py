@@ -22,10 +22,9 @@ import os
 # RANK = COMM.Get_rank()
 # SIZE = COMM.size #Node count. size-1 = max rank.
 
-#
+# will look at all directories in data dir and sample a set of them
 def GetDataDirs(dir,p):
   # store the directories we are lookin in and dimensions of softmax
-  print(os.listdir(dir))
   dirs = filter(os.path.isdir, [os.path.join(dir, o) for o in os.listdir(dir)])
   dirs = [dir + '/' for dir in dirs]
 
@@ -39,6 +38,7 @@ def GetDataDirs(dir,p):
 
   return dirs
 
+# will look through all dirs and average out their data (testing, training, validate)
 def AverageData(dirs,task,seed,dump,data):
   # get training data
   print('AVERAGING',data.upper(),'DATA...')
@@ -49,7 +49,6 @@ def AverageData(dirs,task,seed,dump,data):
   print('CHECKING DATA DIMENSIONS...')
   for dir in dirs:
     X = np.load(file=dir + data +'-task-' + str(task) + '.npy', mmap_mode='r')
-    print('X[0]:',X[0])
     # store dimensions
     x.append(X.shape[0])
     y.append(X.shape[1])
@@ -66,9 +65,6 @@ def AverageData(dirs,task,seed,dump,data):
   mat = np.zeros(shape=(x[0],y[0]))
   del x,y
 
-  # memory checks
-  print('mem1',psutil.virtual_memory())
-
   for dir in dirs:
     print('processing:', dir + data +'-task-' + str(task) + '.npy')
     X = np.load(file=dir + data +'-task-' + str(task) + '.npy', mmap_mode='r')
@@ -83,13 +79,17 @@ def AverageData(dirs,task,seed,dump,data):
   # divide all elements in matrix by number of models
   mat = np.array([m / float(len(dirs)) for m in mat])
 
-  print('mem2',psutil.virtual_memory())
+  # memory checks
+  print('memory:',psutil.virtual_memory())
 
-  print(mat[0])
+  # create dir to store data in
+  fdir = dump + 'SEED-' + str(seed) + '/'
+  if not os.path.exists(fdir):
+    os.makedirs(fdir)
 
-  # np.save(dump + data + '-task-' + str(task) +'.npy', mat)
-  # print('finished saving:', dump + data + '-task-' + str(task) +'.npy')
-  # print()
+  np.save(fdir + data + '-task-' + str(task) +'.npy', mat)
+  print('finished saving:', fdir + data + '-task-' + str(task) +'.npy')
+  print()
 
 def main():
   # generate and get arguments
