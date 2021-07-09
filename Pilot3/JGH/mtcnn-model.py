@@ -35,6 +35,8 @@ EPOCHS = 100
 COMM = MPI.COMM_WORLD
 RANK = COMM.Get_rank()
 SIZE = COMM.size #Node count. size-1 = max rank.
+# EXPECTED CLASSES FOR EACH TASK, MUST UPDATE
+CLASS =  [4,639,7,70,326]
 
 
 # return configuration for the experiment
@@ -88,12 +90,21 @@ def TransformData(rawX, rawXV, rawXT, rawY, rawYV, rawYT):
 
   # make to catagorical data and pack up
   Y,YV,YT = [],[],[]
-  for t in y:
-    Y.append(to_categorical(t))
-  for t in yv:
-    YV.append(to_categorical(t))
-  for t in yt:
-    YT.append(to_categorical(t))
+  for i in range(len(y)):
+    Y.append(to_categorical(y[i], num_classes=CLASS[i]))
+  for i in range(len(yv)):
+    YV.append(to_categorical(yv[i], num_classes=CLASS[i]))
+  for t in range(len(yt)):
+    YT.append(to_categorical(yt[i], num_classes=CLASS[i]))
+
+  # make to catagorical data and pack up
+  # Y,YV,YT = [],[],[]
+  # for t in y:
+  #   Y.append(to_categorical(t))
+  # for t in yv:
+  #   YV.append(to_categorical(t))
+  # for t in yt:
+  #   YT.append(to_categorical(t))
 
   print('Training Output Data', flush= True)
   i = 0
