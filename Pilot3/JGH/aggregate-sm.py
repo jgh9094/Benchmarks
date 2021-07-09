@@ -41,7 +41,6 @@ def GetData(dir,task,mods,dump):
 
   # get training data
   print('Aggregating training data...')
-  train = []
   # check that dimenstions are the same
   x,y = [],[]
   # go through all files and check the dimensions
@@ -74,11 +73,13 @@ def GetData(dir,task,mods,dump):
       for j in range(X.shape[1]):
         mat[i][j] += X[i][j]
 
+  print('matA:', mat)
+
   # divide all elements in matrix by number of models
   for m in mat:
     m / float(mods)
 
-  print('mat:',mat)
+  print('matB:',mat)
 
   print('mem2',psutil.virtual_memory())
 
