@@ -115,6 +115,14 @@ def main():
   AverageTraining(dirs,task,args.models,args.dump_dir)
 
 
+  # check to see if the file actualy is there
+  X = np.load(args.dump_dir + 'avg-training-sm.npy', mmap_mode='r')
+  print('X')
+  print(X.shape)
+  print(type(X))
+  print(type(X[0]))
+  print(X[0])
+
 
 
 if __name__ == '__main__':
