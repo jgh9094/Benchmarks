@@ -94,16 +94,19 @@ def main():
   parser.add_argument('data_dir',     type=str,      help='Where are we dumping the output?')
   parser.add_argument('dump_dir',     type=str,      help='Where are we dumping the output?')
   parser.add_argument('proportion',   type=float,    help='What model config was used')
-
-  # parse all the argument
-  args = parser.parse_args()
+  parser.add_argument('offset',       type=int,      help='Seed offset for rng')
 
   # RANK is synonomous with the task task being evaluated
   RANK = 0 # used for example right now
   task = int(RANK)
   print('task:', task)
 
-  # dir = args.data_dir + GetFolderName(args.cnn) + str(args.config)
+  # parse all the argument
+  args = parser.parse_args()
+
+  # set seed for rng
+  print('RANDOM SEED:', task+args.offset)
+  np.random.seed(task+args.offset)
 
   # Step 1: Get data directories we are exploring
   dirs = GetDataDirs(args.data_dir,args.proportion)
