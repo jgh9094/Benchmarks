@@ -115,7 +115,7 @@ def main():
   dirs = GetDataDirs(args.data_dir,args.proportion)
 
   # Step 2: Average training data
-  # AverageData(dirs,task,args.dump_dir, 'training')
+  AverageData(dirs,task,args.dump_dir, 'training')
 
   # Step 3: Average testing data
   # AverageData(dirs,task,args.dump_dir, 'testing')
