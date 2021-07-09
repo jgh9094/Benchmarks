@@ -67,24 +67,20 @@ def GetData(dir,task,mods,dump):
   print('mem1',psutil.virtual_memory())
 
   for dir in dirs:
-    print('adding dir:', dir + '/training-task-' + str(task) + '.npy')
+    print('processing:', dir + '/training-task-' + str(task) + '.npy')
     X = np.load(file=dir + '/training-task-' + str(task) + '.npy', mmap_mode='r')
     # iteratate through each file and update the matrix
     for i in range(X.shape[0]):
       for j in range(X.shape[1]):
         mat[i][j] += X[i][j]
 
+  # divide all elements in matrix by number of models
+  for m in mat:
+    m / float(mods)
+
   print('mat:',mat)
 
   print('mem2',psutil.virtual_memory())
-
-
-
-
-
-
-
-
 
 
   return 0
