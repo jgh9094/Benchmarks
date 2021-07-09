@@ -219,7 +219,7 @@ def main():
   X, XV, XT, Y, YV, YT, classes = TransformData(X, XV, XT, Y, YV, YT)
 
   # Step 3: Create the mtcnn model
-  mtcnn = CreateMTCnn(classes, max(np.max(X),np.max(XT)) + 1,config)
+  mtcnn = CreateMTCnn(classes, max(np.max(X),np.max(XV)) + 1,config)
 
   # Step 4: Train mtcnn model
 
