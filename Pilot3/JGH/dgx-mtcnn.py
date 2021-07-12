@@ -21,6 +21,7 @@ import pickle
 from keras.models import Model
 from keras.layers import Input, Embedding, Dense, Dropout
 from keras.regularizers import l2
+from keras import initializers
 from keras.layers import GlobalMaxPooling1D, Convolution1D
 from keras.utils import plot_model
 from keras.callbacks import EarlyStopping
@@ -115,61 +116,6 @@ def GetModelConfig(config):
     print('MODEL CONFIGURATION DOES NOT EXIST', flush= True)
     exit(-1)
 
-# transform data and return number of classes
-def TransformData(rawX, rawXT, rawY, rawYT):
-  # raw data descriptions
-  print('RAW DATA DIMS', flush= True)
-  print('rawX dim: ', rawX.shape, flush= True)
-  print('rawY dim: ', rawY.shape, flush= True)
-  print('rawXT dim: ', rawXT.shape, flush= True)
-  print('rawYT dim: ', rawYT.shape , end='\n\n', flush= True)
-
-  # make sure number of tasks between data sets is consistent
-  if rawY.shape[1] != rawYT.shape[1]:
-    print('NUMBER OF TASKS NOT THE SAME BETWEEN DATA SETS', flush= True)
-    exit(-1)
-
-  # create array for each task output
-  y = [[] for i in range(rawY.shape[1])]
-  yt = [[] for i in range(rawY.shape[1])]
-
-  # load data into appropiate list
-  for t in range(rawY.shape[1]):
-    y[t] = rawY[:,t]
-    yt[t] = rawYT[:,t]
-
-  # make to catagorical data and pack up
-  Y,YT = [],[]
-  for t in y:
-    Y.append(to_categorical(t))
-  for t in yt:
-    YT.append(to_categorical(t))
-
-  print('Training Output Data', flush= True)
-  i = 0
-  for y in Y:
-    print('task', i, flush= True)
-    print('--cases:', len(y), flush= True)
-    print('--classes:',len(y[0]), flush= True)
-    i += 1
-  print()
-
-  print('Testing Output Data', flush= True)
-  i = 0
-  for y in YT:
-    print('task', i, flush= True)
-    print('--cases:', len(y), flush= True)
-    print('--classes:',len(y[0]), flush= True)
-    i += 1
-  print()
-
-  # number of classes per task
-  classes = []
-  for y in Y:
-    classes.append(len(y[0]))
-
-  return np.array(rawX),np.array(rawXT),Y,YT,classes
-
 # will return a mt-cnn with a certain configuration
 def CreateMTCnn(num_classes,vocab_size,cfg):
     # define network layers ----------------------------------------------------
@@ -177,7 +123,8 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
     model_input = Input(shape=input_shape, name= "Input")
     # embedding lookup
     emb_lookup = Embedding(vocab_size, cfg['wv_len'], input_length=cfg['in_seq_len'],
-                           name="embedding", embeddings_regularizer=l2(cfg['emb_l2']))(model_input)
+                           name="embedding", embeddings_regularizer=l2(cfg['emb_l2']),
+                           embeddings_initializer=initializers.RandomNormal(stddev=0.01))(model_input)
 
     # convolutional layer and dropout
     conv_blocks = []
@@ -203,11 +150,6 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
 
 def main():
   # generate and get arguments
-  # parser = argparse.ArgumentParser(description='Process arguments for model training.')
-  # parser.add_argument('data_dir',     type=str, help='Where is the data located?')
-  # parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
-  # parser.add_argument('config',       type=int, help='What model config are we using?')
-  # parser.add_argument('prop',         type=int, help='proportion of testcases being used')
 
   # Parse all the arguments & set random seed
   # args = parser.parse_args()
@@ -232,6 +174,7 @@ def main():
     exit(-1)
 
   data_dir = '//gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Data/Pilot3/P3B3_data/'
+  # data_dir = '../../Data/Pilot3/P3B3_data/'
   print('data_dir:', data_dir)
   # Step 2: Create training/testing data for models
   X,Y,XT,YT,classes =  GetData(data_dir)
