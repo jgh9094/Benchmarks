@@ -24,6 +24,7 @@ from keras.utils import plot_model
 from keras.callbacks import EarlyStopping
 from keras.utils import to_categorical
 from keras.layers.merge import Concatenate
+from keras import initializers
 from sklearn.metrics import f1_score
 
 from loaddata6reg import loadAllTasks
@@ -51,10 +52,8 @@ def GetModelConfig(config):
       'wv_len': 300,
       'emb_l2': 0.001,
       'in_seq_len': 1500,
-      'num_filters': [3,4,5],
-      'filter_sizes': [300,300,300],
-      # 'dump': './',
-      # 'prop': 0.1,
+      'filter_sizes': [3,4,5],
+      'num_filters': [300,300,300],
     }
 
   else:
@@ -147,7 +146,8 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
     model_input = Input(shape=input_shape, name= "Input")
     # embedding lookup
     emb_lookup = Embedding(vocab_size, cfg['wv_len'], input_length=cfg['in_seq_len'],
-                           name="embedding")(model_input)
+                            embeddings_initializer= initializers.RandomUniform( minval= 0, maxval= 0.01 ),
+                            name="embedding")(model_input)
 
     # convolutional layer and dropout
     conv_blocks = []
