@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#BSUB -P MED106
+#BSUB -P MED107
 #BSUB -J mtCNN
 #BSUB -o logs/mtCNN.o%J
 #BSUB -e ErrorFile_Ensemble
 #BSUB -W 02:00
-#BSUB -nnodes 1
+#BSUB -nnodes 34
 
 cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH
 
@@ -14,8 +14,8 @@ DUMP=//gpfs/alpine/world-shared/med106/yoonh/storageFolder/FinalTrialRun/
 # config: mtcnn configuration we are using
 CONFIG=0
 # prop: proportion of cases we are using
-PROP=0.10
+PROP=1.0
 
 . ~/.bashrc_ttt
 
-jsrun -n1 -a1 -g1 -c7 python mtcnn-model.py ${DUMP} ${CONFIG} ${PROP}
+jsrun -n204 -a1 -g1 -c7 python mtcnn-model.py ${DUMP} ${CONFIG} ${PROP}
