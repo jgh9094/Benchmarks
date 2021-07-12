@@ -96,15 +96,6 @@ def TransformData(rawX, rawXV, rawXT, rawY, rawYV, rawYT):
   for i in range(len(yt)):
     YT.append(to_categorical(yt[i], num_classes=CLASS[i]))
 
-  # make to catagorical data and pack up
-  # Y,YV,YT = [],[],[]
-  # for t in y:
-  #   Y.append(to_categorical(t))
-  # for t in yv:
-  #   YV.append(to_categorical(t))
-  # for t in yt:
-  #   YT.append(to_categorical(t))
-
   print('Training Output Data', flush= True)
   i = 0
   for y in Y:
