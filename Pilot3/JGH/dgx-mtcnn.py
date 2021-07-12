@@ -124,7 +124,7 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
     # embedding lookup
     emb_lookup = Embedding(vocab_size, cfg['wv_len'], input_length=cfg['in_seq_len'],
                            name="embedding", embeddings_regularizer=l2(cfg['emb_l2']),
-                           embeddings_initializer=initializers.RandomNormal(stddev=0.01))(model_input)
+                           embeddings_initializer=initializers.RandomNormal(stddev=0.1))(model_input)
 
     # convolutional layer and dropout
     conv_blocks = []
