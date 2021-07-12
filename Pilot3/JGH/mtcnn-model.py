@@ -222,6 +222,7 @@ def main():
 
   # Step 3: Create the mtcnn model
   mtcnn = CreateMTCnn(classes, max(np.max(X),np.max(XV)) + 1,config)
+  print( mtcnn.summary() )
 
   # Step 4: Train mtcnn model
 
