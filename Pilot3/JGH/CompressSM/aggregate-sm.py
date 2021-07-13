@@ -31,22 +31,22 @@ def GetDataDirs(dir,p):
   sub = int(p * len(dirs))
   dirs = np.random.choice(dirs, sub, replace=False)
 
-  print('DIRS EXPLORING:')
+  print('DIRS EXPLORING:', flush= True)
   for d in dirs:
-    print(d)
-  print()
+    print(d, flush= True)
+  print(flush= True)
 
   return dirs
 
 # will look through all dirs and average out their data (testing, training, validate)
 def AverageData(dirs,task,dump,data):
   # get training data
-  print('AVERAGING',data.upper(),'DATA...')
+  print('AVERAGING',data.upper(),'DATA...', flush= True)
 
   # check that dimenstions are the same
   x,y = [],[]
   # go through all files and check the dimensions
-  print('CHECKING DATA DIMENSIONS...')
+  print('CHECKING DATA DIMENSIONS...', flush= True)
   for dir in dirs:
     X = np.load(file=dir + data +'-task-' + str(task) + '.npy', mmap_mode='r')
     # store dimensions
@@ -56,17 +56,17 @@ def AverageData(dirs,task,dump,data):
 
   # make sure that dimensions match for all data
   if 1 < len(set(x)) or 1 < len(set(y)):
-    print('TRAINING DATA DIMS NOT EQUAL')
+    print('TRAINING DATA DIMS NOT EQUAL', flush= True)
     exit(-1)
   else:
-    print('DATA DIMENSIONS MATCH!')
+    print('DATA DIMENSIONS MATCH!', flush= True)
 
   # matrix that will
   mat = np.zeros(shape=(x[0],y[0]))
   del x,y
 
   for dir in dirs:
-    print('processing:', dir + data +'-task-' + str(task) + '.npy')
+    print('processing:', dir + data +'-task-' + str(task) + '.npy', flush= True)
     X = np.load(file=dir + data +'-task-' + str(task) + '.npy', mmap_mode='r')
 
     # iteratate through each file and update the matrix
@@ -80,11 +80,11 @@ def AverageData(dirs,task,dump,data):
   mat = np.array([m / float(len(dirs)) for m in mat])
 
   # memory checks
-  print('memory:',psutil.virtual_memory())
+  print('memory:',psutil.virtual_memory(), flush= True)
 
   np.save(dump + data + '-task-' + str(task) +'.npy', mat)
-  print('finished saving:', dump + data + '-task-' + str(task) +'.npy')
-  print()
+  print('finished saving:', dump + data + '-task-' + str(task) +'.npy', flush= True)
+  print(flush= True)
 
 def main():
   # generate and get arguments
@@ -97,27 +97,19 @@ def main():
   # RANK is synonomous with the task task being evaluated
   # RANK = 0 # used for example right now
   task = int(RANK)
-  print('task:', task)
+  print('task:', task, flush= True)
 
   # parse all the argument
   args = parser.parse_args()
 
   # set seed for rng
   seed = int(task+args.offset)
-  print('RANDOM SEED:', seed)
+  print('RANDOM SEED:', seed, flush= True)
   np.random.seed(seed)
 
   # Step 1: Get data directories we are exploring
   dirs = GetDataDirs(args.data_dir,args.proportion)
 
-  # Step 2: Average training data
-  AverageData(dirs,task,args.dump_dir, 'training')
-
-  # Step 3: Average testing data
-  AverageData(dirs,task,args.dump_dir, 'testing')
-
-  # Step 3: Average testing data
-  AverageData(dirs,task,args.dump_dir, 'validating')
 
 if __name__ == '__main__':
   main()
