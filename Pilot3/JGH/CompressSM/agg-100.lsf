@@ -16,6 +16,7 @@ PROP=1.0
 # offset: seed offset so we get different results
 OFFSET=0
 
+module load ibm-wml-ce
 conda activate jghs-opence
 
 jsrun -n5 -a1 -g1 -c7 python aggregate-sm.py ${DATA} ${DUMP} ${PROP} ${OFFSET}
