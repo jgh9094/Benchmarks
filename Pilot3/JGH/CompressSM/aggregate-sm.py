@@ -108,7 +108,7 @@ def main():
   np.random.seed(seed)
 
   # Step 1: Get data directories we are exploring
-  dirs = GetDataDirs(args.data_dir,args.proportion)
+  dirs = GetDataDirs(args.data_dir.strip(),args.proportion.strip())
 
 
 if __name__ == '__main__':
