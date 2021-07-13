@@ -10,7 +10,7 @@
 cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH
 
 # dump_dir: where is the data being dumped
-DUMP=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/200ModelsRun/
+DUMP=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/204ModelRun/
 # config: mtcnn configuration we are using
 CONFIG=0
 # prop: proportion of cases we are using
