@@ -108,7 +108,7 @@ def main():
   np.random.seed(seed)
 
   # Step 1: Get data directories we are exploring
-  dirs = GetDataDirs(args.data_dir.strip,args.proportion)
+  dirs = GetDataDirs(args.data_dir.strip(),args.proportion)
 
   # Step 2: Average training data
   AverageData(dirs,task,args.dump_dir, 'training')
