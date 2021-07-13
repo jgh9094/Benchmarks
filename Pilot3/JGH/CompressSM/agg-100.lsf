@@ -1,5 +1,3 @@
-#!/bin/bash
-
 #BSUB -P MED106
 #BSUB -J agg-sm
 #BSUB -o logs/agg-sm.o%J
