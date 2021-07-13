@@ -17,7 +17,7 @@ import os
 # OLCF imports
 from mpi4py import MPI
 
-global variables
+# global variables
 COMM = MPI.COMM_WORLD
 RANK = COMM.Get_rank()
 SIZE = COMM.size #Node count. size-1 = max rank.
