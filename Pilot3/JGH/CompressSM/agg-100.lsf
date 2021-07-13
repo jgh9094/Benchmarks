@@ -1,4 +1,3 @@
-#!/bin/bash
 
 #BSUB -P MED106
 #BSUB -J agg-sm
