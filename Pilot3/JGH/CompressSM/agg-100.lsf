@@ -5,8 +5,6 @@
 #BSUB -W 00:30
 #BSUB -nnodes 1
 
-conda activate jghs-opence
-
 cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH/CompressSM
 
 # data_dir: where is the data located
@@ -17,5 +15,7 @@ DUMP=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/AverageSM/
 PROP=1.0
 # offset: seed offset so we get different results
 OFFSET=0
+
+conda activate jghs-opence
 
 jsrun -n5 -a1 -g1 -c7 python aggregate-sm.py ${DATA} ${DUMP} ${PROP} ${OFFSET}
