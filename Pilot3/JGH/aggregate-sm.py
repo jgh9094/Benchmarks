@@ -119,6 +119,5 @@ def main():
   # Step 3: Average testing data
   AverageData(dirs,task,args.dump_dir, 'validating')
 
-
 if __name__ == '__main__':
   main()
