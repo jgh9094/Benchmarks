@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#BSUB -P MED107
-#BSUB -J mtCNN
-#BSUB -o logs/mtCNN.o%J
-#BSUB -e ErrorFile_Ensemble
-#BSUB -W 02:00
+#BSUB -P MED106
+#BSUB -J agg-sm
+#BSUB -o logs/agg-sm.o%J
+#BSUB -e ERRORS-AGG
+#BSUB -W 00:30
 #BSUB -nnodes 1
 
 module load ibm-wml-ce
