@@ -1,0 +1,22 @@
+#BSUB -P MED106
+#BSUB -J agg-sm
+#BSUB -o logs/agg-sm.o%J
+#BSUB -e ERRORS-AGG
+#BSUB -W 05:00
+#BSUB -nnodes 1
+
+cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH/CompressSM/
+
+# data_dir: where is the data located
+DATA=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/TrialRun/
+# dump_dir: where the data is being dumped
+DUMP=./
+# prop: proportion of cases we are using
+PROP=1.0
+# offset: seed offset so we get different results
+OFFSET=0
+
+module load ibm-wml-ce
+conda activate jghs-opence
+
+jsrun -n1 -a1 -g1 -c7 python aggregate-sm.py ${DATA} ${DUMP} ${PROP} ${OFFSET}
