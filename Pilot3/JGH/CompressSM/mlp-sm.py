@@ -112,7 +112,12 @@ def GetYLabs(dir,task,name):
   print('ylab:', ylab)
 
   print()
-  return 0
+  return ylab
+
+def GetMLP():
+  mlp = 0
+
+  return mlp
 
 def main():
   # generate and get arguments
@@ -145,8 +150,11 @@ def main():
   Y = GetYLabs(YLAB, RANK, 'train_y.pickle')
   YV = GetYLabs(YLAB, RANK, 'val_y.pickle')
 
-
-
+  print('DATA RETURNED')
+  print('X.shape:', X)
+  print('XV.shape:', XV)
+  print('Y.shape:', Y)
+  print('YV.shape:', YV)
 
 
 if __name__ == '__main__':
