@@ -64,6 +64,9 @@ def AggregateData(dirs,task,data):
   # matrix that will
   mat = np.array(np.array([]) * y[0])
   print('mat', mat)
+  print('x', x[0])
+  print('y', y[0])
+
   del x,y
 
   # memory checks
