@@ -83,7 +83,7 @@ def AggregateData(dirs,task,data):
       print()
 
 
-      max[i] = np.concatenate((mat[i], X[i]), axis=None)
+      mat[i] = np.concatenate((mat[i], X[i]), axis=None)
 
     del X
 
