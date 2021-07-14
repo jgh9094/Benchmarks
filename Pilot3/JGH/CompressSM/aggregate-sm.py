@@ -65,6 +65,7 @@ def AverageData(dirs,task,dump,data):
   mat = np.zeros(shape=(x[0],y[0]))
   del x,y
 
+  print('PROCESSING FILE', flush=True)
   for dir in dirs:
     print('processing:', dir + data +'-task-' + str(task) + '.npy', flush= True)
     X = np.load(file=dir + data +'-task-' + str(task) + '.npy', mmap_mode='r')
