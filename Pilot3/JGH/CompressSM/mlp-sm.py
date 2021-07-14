@@ -32,6 +32,7 @@ def GetDataDirs(dir,p):
   sub = int(p * len(dirs))
   dirs = np.random.choice(dirs, sub, replace=False)
   print('1',dirs)
+  print(type(dirs))
   dirs = dirs.sort()
   print('2', dirs)
 
