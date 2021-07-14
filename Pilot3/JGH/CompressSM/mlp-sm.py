@@ -95,7 +95,7 @@ def AggregateData(dirs,task,data):
 
 # get a specific row of y labels
 def GetYLabs(dir,task,name):
-  print('GETTING Y LABELS FOR', str(task).upper())
+  print('GETTING Y LABELS FOR', name.upper())
 
   file = open(dir + name, 'rb')
   ylab = pk.load(file)
