@@ -16,6 +16,7 @@ PROP=1.0
 # offset: seed offset so we get different results
 OFFSET=0
 
+module load cuda/11.4.0
 module load ibm-wml-ce
 conda activate jghs-opence
 
