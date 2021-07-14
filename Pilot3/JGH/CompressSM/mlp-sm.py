@@ -30,6 +30,7 @@ from keras.utils import to_categorical
 # RANK = COMM.Get_rank()
 # SIZE = COMM.size #Node count. size-1 = max rank.
 YLAB = '/gpfs/alpine/world-shared/med106/yoonh/storageFolder/HardLabels/'
+CLASS =  [4,639,7,70,326]
 
 # will look at all directories in data dir and sample a set of them
 def GetDataDirs(dir,p):
@@ -119,8 +120,8 @@ def GetYLabs(dir,task,name):
   print('ylab:', ylab)
 
   Y = []
-  for y in ylab:
-    Y.append(to_categorical(y))
+  for i in range(len(ylab)):
+    Y.append(to_categorical(ylab[i]), num_classes=CLASS[task])
   Y = np.array(Y)
   print('Y.shape', Y.shape)
   print('Y:', Y)
