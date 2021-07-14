@@ -87,8 +87,9 @@ def AggregateData(dirs,task,data):
 
   # memory checks
   print('memory:',psutil.virtual_memory(), flush= True)
+  print()
 
-  return 0
+  return mat
 
 # will look through all dirs and average out their data (testing, training, validate)
 def AverageData(dirs,task,dump,data):
@@ -164,29 +165,8 @@ def main():
 
   # Step 2:  Get all data and transform it into one matrix
 
-  # X = []
-  # Y = np.array(np.array([]))
-  # X.append(Y)
-  # X.append(Y)
-  # X.append(Y)
-  # X.append(Y)
-
-
-  # print('X:',X)
-  # print('len(x):', len(X))
-  # print('type(X):',type(X))
-  # print('type(X[0]):', type(X[0]))
-
-  # for i in range(len(X)):
-  #   print('X[i]:', X[i])
-  #   X[i] = np.concatenate((np.array(X[i]), np.array([int(i)])), axis=None)
-
-  # X = np.array(X)
-  # print('X.shape:',X.shape)
-  # print('X:',X)
-
-
   X = AggregateData(dirs,RANK,'training')
+  XV = AggregateData(dirs,RANK,'validating')
 
 
 if __name__ == '__main__':
