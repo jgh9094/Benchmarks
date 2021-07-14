@@ -16,8 +16,8 @@ PROP=1.0
 # offset: seed offset so we get different results
 OFFSET=0
 
-module load cuda/11.4.0
+# module load cuda/11.4.0
 module load ibm-wml-ce
-conda activate jghs-opence
+conda activate jghs-ibm
 
 jsrun -n1 -a1 -g1 -c7 python mlp-sm.py ${DATA} ${DUMP} ${PROP} ${OFFSET}
