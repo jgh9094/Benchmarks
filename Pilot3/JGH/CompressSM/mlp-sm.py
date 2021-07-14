@@ -104,6 +104,12 @@ def GetYLabs(dir,task,name):
   print('type(ylab):',type(ylab))
   print('ylab.shape', ylab.shape)
   print('ylab:', ylab)
+  print()
+
+  # for testing purposes
+  ylab = ylab[0:20000,task]
+  print('ylab.shape', ylab.shape)
+  print('ylab:', ylab)
 
   print()
   return 0
