@@ -22,6 +22,7 @@ import os
 # COMM = MPI.COMM_WORLD
 # RANK = COMM.Get_rank()
 # SIZE = COMM.size #Node count. size-1 = max rank.
+YLAB = '/gpfs/alpine/world-shared/med106/yoonh/storageFolder/HardLabels/'
 
 # will look at all directories in data dir and sample a set of them
 def GetDataDirs(dir,p):
@@ -39,6 +40,7 @@ def GetDataDirs(dir,p):
 
   return dirs
 
+# concatenate all data into on sinlge matrix
 def AggregateData(dirs,task,data):
   # get training data
   print('COLLECTING',data.upper(),'DATA...', flush= True)
@@ -91,53 +93,20 @@ def AggregateData(dirs,task,data):
 
   return mat
 
-# will look through all dirs and average out their data (testing, training, validate)
-def AverageData(dirs,task,dump,data):
-  # get training data
-  print('AVERAGING',data.upper(),'DATA...')
+# get a specific row of y labels
+def GetYLabs(dir,task,name):
+  print('GETTING Y LABELS')
 
-  # check that dimenstions are the same
-  x,y = [],[]
-  # go through all files and check the dimensions
-  print('CHECKING DATA DIMENSIONS...')
-  for dir in dirs:
-    X = np.load(file=dir + data +'-task-' + str(task) + '.npy', mmap_mode='r')
-    # store dimensions
-    x.append(X.shape[0])
-    y.append(X.shape[1])
-    del X
+  file = open(dir + 'training_X.pickle', 'rb')
+  ylab = pk.load(file)
+  file.close
 
-  # make sure that dimensions match for all data
-  if 1 < len(set(x)) or 1 < len(set(y)):
-    print('TRAINING DATA DIMS NOT EQUAL')
-    exit(-1)
-  else:
-    print('DATA DIMENSIONS MATCH!')
+  print('type(ylab):',type(ylab))
+  print('ylab.shape', ylab.shape)
+  print('ylab:', ylab)
 
-  # matrix that will
-  mat = np.zeros(shape=(x[0],y[0]))
-  del x,y
-
-  for dir in dirs:
-    print('processing:', dir + data +'-task-' + str(task) + '.npy')
-    X = np.load(file=dir + data +'-task-' + str(task) + '.npy', mmap_mode='r')
-
-    # iteratate through each file and update the matrix
-    for i in range(X.shape[0]):
-      for j in range(X.shape[1]):
-        mat[i][j] += X[i][j]
-
-    del X
-
-  # divide all elements in matrix by number of models
-  mat = np.array([m / float(len(dirs)) for m in mat])
-
-  # memory checks
-  print('memory:',psutil.virtual_memory())
-
-  np.save(dump + data + '-task-' + str(task) +'.npy', mat)
-  print('finished saving:', dump + data + '-task-' + str(task) +'.npy')
   print()
+  return 0
 
 def main():
   # generate and get arguments
@@ -167,6 +136,10 @@ def main():
 
   X = AggregateData(dirs,RANK,'training')
   XV = AggregateData(dirs,RANK,'validating')
+  Y = GetYLabs(YLAB, RANK, 'train_y.pickle')
+
+
+
 
 
 if __name__ == '__main__':
