@@ -62,9 +62,7 @@ def AggregateData(dirs,task,data):
     print('DATA DIMENSIONS MATCH!', flush= True)
 
   # matrix that will
-  mat = np.array([ [] for i in range(x[0])])
-  # for i in range(x[0]):
-  #   mat = np.append(np.array([]))
+  mat = [ np.array([]) for i in range(x[0])]
   print('mat', mat)
   print('mat.shape', mat.shape)
   print('x', x[0])
@@ -150,6 +148,29 @@ def main():
   dirs = GetDataDirs(args.data_dir.strip(),args.proportion)
 
   # Step 2:  Get all data and transform it into one matrix
+
+  # X = []
+  # Y = np.array(np.array([]))
+  # X.append(Y)
+  # X.append(Y)
+  # X.append(Y)
+  # X.append(Y)
+
+
+  # print('X:',X)
+  # print('len(x):', len(X))
+  # print('type(X):',type(X))
+  # print('type(X[0]):', type(X[0]))
+
+  # for i in range(len(X)):
+  #   print('X[i]:', X[i])
+  #   X[i] = np.concatenate((np.array(X[i]), np.array([int(i)])), axis=None)
+
+  # X = np.array(X)
+  # print('X.shape:',X.shape)
+  # print('X:',X)
+
+
   X = AggregateData(dirs,RANK,'training')
 
 
