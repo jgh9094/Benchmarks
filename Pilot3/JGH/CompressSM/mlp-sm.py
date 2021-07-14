@@ -141,14 +141,14 @@ def main():
   # RANK is synonomous with the task task being evaluated
   # RANK = 0 # used for example right now
   task = int(RANK)
-  print('task:', task)
+  print('task:', task,flush=True)
 
   # parse all the argument
   args = parser.parse_args()
 
   # set seed for rng
   seed = int(task+args.offset)
-  print('RANDOM SEED:', seed)
+  print('RANDOM SEED:', seed,flush=True)
   np.random.seed(seed)
 
   # Step 1: Get data directories we are exploring
@@ -161,16 +161,40 @@ def main():
   Y = GetYLabs(YLAB, RANK, 'train_y.pickle')
   YV = GetYLabs(YLAB, RANK, 'val_y.pickle')
 
-  print('DATA RETURNED')
-  print('X.shape:', X.shape)
-  print('XV.shape:', XV.shape)
-  print('Y.shape:', Y.shape)
-  print('YV.shape:', YV.shape)
+  print('DATA RETURNED',flush=True)
+  print('X.shape:', X.shape,flush=True)
+  print('XV.shape:', XV.shape,flush=True)
+  print('Y.shape:', Y.shape,flush=True)
+  print('YV.shape:', YV.shape,flush=True)
 
   # Step 3: Create the MLP
   mlp = GetMLP(int(X.shape[1]), int(Y.shape[1]))
   print('MULTI-LAYERED PERCEPTRON CREATED', flush=True)
 
+  # Step 3: Train Model
+  history = mlp.fit(X,Y, batch_size=256,epochs=EPOCHS, verbose=2, validation_data=(XV,YV),
+                      callbacks=[EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
+
+  # Step 4: Save softmax outputs
+
+  # save predictions from all data inputs
+  pred = mlp.predict(X)
+  predV = mlp.predict(XV)
+  predT = mlp.predict(AggregateData(dirs,RANK,'testing'))
+  del X,XV
+
+  print('Saving Training Softmax Output', flush= True)
+  fname = args.dump_dir + 'training-task-' + str(task) + '.npy'
+  np.save(fname, pred)
+
+  print('Saving Validation Softmax Output', flush= True)
+  fname = args.dump_dir + 'validating-task-' + str(task) + '.npy'
+  np.save(fname, predV)
+
+  print('Saving Testing Softmax Output', flush= True)
+  fname = args.dump_dir + 'testing-task-' + str(task) + '.npy'
+  np.save(fname, predT)
+  print('',flush=True)
 
 if __name__ == '__main__':
   main()
