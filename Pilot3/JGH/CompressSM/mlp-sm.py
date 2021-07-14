@@ -29,6 +29,7 @@ from keras.utils import to_categorical
 # COMM = MPI.COMM_WORLD
 # RANK = COMM.Get_rank()
 # SIZE = COMM.size #Node count. size-1 = max rank.
+EPOCHS = 100
 YLAB = '/gpfs/alpine/world-shared/med106/yoonh/storageFolder/HardLabels/'
 CLASS =  [4,639,7,70,326]
 
@@ -41,10 +42,10 @@ def GetDataDirs(dir,p):
   sub = int(p * len(dirs))
   dirs = np.sort(np.random.choice(dirs, sub, replace=False))
 
-  print('DIRS EXPLORING:')
+  print('DIRS EXPLORING:', flush= True)
   for d in dirs:
-    print(d)
-  print()
+    print(d, flush= True)
+  print('', flush= True)
 
   return dirs
 
@@ -73,9 +74,6 @@ def AggregateData(dirs,task,data):
 
   # matrix that will
   mat = [ np.array([]) for i in range(x[0])]
-  print('len(mat)', len(mat))
-  print('x', x[0])
-  print('y', y[0])
 
   del x,y
 
@@ -90,57 +88,44 @@ def AggregateData(dirs,task,data):
 
     del X
 
-  print('FINISHED GOING THROUGH ALL DIRS')
+  print('FINISHED GOING THROUGH ALL DIRS', flush= True)
   mat = np.array(mat)
 
-  print('mat.shape:',mat.shape)
+  print('mat.shape:',mat.shape, flush= True)
 
   # memory checks
   print('memory:',psutil.virtual_memory(), flush= True)
-  print()
+  print('', flush= True)
 
   return mat
 
 # get a specific row of y labels
 def GetYLabs(dir,task,name):
-  print('GETTING Y LABELS FOR', name.upper())
+  print('GETTING Y LABELS FOR', name.upper(), flush= True)
 
   file = open(dir + name, 'rb')
   ylab = pk.load(file)
   file.close
 
-  print('type(ylab):',type(ylab))
-  print('ylab.shape', ylab.shape)
-  print('ylab:', ylab)
-  print()
-
   # for testing purposes [0:20000]
   ylab = ylab[0:20000,task]
-  print('ylab.shape', ylab.shape)
-  print('ylab:', ylab)
 
   Y = []
   for i in range(len(ylab)):
     Y.append(to_categorical(ylab[i], num_classes=CLASS[task]))
-  Y = np.array(Y)
-  print('Y.shape', Y.shape)
-  print('Y:', Y)
 
-  print()
-  return Y
+  print('', flush= True)
+  return np.array(Y)
 
-def GetMLP():
+def GetMLP(x,y):
   # set input layer, assuming that all input will have same shape as starting case
-  input = Input(shape=([x.shape[1]]), name= "Input")
-  hidden = Dense(x.shape[1], activation='relu')(input)
-  output = Dense(y.shape[1], activation='softmax')(hidden)
+  input = Input(shape=([x]), name= "Input")
+  hidden = Dense(x, activation='relu')(input)
+  output = Dense(y, activation='softmax')(hidden)
 
   # link, compile, and fit model
   mlp = Model(inputs=input, outputs = output)
-  mlp.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
-
-  history = mlp.fit(x,y, batch_size=cfg['batch_size'],epochs=EPOCHS, verbose=2, validation_data=(xt,yt),
-                      callbacks=[EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
+  mlp.compile( loss= "categorical_crossentropy", optimizer= 'adam', metrics=[ "acc" ] )
 
   return mlp
 
@@ -182,7 +167,9 @@ def main():
   print('Y.shape:', Y.shape)
   print('YV.shape:', YV.shape)
 
-
+  # Step 3: Create the MLP
+  mlp = GetMLP(int(X.shape[1]), int(Y.shape[1]))
+  print('MULTI-LAYERED PERCEPTRON CREATED', flush=True)
 
 
 if __name__ == '__main__':
