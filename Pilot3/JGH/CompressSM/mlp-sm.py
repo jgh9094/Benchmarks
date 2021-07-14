@@ -69,7 +69,7 @@ def AggregateData(dirs,task,data):
 
   del x,y
 
-  for d in dirs:
+  for dir in dirs:
     print('processing:', dir + data +'-task-' + str(task) + '.npy', flush= True)
     X = np.load(file=dir + data +'-task-' + str(task) + '.npy', mmap_mode='r')
 
