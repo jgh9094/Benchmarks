@@ -26,9 +26,9 @@ from keras.utils import to_categorical
 # from mpi4py import MPI
 
 # # global variables
-COMM = MPI.COMM_WORLD
-RANK = COMM.Get_rank()
-SIZE = COMM.size #Node count. size-1 = max rank.
+# COMM = MPI.COMM_WORLD
+# RANK = COMM.Get_rank()
+# SIZE = COMM.size #Node count. size-1 = max rank.
 EPOCHS = 100
 YLAB = '/gpfs/alpine/world-shared/med106/yoonh/storageFolder/HardLabels/'
 CLASS =  [4,639,7,70,326]
@@ -139,7 +139,7 @@ def main():
   parser.add_argument('offset',       type=int,      help='Seed offset for rng')
 
   # RANK is synonomous with the task task being evaluated
-  # RANK = 0 # used for example right now
+  RANK = 0 # used for example right now
   task = int(RANK)
   print('task:', task)
 
