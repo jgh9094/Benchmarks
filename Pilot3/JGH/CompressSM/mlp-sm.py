@@ -39,6 +39,30 @@ def GetDataDirs(dir,p):
 
   return dirs
 
+def AggregateData(dirs,task,data):
+  # get training data
+  print('COLLECTING',data.upper(),'DATA...', flush= True)
+
+  # check that dimenstions are the same
+  x,y = [],[]
+  # go through all files and check the dimensions
+  print('CHECKING DATA DIMENSIONS...', flush= True)
+  for dir in dirs:
+    X = np.load(file=dir + data +'-task-' + str(task) + '.npy', mmap_mode='r')
+    # store dimensions
+    x.append(X.shape[0])
+    y.append(X.shape[1])
+    del X
+
+  # make sure that dimensions match for all data
+  if 1 < len(set(x)) or 1 < len(set(y)):
+    print('TRAINING DATA DIMS NOT EQUAL', flush= True)
+    exit(-1)
+  else:
+    print('DATA DIMENSIONS MATCH!', flush= True)
+
+  return 0
+
 # will look through all dirs and average out their data (testing, training, validate)
 def AverageData(dirs,task,dump,data):
   # get training data
@@ -111,9 +135,9 @@ def main():
   # Step 1: Get data directories we are exploring
   dirs = GetDataDirs(args.data_dir.strip(),args.proportion)
 
-  print('dirs:')
-  for d in dirs:
-    print(d)
+  # Step 2:  Get all data and transform it into one matrix
+  X = AggregateData(dirs,RANK,'training')
+
 
 if __name__ == '__main__':
   main()
