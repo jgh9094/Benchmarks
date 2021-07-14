@@ -62,7 +62,7 @@ def AggregateData(dirs,task,data):
     print('DATA DIMENSIONS MATCH!', flush= True)
 
   # matrix that will
-  mat = np.array(np.array([]) * y[0])
+  mat = np.array()
   for i in range(x[0]):
     mat.append(np.array([]))
   print('mat', mat)
