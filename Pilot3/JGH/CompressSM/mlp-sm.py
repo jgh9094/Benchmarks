@@ -30,7 +30,8 @@ def GetDataDirs(dir,p):
   dirs = [dir + '/' for dir in dirs]
 
   sub = int(p * len(dirs))
-  dirs = np.random.choice(dirs, sub, replace=False).sort()
+  dirs = np.random.choice(dirs, sub, replace=False)
+  dirs = dirs.sort()
 
   print('DIRS EXPLORING:')
   for d in dirs:
