@@ -95,7 +95,7 @@ def AggregateData(dirs,task,data):
 
 # get a specific row of y labels
 def GetYLabs(dir,task,name):
-  print('GETTING Y LABELS')
+  print('GETTING Y LABELS FOR', str(task).upper)
 
   file = open(dir + name, 'rb')
   ylab = pk.load(file)
@@ -106,7 +106,7 @@ def GetYLabs(dir,task,name):
   print('ylab:', ylab)
   print()
 
-  # for testing purposes
+  # for testing purposes [0:20000]
   ylab = ylab[0:20000,task]
   print('ylab.shape', ylab.shape)
   print('ylab:', ylab)
@@ -143,6 +143,7 @@ def main():
   X = AggregateData(dirs,RANK,'training')
   XV = AggregateData(dirs,RANK,'validating')
   Y = GetYLabs(YLAB, RANK, 'train_y.pickle')
+  YV = GetYLabs(YLAB, RANK, 'val_y.pickle')
 
 
 
