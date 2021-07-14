@@ -97,7 +97,7 @@ def AggregateData(dirs,task,data):
 def GetYLabs(dir,task,name):
   print('GETTING Y LABELS')
 
-  file = open(dir + 'training_X.pickle', 'rb')
+  file = open(dir + name, 'rb')
   ylab = pk.load(file)
   file.close
 
