@@ -64,7 +64,7 @@ def AggregateData(dirs,task,data):
   # matrix that will
   mat = [ np.array([]) for i in range(x[0])]
   print('mat', mat)
-  print('mat.shape', mat.shape)
+  print('len(mat)', len(mat))
   print('x', x[0])
   print('y', y[0])
 
