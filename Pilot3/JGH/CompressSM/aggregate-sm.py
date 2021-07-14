@@ -74,7 +74,7 @@ def AverageData(dirs,task,dump,data):
       for j in range(X.shape[1]):
         mat[i][j] += X[i][j]
 
-    del X
+    # del X
 
   # divide all elements in matrix by number of models
   mat = np.array([m / float(len(dirs)) for m in mat])
