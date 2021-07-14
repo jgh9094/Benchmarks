@@ -72,7 +72,7 @@ def AggregateData(dirs,task,data):
   for dir in dirs:
     # go through all the dirs
     print('processing:', dir + data +'-task-' + str(task) + '.npy', flush= True)
-    X = np.load(file=dir + data +'-task-' + str(task) + '.npy', mmap_mode='r')
+    X = np.load(file=dir + data +'-task-' + str(task) + '.npy')
 
     # go through all the data points and create a new data matrix
     for i in range(len(X)):
