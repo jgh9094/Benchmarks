@@ -14,13 +14,13 @@ import pickle as pk
 import psutil
 import os
 
-# # OLCF imports
-# from mpi4py import MPI
+# OLCF imports
+from mpi4py import MPI
 
-# # global variables
-# COMM = MPI.COMM_WORLD
-# RANK = COMM.Get_rank()
-# SIZE = COMM.size #Node count. size-1 = max rank.
+# global variables
+COMM = MPI.COMM_WORLD
+RANK = COMM.Get_rank()
+SIZE = COMM.size #Node count. size-1 = max rank.
 
 # will look at all directories in data dir and sample a set of them
 def GetDataDirs(dir,p):
@@ -96,7 +96,7 @@ def main():
   parser.add_argument('offset',       type=int,      help='Seed offset for rng')
 
   # RANK is synonomous with the task task being evaluated
-  RANK = 0 # used for example right now
+  # RANK = 0 # used for example right now
   task = int(RANK)
   print('task:', task, flush= True)
 
