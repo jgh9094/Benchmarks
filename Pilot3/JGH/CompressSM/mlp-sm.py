@@ -61,6 +61,9 @@ def AggregateData(dirs,task,data):
   else:
     print('DATA DIMENSIONS MATCH!', flush= True)
 
+  # memory checks
+  print('memory:',psutil.virtual_memory(), flush= True)
+
   return 0
 
 # will look through all dirs and average out their data (testing, training, validate)
