@@ -63,12 +63,17 @@ def AggregateData(dirs,task,data):
 
   # matrix that will
   mat = [ np.array([]) for i in range(x[0])]
-  # print('mat', mat)
   print('len(mat)', len(mat))
   print('x', x[0])
   print('y', y[0])
 
   del x,y
+
+  for d in dirs:
+    print('processing:', dir + data +'-task-' + str(task) + '.npy', flush= True)
+    X = np.load(file=dir + data +'-task-' + str(task) + '.npy', mmap_mode='r')
+
+    del X
 
   # memory checks
   print('memory:',psutil.virtual_memory(), flush= True)
