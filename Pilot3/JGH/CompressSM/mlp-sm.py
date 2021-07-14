@@ -15,6 +15,13 @@ import pickle as pk
 import psutil
 import os
 
+# keras python inputs
+from keras.models import Model
+from keras.layers import Input, Dense
+from keras.regularizers import l2
+from keras.callbacks import EarlyStopping
+from keras.utils import to_categorical
+
 # # OLCF imports
 # from mpi4py import MPI
 
@@ -111,13 +118,31 @@ def GetYLabs(dir,task,name):
   print('ylab.shape', ylab.shape)
   print('ylab:', ylab)
 
-  print()
-  return ylab
+  Y = []
+  for y in ylab:
+    Y.append(to_categorical(y))
+  Y = np.array(Y)
+  print('Y.shape', Y.shape)
+  print('Y:', Y)
+
+
+  return Y
 
 def GetMLP():
-  mlp = 0
+  # set input layer, assuming that all input will have same shape as starting case
+  input = Input(shape=([x.shape[1]]), name= "Input")
+  hidden = Dense(x.shape[1], activation='relu')(input)
+  output = Dense(y.shape[1], activation='softmax')(hidden)
+
+  # link, compile, and fit model
+  mlp = Model(inputs=input, outputs = output)
+  mlp.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
+
+  history = mlp.fit(x,y, batch_size=cfg['batch_size'],epochs=EPOCHS, verbose=2, validation_data=(xt,yt),
+                      callbacks=[EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
 
   return mlp
+
 
 def main():
   # generate and get arguments
@@ -155,6 +180,8 @@ def main():
   print('XV.shape:', XV.shape)
   print('Y.shape:', Y.shape)
   print('YV.shape:', YV.shape)
+
+
 
 
 if __name__ == '__main__':
