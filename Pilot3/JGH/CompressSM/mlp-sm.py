@@ -121,12 +121,12 @@ def GetYLabs(dir,task,name):
 
   Y = []
   for i in range(len(ylab)):
-    Y.append(to_categorical(ylab[i]), num_classes=CLASS[task])
+    Y.append(to_categorical(ylab[i], num_classes=CLASS[task]))
   Y = np.array(Y)
   print('Y.shape', Y.shape)
   print('Y:', Y)
 
-
+  print()
   return Y
 
 def GetMLP():
