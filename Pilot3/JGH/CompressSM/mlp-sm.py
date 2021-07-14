@@ -76,7 +76,7 @@ def AggregateData(dirs,task,data):
 
     # go through all the data points and create a new data matrix
     for i in range(len(X)):
-      max[i] = np.concatenate((np.array(mat[i]), np.array(X[i])), axis=None)
+      max[i] = np.concatenate((mat[i], X[i]), axis=None)
 
     del X
 
