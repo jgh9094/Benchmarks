@@ -151,10 +151,10 @@ def main():
   YV = GetYLabs(YLAB, RANK, 'val_y.pickle')
 
   print('DATA RETURNED')
-  print('X.shape:', X)
-  print('XV.shape:', XV)
-  print('Y.shape:', Y)
-  print('YV.shape:', YV)
+  print('X.shape:', X.shape)
+  print('XV.shape:', XV.shape)
+  print('Y.shape:', Y.shape)
+  print('YV.shape:', YV.shape)
 
 
 if __name__ == '__main__':
