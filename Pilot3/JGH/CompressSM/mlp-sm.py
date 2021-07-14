@@ -70,10 +70,20 @@ def AggregateData(dirs,task,data):
   del x,y
 
   for dir in dirs:
+    # go through all the dirs
     print('processing:', dir + data +'-task-' + str(task) + '.npy', flush= True)
     X = np.load(file=dir + data +'-task-' + str(task) + '.npy', mmap_mode='r')
 
+    # go through all the data points and create a new data matrix
+    for i in range(len(X)):
+      max[i] = np.concatenate((np.array(mat[i]), np.array(X[i])), axis=None)
+
     del X
+
+  print('FINISHED GOING THROUGH ALL DIRS')
+  mat = np.array(mat)
+
+  print('mat.shape:',mat.shape)
 
   # memory checks
   print('memory:',psutil.virtual_memory(), flush= True)
