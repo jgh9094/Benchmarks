@@ -19,4 +19,4 @@ OFFSET=0
 module load ibm-wml-ce
 conda activate jghs-ibm
 
-jsrun -n1 -a1 -g1 -c7 python aggregate-sm.py ${DATA} ${DUMP} ${PROP} ${OFFSET}
+jsrun -n4 -a1 -g1 -c7 python aggregate-sm.py ${DATA} ${DUMP} ${PROP} ${OFFSET}
