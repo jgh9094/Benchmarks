@@ -68,14 +68,14 @@ def AverageData(dirs,task,dump,data):
   print('PROCESSING FILE', flush=True)
   for dir in dirs:
     print('processing:', dir + data +'-task-' + str(task) + '.npy', flush= True)
-    X = np.load(file=dir + data +'-task-' + str(task) + '.npy')#, mmap_mode='r')
+    X = np.load(file=dir + data +'-task-' + str(task) + '.npy')
 
     # iteratate through each file and update the matrix
     for i in range(X.shape[0]):
       for j in range(X.shape[1]):
         mat[i][j] += X[i][j]
 
-    # del X
+    del X
 
   # divide all elements in matrix by number of models
   mat = np.array([m / float(len(dirs)) for m in mat])
