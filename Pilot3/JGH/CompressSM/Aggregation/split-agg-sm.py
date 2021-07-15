@@ -116,7 +116,7 @@ def main():
     if args.data_type == 0:
       AverageData(dirs,task,args.dump_dir, 'training', 0)
     elif args.data_type == 1:
-      AverageData(dirs,task,args.dump_dir, 'testing', TESTING_T4[RANK],R)
+      AverageData(dirs,task,args.dump_dir, 'testing', TESTING_T4[RANK],RANK)
     elif args.data_type == 2:
       AverageData(dirs,task,args.dump_dir, 'validating', 0)
     else:
