@@ -1,5 +1,5 @@
 #BSUB -P MED106
-#BSUB -J agg-sm
+#BSUB -J agg-2
 #BSUB -o logs/agg-sm.o%J
 #BSUB -e ERRORS-AGG
 #BSUB -W 02:00
