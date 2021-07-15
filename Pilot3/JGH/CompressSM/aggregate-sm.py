@@ -48,6 +48,7 @@ def AverageData(dirs,task,dump,data):
   # go through all files and check the dimensions
   print('CHECKING DATA DIMENSIONS...', flush= True)
   for dir in dirs:
+    print('Check:', dir)
     X = np.load(file=dir + data +'-task-' + str(task) + '.npy')
     # store dimensions
     x.append(X.shape[0])
