@@ -1,9 +1,9 @@
 #BSUB -P MED106
 #BSUB -J split-c4-tst
 #BSUB -o logs/split-c4-tst.o%J
-#BSUB -e ERRORS-SPLIT-C4
+#BSUB -e ERRORS-SPLIT-C4-TST
 #BSUB -W 02:00
-#BSUB -nnodes 5
+#BSUB -nnodes 4
 
 cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH/CompressSM/Aggregation/
 

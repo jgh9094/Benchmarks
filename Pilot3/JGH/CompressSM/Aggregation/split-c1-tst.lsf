@@ -1,9 +1,9 @@
 #BSUB -P MED106
-#BSUB -J split-c4-trn
-#BSUB -o logs/split-c4-trn.o%J
-#BSUB -e ERRORS-SPLIT-C4-TRN
+#BSUB -J split-c1-tst
+#BSUB -o logs/split-c1-tst.o%J
+#BSUB -e ERRORS-SPLIT-C1-TST
 #BSUB -W 02:00
-#BSUB -nnodes 27
+#BSUB -nnodes 4
 
 cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH/CompressSM/Aggregation/
 
@@ -14,11 +14,11 @@ DUMP=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/Split/
 # prop: proportion of cases we are using
 PROP=1.0
 # offset: seed offset so we get different results
-TASK=4
+TASK=1
 # data_type: data type we are going after
-DATA_TYPE=0
+DATA_TYPE=1
 
 module load ibm-wml-ce
 conda activate jghs-ibm
 
-jsrun -n160 -a1 -g1 -c7 python split-agg-sm.py ${DATA} ${DUMP} ${PROP} ${TASK} ${DATA_TYPE}
+jsrun -n20 -a1 -g1 -c7 python split-agg-sm.py ${DATA} ${DUMP} ${PROP} ${TASK} ${DATA_TYPE}
