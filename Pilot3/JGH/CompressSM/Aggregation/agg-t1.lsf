@@ -21,4 +21,4 @@ DATA_TYPE=1
 module load ibm-wml-ce
 conda activate jghs-ibm
 
-jsrun -n4 -a1 -g1 -c7 python aggregate-sm.py ${DATA} ${DUMP} ${PROP} ${OFFSET} ${DATA_TYPE}
+jsrun -n5 -a1 -g1 -c7 python aggregate-sm.py ${DATA} ${DUMP} ${PROP} ${OFFSET} ${DATA_TYPE}
