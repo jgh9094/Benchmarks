@@ -44,27 +44,30 @@ def AverageData(dirs,task,dump,data):
   print('AVERAGING',data.upper(),'DATA...', flush= True)
 
   # check that dimenstions are the same
-  x,y = [],[]
-  # go through all files and check the dimensions
-  print('CHECKING DATA DIMENSIONS...', flush= True)
-  for dir in dirs:
-    print('Check:', dir)
-    X = np.load(file=dir + data +'-task-' + str(task) + '.npy')
-    # store dimensions
-    x.append(X.shape[0])
-    y.append(X.shape[1])
-    del X
+  # x,y = [],[]
+  # # go through all files and check the dimensions
+  # print('CHECKING DATA DIMENSIONS...', flush= True)
+  # for dir in dirs:
+  #   print('Check:', dir)
+  #   X = np.load(file=dir + data +'-task-' + str(task) + '.npy')
+  #   # store dimensions
+  #   x.append(X.shape[0])
+  #   y.append(X.shape[1])
+  #   del X
 
-  # make sure that dimensions match for all data
-  if 1 < len(set(x)) or 1 < len(set(y)):
-    print('TRAINING DATA DIMS NOT EQUAL', flush= True)
-    exit(-1)
-  else:
-    print('DATA DIMENSIONS MATCH!', flush= True)
+  # # make sure that dimensions match for all data
+  # if 1 < len(set(x)) or 1 < len(set(y)):
+  #   print('TRAINING DATA DIMS NOT EQUAL', flush= True)
+  #   exit(-1)
+  # else:
+  #   print('DATA DIMENSIONS MATCH!', flush= True)
+
+  X = np.load(file=dirs[0] + data +'-task-' + str(task) + '.npy')
 
   # matrix that will
-  mat = np.zeros(shape=(x[0],y[0]))
-  del x,y
+  mat = np.zeros(shape=(X.shape[0],X.shape[1]))
+
+  del X
 
   print('PROCESSING FILE', flush=True)
   for dir in dirs:
