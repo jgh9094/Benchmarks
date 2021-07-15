@@ -99,12 +99,21 @@ def main():
 
   # Step 2: Average training data
   if args.data_type == 0:
+    if task == 0 or task == 2:
+      print('ALREADY DID TASK', task)
+      return 0
     AverageData(dirs,task,args.dump_dir, 'training')
 
   elif args.data_type == 1:
+    if task == 0 or task == 2 or task == 3:
+      print('ALREADY DID TASK', task)
+      return 0
     AverageData(dirs,task,args.dump_dir, 'testing')
 
   elif args.data_type == 2:
+    if task == 0 or task == 2:
+      print('ALREADY DID TASK', task)
+      return 0
     AverageData(dirs,task,args.dump_dir, 'validating')
 
   else:
