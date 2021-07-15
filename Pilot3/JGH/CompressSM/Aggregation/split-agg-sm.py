@@ -60,7 +60,7 @@ def AverageData(dirs,task,dump,data,p,R):
 
   print('PROCESSING FILE', flush=True)
   for dir in dirs:
-    print('processing:', dir + data +'-task-' + str(task) + '.npy', flush= True)
+    print('processing[',str(R),']:', dir + data +'-task-' + str(task) + '.npy', flush= True)
     X = np.load(file=dir + data +'-task-' + str(task) + '.npy')[p[0]:p[1],]
 
     # iteratate through each file and update the matrix
