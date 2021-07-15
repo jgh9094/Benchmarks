@@ -45,7 +45,7 @@ def GetDataDirs(dir,p):
   return dirs
 
 # will look through all dirs and average out their data (testing, training, validate)
-def AverageData(dirs,task,dump,data,p):
+def AverageData(dirs,task,dump,data,p,R):
   # get training data
   print('AVERAGING',data.upper(),'DATA...', flush= True)
   print('P:', p, flush=True)
@@ -76,8 +76,8 @@ def AverageData(dirs,task,dump,data,p):
   # memory checks
   print('memory:',psutil.virtual_memory(), flush= True)
 
-  np.save(dump + data + '-task-' + str(task) +'.npy', mat)
-  print('finished saving:', dump + data + '-task-' + str(task) +'.npy', flush= True)
+  np.save(dump + data + '-task-' + str(task) + '-rank-' + str(R) +'.npy', mat)
+  print('finished saving:', dump + data + '-task-' + str(task) + '-rank-' + str(R) +'.npy', flush= True)
   print(flush= True)
 
 def main():
@@ -116,7 +116,7 @@ def main():
     if args.data_type == 0:
       AverageData(dirs,task,args.dump_dir, 'training', 0)
     elif args.data_type == 1:
-      AverageData(dirs,task,args.dump_dir, 'testing', TESTING_T4[RANK])
+      AverageData(dirs,task,args.dump_dir, 'testing', TESTING_T4[RANK],R)
     elif args.data_type == 2:
       AverageData(dirs,task,args.dump_dir, 'validating', 0)
     else:
