@@ -1,7 +1,7 @@
 #BSUB -P MED106
 #BSUB -J agg-0
 #BSUB -o logs/agg-0.o%J
-#BSUB -e ERRORS-AGG
+#BSUB -e ERRORS-AGG0
 #BSUB -W 02:00
 #BSUB -nnodes 1
 
