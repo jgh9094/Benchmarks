@@ -82,7 +82,7 @@ def main():
   parser.add_argument('data_type',    type=int,      help='0: training, 1: testing, 2: validating')
 
   # RANK is synonomous with the task task being evaluated
-  RANK = 3 # used for example right now
+  # RANK = 3 # used for example right now
   task = int(RANK)
   print('task:', task, flush= True)
 
