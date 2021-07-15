@@ -14,13 +14,13 @@ import pickle as pk
 import psutil
 import os
 
-# # OLCF imports
-# from mpi4py import MPI
+# OLCF imports
+from mpi4py import MPI
 
-# # global variables
-# COMM = MPI.COMM_WORLD
-# RANK = COMM.Get_rank()
-# SIZE = COMM.size #Node count. size-1 = max rank.
+# global variables
+COMM = MPI.COMM_WORLD
+RANK = COMM.Get_rank()
+SIZE = COMM.size #Node count. size-1 = max rank.
 
 # will look at all directories in data dir and sample a set of them
 def GetDataDirs(dir,p):
@@ -68,7 +68,7 @@ def main():
   parser.add_argument('data_type',    type=int,      help='0: training, 1: testing, 2: validating')
 
   # RANK is synonomous with the task task being evaluated
-  RANK = 3 # used for example right now
+  # RANK = 3 # used for example right now
   task = int(RANK)
   print('task:', task, flush= True)
 
@@ -83,7 +83,6 @@ def main():
   # Step 1: Get data directories we are exploring
   dirs = GetDataDirs(args.data_dir.strip(),args.proportion)
 
-  # Step 2: Average training data
   # Step 2: Average training data
   if args.data_type == 0:
     AverageData(dirs,task,args.dump_dir, 'training')
