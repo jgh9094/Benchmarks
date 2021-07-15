@@ -76,6 +76,7 @@ def AverageData(dirs,task,dump,data):
 
     # iteratate through each file and update the matrix
     for i in range(X.shape[0]):
+      print(i)
       for j in range(X.shape[1]):
         mat[i][j] += X[i][j]
 
