@@ -101,7 +101,7 @@ def main():
   parser.add_argument('offset',       type=int,      help='Seed offset for rng')
 
   # RANK is synonomous with the task task being evaluated
-  RANK = 4 # used for example right now
+  RANK = 3 # used for example right now
   task = int(RANK)
   print('task:', task, flush= True)
 
