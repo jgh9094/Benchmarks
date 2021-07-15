@@ -95,6 +95,11 @@ def main():
   # get task
   task = args.task
   print('task:', task, flush= True)
+  print('dump_dir:', args.dump_dir)
+  print('proportion:', args.proportion)
+  print('task:', args.task)
+  print('data_type:', args.data_type)
+
 
   # set seed for rng
   seed = int(task+args.offset)
