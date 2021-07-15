@@ -102,7 +102,7 @@ def main():
 
 
   # set seed for rng
-  seed = int(task+args.offset)
+  seed = int(task)
   print('RANDOM SEED:', seed, flush= True)
   np.random.seed(seed)
 
