@@ -14,13 +14,13 @@ import pickle as pk
 import psutil
 import os
 
-# # OLCF imports
-# from mpi4py import MPI
+# OLCF imports
+from mpi4py import MPI
 
-# # global variables
-# COMM = MPI.COMM_WORLD
-# RANK = COMM.Get_rank()
-# SIZE = COMM.size #Node count. size-1 = max rank.
+# global variables
+COMM = MPI.COMM_WORLD
+RANK = COMM.Get_rank()
+SIZE = COMM.size #Node count. size-1 = max rank.
 
 # will look at all directories in data dir and sample a set of them
 def GetDataDirs(dir,p):
@@ -42,25 +42,6 @@ def GetDataDirs(dir,p):
 def AverageData(dirs,task,dump,data):
   # get training data
   print('AVERAGING',data.upper(),'DATA...', flush= True)
-
-  # check that dimenstions are the same
-  # x,y = [],[]
-  # # go through all files and check the dimensions
-  # print('CHECKING DATA DIMENSIONS...', flush= True)
-  # for dir in dirs:
-  #   print('Check:', dir)
-  #   X = np.load(file=dir + data +'-task-' + str(task) + '.npy')
-  #   # store dimensions
-  #   x.append(X.shape[0])
-  #   y.append(X.shape[1])
-  #   del X
-
-  # # make sure that dimensions match for all data
-  # if 1 < len(set(x)) or 1 < len(set(y)):
-  #   print('TRAINING DATA DIMS NOT EQUAL', flush= True)
-  #   exit(-1)
-  # else:
-  #   print('DATA DIMENSIONS MATCH!', flush= True)
 
   X = np.load(file=dirs[0] + data +'-task-' + str(task) + '.npy')
 
@@ -99,6 +80,7 @@ def main():
   parser.add_argument('dump_dir',     type=str,      help='Where are we dumping the output?')
   parser.add_argument('proportion',   type=float,    help='What model config was used')
   parser.add_argument('offset',       type=int,      help='Seed offset for rng')
+  parser.add_argument('data_type',    type=int,      help='0: training, 1: testing, 2: validating')
 
   # RANK is synonomous with the task task being evaluated
   RANK = 3 # used for example right now
@@ -117,13 +99,18 @@ def main():
   dirs = GetDataDirs(args.data_dir.strip(),args.proportion)
 
   # Step 2: Average training data
-  AverageData(dirs,task,args.dump_dir, 'training')
+  if args.data_type == 0:
+    AverageData(dirs,task,args.dump_dir, 'training')
 
-  # Step 3: Average testing data
-  AverageData(dirs,task,args.dump_dir, 'testing')
+  elif args.data_type == 1:
+    AverageData(dirs,task,args.dump_dir, 'testing')
 
-  # Step 3: Average testing data
-  AverageData(dirs,task,args.dump_dir, 'validating')
+  elif args.data_type == 2:
+    AverageData(dirs,task,args.dump_dir, 'validating')
+
+  else:
+    print('UNKNOWN DATA TYPE')
+    exit(-1)
 
 if __name__ == '__main__':
   main()

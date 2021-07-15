@@ -15,8 +15,10 @@ DUMP=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/AverageSM/
 PROP=1.0
 # offset: seed offset so we get different results
 OFFSET=0
+# data_type: data type we are going after
+DATA_TYPE=2
 
 module load ibm-wml-ce
 conda activate jghs-ibm
 
-jsrun -n4 -a1 -g1 -c7 python aggregate-sm.py ${DATA} ${DUMP} ${PROP} ${OFFSET}
+jsrun -n4 -a1 -g1 -c7 python aggregate-sm.py ${DATA} ${DUMP} ${PROP} ${OFFSET} ${DATA_TYPE}
