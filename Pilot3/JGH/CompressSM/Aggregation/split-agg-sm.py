@@ -208,17 +208,43 @@ def main():
 
   # RANK = 0 # local testing only
 
-  if task == 4:
+  if task == 1:
     # check what data type we are looking for
     if args.data_type == 0:
-      AverageData(dirs,task,args.dump_dir, 'training', 0)
+      AverageData(dirs,task,args.dump_dir, 'training', TRAIN_T1[RANK], RANK)
     elif args.data_type == 1:
-      AverageData(dirs,task,args.dump_dir, 'testing', TESTING_T4[RANK],RANK)
+      AverageData(dirs,task,args.dump_dir, 'testing', TESTING_T1[RANK],RANK)
     elif args.data_type == 2:
-      AverageData(dirs,task,args.dump_dir, 'validating', 0)
+      AverageData(dirs,task,args.dump_dir, 'validating', VALID_T1[RANK], RANK)
     else:
       print('ERROR UNKNOWN DATA TYPE')
       exit(-1)
+
+  elif task == 3:
+    # check what data type we are looking for
+    if args.data_type == 0:
+      AverageData(dirs,task,args.dump_dir, 'training', TRAIN_T3[RANK], RANK)
+    elif args.data_type == 1:
+      print('ALREADY DID TASK', str(task))
+      exit(-1)
+    elif args.data_type == 2:
+      AverageData(dirs,task,args.dump_dir, 'validating', VALID_T3[RANK], RANK)
+    else:
+      print('ERROR UNKNOWN DATA TYPE')
+      exit(-1)
+
+  elif task == 4:
+    # check what data type we are looking for
+    if args.data_type == 0:
+      AverageData(dirs,task,args.dump_dir, 'training', TRAIN_T4[RANK], RANK)
+    elif args.data_type == 1:
+      AverageData(dirs,task,args.dump_dir, 'testing', TESTING_T4[RANK],RANK)
+    elif args.data_type == 2:
+      AverageData(dirs,task,args.dump_dir, 'validating', VALID_T4[RANK], RANK)
+    else:
+      print('ERROR UNKNOWN DATA TYPE')
+      exit(-1)
+
 
 
 if __name__ == '__main__':
