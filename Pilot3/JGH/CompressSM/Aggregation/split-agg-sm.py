@@ -14,14 +14,14 @@ import pickle as pk
 import psutil
 import os
 
-# # OLCF imports
-# from mpi4py import MPI
+# OLCF imports
+from mpi4py import MPI
 
-# # global variables
-# COMM = MPI.COMM_WORLD
-# # RANK is synonomous with list of splits position
-# RANK = int(COMM.Get_rank())
-# SIZE = COMM.size #Node count. size-1 = max rank.
+# global variables
+COMM = MPI.COMM_WORLD
+# RANK is synonomous with list of splits position
+RANK = int(COMM.Get_rank())
+SIZE = COMM.size #Node count. size-1 = max rank.
 
 # list of splits
 # TESTING
@@ -109,7 +109,7 @@ def main():
   # Step 1: Get data directories we are exploring
   dirs = GetDataDirs(args.data_dir.strip(),args.proportion)
 
-  RANK = 0
+  # RANK = 0 # local testing only
 
   if task == 4:
     # check what data type we are looking for
