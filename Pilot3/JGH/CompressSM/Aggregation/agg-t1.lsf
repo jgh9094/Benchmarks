@@ -3,7 +3,7 @@
 #BSUB -o logs/agg-1.o%J
 #BSUB -e ERRORS-AGG1
 #BSUB -W 02:00
-#BSUB -nnodes 1
+#BSUB -nnodes 2
 
 cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH/CompressSM/Aggregation/
 
