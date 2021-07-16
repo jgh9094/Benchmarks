@@ -1,6 +1,6 @@
 #BSUB -P MED106
-#BSUB -J split-c4-VAL
-#BSUB -o logs/split-c4-VAL.o%J
+#BSUB -J split-c4-val
+#BSUB -o logs/split-c4-val.o%J
 #BSUB -e ERRORS-SPLIT-C4-VAL
 #BSUB -W 02:00
 #BSUB -nnodes 3
