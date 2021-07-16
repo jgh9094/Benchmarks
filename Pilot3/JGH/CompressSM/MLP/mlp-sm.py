@@ -130,7 +130,6 @@ def GetMLP(x,y):
 
   return mlp
 
-
 def main():
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
