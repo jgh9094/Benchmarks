@@ -14,7 +14,7 @@ DUMP=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/MLP/P-10/
 # prop: proportion of cases we are using
 PROP=0.10
 # offset: seed offset so we get different results
-OFFSET=0
+OFFSET=30
 
 # module load cuda/11.4.0
 module load ibm-wml-ce
