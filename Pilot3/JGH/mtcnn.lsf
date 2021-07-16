@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #BSUB -P MED107
-#BSUB -J mtCNN
-#BSUB -o logs/mtCNN.o%J
-#BSUB -e ErrorFile_Ensemble
+#BSUB -J mtcnn
+#BSUB -o logs/mtcnn.o%J
+#BSUB -e ErrorFile_MTCNN
 #BSUB -W 12:00
 #BSUB -nnodes 46
 
