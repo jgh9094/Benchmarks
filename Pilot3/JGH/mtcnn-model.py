@@ -265,7 +265,7 @@ def main():
     print('--Size of each data point', len(predV[i][0]), flush= True)
 
     fname = fdir + 'validating-task-' + str(i) + '.npy'
-    np.save(fname, pred[i])
+    np.save(fname, predV[i])
   print()
 
   print('Saving Testing Softmax Output', flush= True)
