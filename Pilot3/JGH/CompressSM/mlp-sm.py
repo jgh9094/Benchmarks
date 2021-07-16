@@ -109,7 +109,7 @@ def GetYLabs(dir,task,name):
   file.close
 
   # for testing purposes [0:20000]
-  # ylab = ylab[0:20000,task]
+  ylab = ylab[:,task]
 
   Y = []
   for i in range(len(ylab)):
