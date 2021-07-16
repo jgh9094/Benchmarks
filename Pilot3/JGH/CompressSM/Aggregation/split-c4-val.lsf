@@ -8,7 +8,7 @@
 cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH/CompressSM/Aggregation/
 
 # data_dir: where is the data located
-DATA=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/Ensemble/204ModelRun/
+DATA=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/Ensemble/276MTCNN/
 # dump_dir: where the data is being dumped
 DUMP=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/Split/
 # prop: proportion of cases we are using

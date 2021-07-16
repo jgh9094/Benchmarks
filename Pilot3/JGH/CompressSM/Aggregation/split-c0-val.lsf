@@ -1,7 +1,7 @@
 #BSUB -P MED106
-#BSUB -J split-c3-val
-#BSUB -o logs/split-c3-val.o%J
-#BSUB -e ERRORS-SPLIT-C3-VAL
+#BSUB -J split-c0-val
+#BSUB -o logs/split-c0-val.o%J
+#BSUB -e ERRORS-SPLIT-C0-VAL
 #BSUB -W 02:00
 #BSUB -nnodes 3
 
@@ -14,7 +14,7 @@ DUMP=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/Split/
 # prop: proportion of cases we are using
 PROP=1.0
 # offset: seed offset so we get different results
-TASK=3
+TASK=0
 # data_type: data type we are going after
 DATA_TYPE=2
 
