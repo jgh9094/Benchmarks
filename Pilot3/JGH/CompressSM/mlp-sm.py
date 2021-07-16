@@ -42,6 +42,7 @@ def GetDataDirs(dir,p):
   sub = int(p * len(dirs))
   dirs = np.sort(np.random.choice(dirs, sub, replace=False))
 
+  print('NUMBER OF DIRS:', len(dirs), flush=True)
   print('DIRS EXPLORING:', flush= True)
   for d in dirs:
     print(d, flush= True)
@@ -75,7 +76,7 @@ def AggregateData(dirs,task,data):
   # matrix that will
   mat = [ np.array([]) for i in range(x[0])]
 
-  del x,y
+  del x,
 
   for dir in dirs:
     # go through all the dirs
