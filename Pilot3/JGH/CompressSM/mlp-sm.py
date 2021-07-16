@@ -59,7 +59,7 @@ def AggregateData(dirs,task,data):
   # go through all files and check the dimensions
   print('CHECKING DATA DIMENSIONS...', flush= True)
   for dir in dirs:
-    X = np.load(file=dir + data +'-task-' + str(task) + '.npy', mmap_mode='r')
+    X = np.load(file=dir + data +'-task-' + str(task) + '.npy')
     # store dimensions
     x.append(X.shape[0])
     y.append(X.shape[1])
