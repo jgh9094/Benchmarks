@@ -1,7 +1,7 @@
 #BSUB -P MED106
-#BSUB -J mlp-sm
-#BSUB -o logs/mlp-sm.o%J
-#BSUB -e ERRORS-MLP
+#BSUB -J mlp-sm-75
+#BSUB -o logs/mlp-sm-75.o%J
+#BSUB -e ERRORS-MLP-75
 #BSUB -W 02:00
 #BSUB -nnodes 1
 
@@ -10,9 +10,9 @@ cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH/CompressSM/MLP/
 # data_dir: where is the data located
 DATA=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/Ensemble/276MTCNN/
 # dump_dir: where the data is being dumped
-DUMP=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/MLP/P-100/
+DUMP=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/MLP/P-75/
 # prop: proportion of cases we are using
-PROP=1.0
+PROP=0.75
 # offset: seed offset so we get different results
 OFFSET=0
 
