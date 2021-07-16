@@ -160,7 +160,7 @@ def main():
   X = AggregateData(dirs,RANK,'training')
   XV = AggregateData(dirs,RANK,'validating')
   Y = GetYLabs(YLAB, RANK, 'train_y.pickle')
-  YV = GetYLabs(YLAB, RANK, 'val_y.pickle')
+  YV = GetYLabs(YLAB, RANK, 'test_y.pickle')
 
   print('DATA RETURNED',flush=True)
   print('X.shape:', X.shape,flush=True)
