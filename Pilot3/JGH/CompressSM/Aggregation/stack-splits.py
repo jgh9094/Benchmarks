@@ -54,7 +54,7 @@ def GetDataType(c,t):
 
 # will look at all directories in data dir and sample a set of them
 def GetDataFiles(dir,fn,n):
-  dirs = [fn + str(i) + '.npy' for i in range(n)]
+  dirs = [dir + fn + str(i) + '.npy' for i in range(n)]
 
   print('DIRS EXPLORING:', flush= True)
   for d in dirs:
@@ -77,7 +77,6 @@ def GetData(c):
   else:
     print('UNKNOWN TOTAL')
     exit(-1)
-
 
 # will look through all dirs and average out their data (testing, training, validate)
 def ConcatData(files,dump,data,task):
