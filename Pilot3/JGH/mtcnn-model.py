@@ -28,7 +28,7 @@ from keras import initializers
 from keras.losses import CategoricalCrossentropy
 from sklearn.metrics import f1_score
 
-# from loaddata6reg import loadAllTasks
+from loaddata6reg import loadAllTasks
 # from mpi4py import MPI
 
 
