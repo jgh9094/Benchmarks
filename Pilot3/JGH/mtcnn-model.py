@@ -29,16 +29,16 @@ from keras.losses import CategoricalCrossentropy
 from sklearn.metrics import f1_score
 
 from loaddata6reg import loadAllTasks
-# from mpi4py import MPI
+from mpi4py import MPI
 
 
-# # global variables
-# COMM = MPI.COMM_WORLD
-# RANK = COMM.Get_rank()
-# SIZE = COMM.size #Node count. size-1 = max rank.
+# global variables
+COMM = MPI.COMM_WORLD
+RANK = COMM.Get_rank()
+SIZE = COMM.size #Node count. size-1 = max rank.
 # EXPECTED CLASSES FOR EACH TASK, MUST UPDATE
 CLASS =  [4,639,7,70,326]
-EPOCHS = 1
+EPOCHS = 100
 
 # return configuration for the experiment
 def GetModelConfig(config):
@@ -179,7 +179,6 @@ def main():
   args = parser.parse_args()
 
   # set the seed to the rank
-  RANK = 0
   seed = int(RANK)
   print('Seed:', seed)
   np.random.seed(seed)
