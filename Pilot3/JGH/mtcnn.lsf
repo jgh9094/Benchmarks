@@ -4,7 +4,7 @@
 #BSUB -J mtcnn
 #BSUB -o logs/mtcnn.o%J
 #BSUB -e ErrorFile_MTCNN
-#BSUB -W 12:00
+#BSUB -W 06:00
 #BSUB -nnodes 46
 
 cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH
