@@ -25,6 +25,7 @@ from keras.callbacks import EarlyStopping
 from keras.utils import to_categorical
 from keras.layers.merge import Concatenate
 from keras import initializers
+from keras.losses import CategoricalCrossentropy
 from sklearn.metrics import f1_score
 
 from loaddata6reg import loadAllTasks
@@ -32,13 +33,12 @@ from mpi4py import MPI
 
 
 # global variables
-EPOCHS = 100
+EPOCHS = 1
 COMM = MPI.COMM_WORLD
 RANK = COMM.Get_rank()
 SIZE = COMM.size #Node count. size-1 = max rank.
 # EXPECTED CLASSES FOR EACH TASK, MUST UPDATE
 CLASS =  [4,639,7,70,326]
-
 
 # return configuration for the experiment
 def GetModelConfig(config):
@@ -59,6 +59,12 @@ def GetModelConfig(config):
   else:
     print('MODEL CONFIGURATION DOES NOT EXIST', flush= True)
     exit(-1)
+
+# softmax output transformer
+def softmax(x):
+    ex = np.exp(x)
+    tot = np.sum(ex)
+    return ex / tot
 
 # transform data and return number of classes
 def TransformData(rawX, rawXV, rawXT, rawY, rawYV, rawYT):
@@ -153,12 +159,12 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
     # different dense layer per tasks
     FC_models = []
     for i in range(len(num_classes)):
-        outlayer = Dense(num_classes[i], name= "Dense"+str(i), activation='softmax')( concat_drop )
+        outlayer = Dense(num_classes[i], name= "Dense"+str(i))( concat_drop )
         FC_models.append(outlayer)
 
     # the multitsk model
     model = Model(inputs=model_input, outputs = FC_models)
-    model.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
+    model.compile( loss= CategoricalCrossentropy(from_logits=True), optimizer= cfg['optimizer'], metrics=[ "acc" ] )
 
     return model
 
@@ -295,10 +301,13 @@ def main():
   YV = YV[0:propYV]
   YT = YT[0:propYT]
 
+  # get the softmax values of the our predictions from raw logits
+  for i in range(len(predT)):
+    for j in range(len(predT[i])):
+      predT[i][j] = softmax(predT[i][j])
 
   for t in range(5):
     preds = np.argmax(predT[t], axis=1)
-    # preds = [np.argmax(x) for x in predT[t]]
     micro = f1_score(YT[:,t], preds, average='micro')
     macro = f1_score(YT[:,t], preds, average='macro')
     micMac.append(micro)
@@ -311,7 +320,6 @@ def main():
                               'Site_Mac', 'Subs_Mic', 'Subs_Mac'])
   df0.to_csv(data_path)
 
-
   # convert the history.history dict to a pandas DataFrame:
   hist_df = pd.DataFrame(hist.history)
   hist_df.to_csv(path_or_buf= fdir + 'history.csv', index=False)
@@ -321,9 +329,6 @@ def main():
   mtcnn.save(fdir + 'model.h5')
   print('Model Saved!', flush= True)
 
-  # save picture of model created
-  # plot_model(mtcnn, fdir + "model.png", show_shapes=True)
-  # print('Model Topology Picture Saved!', flush= True)
 
 if __name__ == '__main__':
   main()
