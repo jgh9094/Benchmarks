@@ -208,7 +208,9 @@ def main():
       print(type(pred[i][j]))
       print(pred[i][j].shape)
       print(pred[i][j])
-      print(pred[i][j][:int(len(pred[i][j]/2))])
+      x = int(len(pred[i][j])/2)
+      print('x:',x)
+      print(pred[i][j][:x])
       break
     break
 
