@@ -100,7 +100,7 @@ def ConcatData(y,yv,teach, temp):
       exit(-1)
     # concatenate + transform the teacher data the output data
     for j in range(yt.shape[0]):
-      Y[i].append(np.concatenate(y[i][j], softmax(yt[j], temp)))
+      Y[i].append(np.concatenate((y[i][j], softmax(yt[j], temp))))
     # make a numpy array
     Y[i] = np.array(Y[i])
 
@@ -114,7 +114,7 @@ def ConcatData(y,yv,teach, temp):
       exit(-1)
     # concatenate + transform the teacher data the output data
     for j in range(yv.shape[0]):
-      YV[i].append(np.concatenate(y[i][j], softmax(yv[j], temp)))
+      YV[i].append(np.concatenate((y[i][j], softmax(yv[j], temp))))
     YV[i] = np.array(YV[i])
 
   return Y,YV
