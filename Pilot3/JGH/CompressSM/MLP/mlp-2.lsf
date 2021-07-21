@@ -8,9 +8,9 @@
 cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH/CompressSM/MLP/
 
 # data_dir: where is the data located
-DATA=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/Ensemble/276MTCNN/
+DATA=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/Ensemble/RawLogits/276MtCnns/
 # dump_dir: where the data is being dumped
-DUMP=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/MLP/P-2/
+DUMP=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/RawLogits/MLP/P-2/
 # prop: proportion of cases we are using
 PROP=0.02
 # offset: seed offset so we get different results

@@ -21,6 +21,7 @@ from keras.layers import Input, Dense
 from keras.regularizers import l2
 from keras.callbacks import EarlyStopping
 from keras.utils import to_categorical
+from keras.losses import CategoricalCrossentropy
 
 # OLCF imports
 from mpi4py import MPI
@@ -123,11 +124,11 @@ def GetMLP(x,y):
   input = Input(shape=([x]), name= "Input")
   hidden = Dense(x, activation='relu')(input)
   # add dropout layer (.25)
-  output = Dense(y, activation='softmax')(hidden)
+  output = Dense(y)(hidden)
 
   # link, compile, and fit model
   mlp = Model(inputs=input, outputs = output)
-  mlp.compile( loss= "categorical_crossentropy", optimizer= 'adam', metrics=[ "acc" ] )
+  mlp.compile(loss= CategoricalCrossentropy(from_logits=True), optimizer= 'adam', metrics=[ "acc" ] )
 
   return mlp
 
