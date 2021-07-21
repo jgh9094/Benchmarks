@@ -320,7 +320,7 @@ def main():
   for i in range(len(predT)):
     print(int(len(predT[i][0]/2)))
     for j in range(len(predT[i])):
-      s = int(len(predT[i][j]/2))
+      s = int(len(predT[i][j])/2)
       predT[i][j] = predT[i][j][:s]
 
   for t in range(len(CLASS)):
