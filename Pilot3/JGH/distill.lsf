@@ -12,7 +12,7 @@ cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH/
 # dump_dir: where the data is being dumped
 TEACH=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/RawLogits/MLP/P-5/
 # dump_dir: where the data is being dumped
-DUMP=/gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH
+DUMP=/gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH/
 # config: configuration we are using
 CONFIG=0
 
