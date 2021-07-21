@@ -100,7 +100,7 @@ def GetModelConfig(config):
   if config == 0:
     return {
       'learning_rate': 0.01,
-      'batch_size': 10,
+      'batch_size': 256,
       'dropout': 0.5,
       'optimizer': 'adam',
       'wv_len': 300,
@@ -208,6 +208,7 @@ def main():
       print(type(pred[i][j]))
       print(pred[i][j].shape)
       print(pred[i][j])
+      print(pred[i][j][:int(len(pred[i][j]/2))])
       break
     break
 
