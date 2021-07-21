@@ -160,7 +160,7 @@ def main():
   print('run parameters:', config, end='\n\n', flush= True)
 
   #just put this here to make it simple for now:
-  # dump_dir = config['dump']
+  dump_dir = config['dump']
 
   # check that dump directory exists
   print('DUMP Directory:', dump_dir)
