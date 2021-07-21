@@ -109,8 +109,8 @@ def ConcatData(y,yv,teach, temp):
     YV.append([])
     yv = np.load(teach + 'validating-task-' + str(i) + '.npy')
     # make sure same lengths
-    if yv.shape[0] != y[i].shape[0] or yv.shape[1] != yv[i].shape[1]:
-      print('NOT MATHCING DIMENSIONS: TRAINING')
+    if yv.shape[0] != yv[i].shape[0] or yv.shape[1] != yv[i].shape[1]:
+      print('NOT MATHCING DIMENSIONS: VALIDATING')
       exit(-1)
     # concatenate + transform the teacher data the output data
     for j in range(yv.shape[0]):
