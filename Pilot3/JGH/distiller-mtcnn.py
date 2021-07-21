@@ -85,9 +85,11 @@ def softmax(x,t):
 
 # concatenate the data
 def ConcatData(y,yv,teach, temp):
+  print('CONCAT DATA:')
   Y,YV = [],[]
   # iterate through the number of classes in the training data
   for i in range(len(CLASS)):
+    print(str(i))
     # get training dir
     Y.append([])
     yt = np.load(teach + 'training-task-' + str(i) + '.npy')
@@ -307,14 +309,8 @@ def main():
 
   # Step 5: Save everything
 
-  # create directory to dump all data related to model
-  fdir = args.dump_dir + 'MTDistilled-' + str(args.config) + '-' + str(RANK) + '/'
-  os.mkdir(fdir)
-
   # get the softmax values of the our predictions from raw logits
   predT = mtcnn.predict(XT)
-  micMac = []
-  data_path = fdir + "MicMacTest_R" + str(RANK) + ".csv"
 
   # use only the first half of the output vector: those are predictions
   for i in range(len(predT)):
@@ -322,6 +318,12 @@ def main():
     for j in range(len(predT[i])):
       s = int(len(predT[i][j])/2)
       predT[i][j] = predT[i][j][:s]
+
+  # create directory to dump all data related to model
+  fdir = args.dump_dir + 'MTDistilled-' + str(args.config) + '-' + str(RANK) + '/'
+  os.mkdir(fdir)
+  micMac = []
+  data_path = fdir + "MicMacTest_R" + str(RANK) + ".csv"
 
   for t in range(len(CLASS)):
     preds = np.argmax(predT[t], axis=1)
