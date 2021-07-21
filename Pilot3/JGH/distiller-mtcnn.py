@@ -119,6 +119,49 @@ def ConcatData(y,yv,teach, temp):
 
   return Y,YV
 
+# transform y data
+def Transform(rawY,rawYV):
+  # create array for each task output
+  # create array for each task output
+  y = [[] for i in range(rawY.shape[1])]
+  yv = [[] for i in range(rawY.shape[1])]
+
+  # load data into appropiate list
+  for t in range(rawY.shape[1]):
+    y[t] = rawY[:,t]
+    yv[t] = rawYV[:,t]
+
+  # make to catagorical data and pack up
+  Y,YV = [],[]
+  for i in range(len(y)):
+    Y.append(to_categorical(y[i], num_classes=CLASS[i]))
+  for i in range(len(yv)):
+    YV.append(to_categorical(yv[i], num_classes=CLASS[i]))
+
+  print('Training Output Data', flush= True)
+  i = 0
+  for y in Y:
+    print('task', i, flush= True)
+    print('--cases:', len(y), flush= True)
+    print('--classes:',len(y[0]), flush= True)
+    i += 1
+  print()
+
+  print('Validation Output Data', flush= True)
+  i = 0
+  for y in YV:
+    print('task', i, flush= True)
+    print('--cases:', len(y), flush= True)
+    print('--classes:',len(y[0]), flush= True)
+    i += 1
+  print()
+
+  for i in range(len(CLASS)):
+    Y[i] = np.array(Y[i])
+    YV[i] = np.array(YV[i])
+
+  return Y,YV
+
 # will return a mt-cnn with a certain configuration
 def CreateMTCnn(num_classes,vocab_size,cfg):
     # define network layers ----------------------------------------------------
@@ -184,6 +227,7 @@ def main():
 
   # Step 2: Create training/testing data for models
   X, XV, XT, Y, YV, YT = loadAllTasks(print_shapes = False)
+  Y,YV = Transform(Y,YV)
   Y,YV = ConcatData(Y,YV, args.tech_dir, TEMP)
   print('DATA LOADED AND READY TO GO\n')
 
