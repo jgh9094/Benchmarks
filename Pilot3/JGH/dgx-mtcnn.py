@@ -31,7 +31,7 @@ from sklearn.metrics import f1_score
 
 
 # global variables
-EPOCHS = 5
+EPOCHS = 1
 
 # return the data for training and testing
 # will need to modify if other means of data gathering
@@ -100,7 +100,7 @@ def GetModelConfig(config):
   if config == 0:
     return {
       'learning_rate': 0.01,
-      'batch_size': 256,
+      'batch_size': 10,
       'dropout': 0.5,
       'optimizer': 'adam',
       'wv_len': 300,
@@ -160,7 +160,7 @@ def main():
   print('run parameters:', config, end='\n\n', flush= True)
 
   #just put this here to make it simple for now:
-  dump_dir = config['dump']
+  # dump_dir = config['dump']
 
   # check that dump directory exists
   print('DUMP Directory:', dump_dir)
@@ -168,8 +168,8 @@ def main():
     print('DUMP DIRECTORY DOES NOT EXIST', flush= True)
     exit(-1)
 
-  # data_dir = '//gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Data/Pilot3/P3B3_data/'
-  data_dir = '../../Data/Pilot3/P3B3_data/'
+  data_dir = '//gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Data/Pilot3/P3B3_data/'
+  # data_dir = '../../../Data/Pilot3/P3B3_data/'
   print('data_dir:', data_dir)
   # Step 2: Create training/testing data for models
   X,Y,XT,YT,classes =  GetData(data_dir)
@@ -192,8 +192,6 @@ def main():
           callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)]
           )
 
-  print(mtcnn.summary())
-
   # create directory to dump all data related to model
   # fdir = dump_dir + 'MTModel-' + str(cfg) + "_Rank-" + str(seed) +'/'
   # if not os.path.exists(fdir):
@@ -206,6 +204,8 @@ def main():
 
   print('PREDICTIONS')
   for p in predT:
+    print(type(p))
+    print(p.shape)
     print(p)
 
   exit(-1)
