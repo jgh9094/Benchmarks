@@ -93,9 +93,6 @@ def ConcatData(y,yv,teach, temp):
     yt = np.load(teach + 'training-task-' + str(i) + '.npy')
     # make sure same lengths
     if yt.shape[0] != y[i].shape[0] or yt.shape[1] != y[i].shape[1]:
-      print(yt.shape[0],yt.shape[1])
-      print(y[i].shape)
-      print(y[i].shape[0],y[i].shape[1])
       print('NOT MATHCING DIMENSIONS: TRAINING')
       exit(-1)
     # concatenate + transform the teacher data the output data
@@ -107,14 +104,14 @@ def ConcatData(y,yv,teach, temp):
 
     # get validation dir
     YV.append([])
-    yv = np.load(teach + 'validating-task-' + str(i) + '.npy')
+    yvt = np.load(teach + 'validating-task-' + str(i) + '.npy')
     # make sure same lengths
-    if yv.shape[0] != yv[i].shape[0] or yv.shape[1] != yv[i].shape[1]:
+    if yvt.shape[0] != yv[i].shape[0] or yvt.shape[1] != yv[i].shape[1]:
       print('NOT MATHCING DIMENSIONS: VALIDATING')
       exit(-1)
     # concatenate + transform the teacher data the output data
-    for j in range(yv.shape[0]):
-      YV[i].append(np.concatenate((y[i][j], softmax(yv[j], temp))))
+    for j in range(yvt.shape[0]):
+      YV[i].append(np.concatenate((y[i][j], softmax(yvt[j], temp))))
     YV[i] = np.array(YV[i])
 
   return Y,YV
