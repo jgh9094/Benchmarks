@@ -318,6 +318,7 @@ def main():
 
   # use only the first half of the output vector: those are predictions
   for i in range(len(predT)):
+    print(int(len(predT[i][j]/2)))
     for j in range(len(predT[i])):
       s = int(len(predT[i][j]/2))
       predT[i][j] = predT[i][j][:s]
