@@ -319,10 +319,8 @@ def main():
   # use only the first half of the output vector: those are predictions
   for i in range(len(predT)):
     for j in range(len(predT[i])):
-      print(type(predT[i][j]))
-      print(predT[i][j].shape)
-      print(predT[i][j])
-      predT[i][j] = predT[i][j][:CLASS[i]]
+      s = int(len(predT[i][j]/2))
+      predT[i][j] = predT[i][j][:s]
 
   for t in range(len(CLASS)):
     preds = np.argmax(predT[t], axis=1)
