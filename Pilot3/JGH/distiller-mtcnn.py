@@ -90,7 +90,7 @@ def ConcatData(y,yv,teach, temp):
   for i in range(len(CLASS)):
     # get training dir
     Y.append([])
-    yt = np.load(teach + 'training-task-' + i + '.npy')
+    yt = np.load(teach + 'training-task-' + str(i) + '.npy')
     # make sure same lengths
     if yt.shape[0] != y[i].shape[0] or yt.shape[1] != y[i].shape[1]:
       print('NOT MATHCING DIMENSIONS: TRAINING')
@@ -104,7 +104,7 @@ def ConcatData(y,yv,teach, temp):
 
     # get validation dir
     YV.append([])
-    yv = np.load(teach + 'validating-task-' + i + '.npy')
+    yv = np.load(teach + 'validating-task-' + str(i) + '.npy')
     # make sure same lengths
     if yv.shape[0] != y[i].shape[0] or yv.shape[1] != yv[i].shape[1]:
       print('NOT MATHCING DIMENSIONS: TRAINING')
