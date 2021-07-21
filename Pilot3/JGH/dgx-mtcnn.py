@@ -203,10 +203,14 @@ def main():
   predT = mtcnn.predict(XT)
 
   print('PREDICTIONS')
-  for p in predT:
-    print(type(p))
-    print(p.shape)
-    print(p)
+  for i in range(len(pred)):
+    for j in range(len(pred[i])):
+      print(type(pred[i][j]))
+      print(pred[i][j].shape)
+      print(pred[i][j])
+      break
+    break
+
 
   exit(-1)
 
