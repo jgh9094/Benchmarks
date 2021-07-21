@@ -93,6 +93,8 @@ def ConcatData(y,yv,teach, temp):
     yt = np.load(teach + 'training-task-' + str(i) + '.npy')
     # make sure same lengths
     if yt.shape[0] != y[i].shape[0] or yt.shape[1] != y[i].shape[1]:
+      print(yt.shape[0],yt.shape[1])
+      print(y[i].shape[0],y[i].shape[1])
       print('NOT MATHCING DIMENSIONS: TRAINING')
       exit(-1)
     # concatenate + transform the teacher data the output data
