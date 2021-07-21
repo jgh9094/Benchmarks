@@ -23,13 +23,23 @@ from keras.callbacks import EarlyStopping
 from keras.utils import to_categorical,plot_model
 from keras.losses import categorical_crossentropy as logloss
 from keras import backend as K
-from keras.metrics import categorical_accuracy, top_k_categorical_accuracy
+from keras import initializers
+from keras.metrics import categorical_accuracy
 from keras.layers.merge import Concatenate
+from sklearn.metrics import f1_score
+
+# summit specific imports
+from loaddata6reg import loadAllTasks
+from mpi4py import MPI
 
 # global variables
-EPOCHS = 100
+EPOCHS = 4
+COMM = MPI.COMM_WORLD
+RANK = COMM.Get_rank()
+SIZE = COMM.size #Node count. size-1 = max rank.
+# EXPECTED CLASSES FOR EACH TASK, MUST UPDATE
+CLASS =  [4,639,7,70,326]
 TEMP = 0
-ALPHA = 0.0
 
 # return configuration for the experiment
 def GetModelConfig(config):
@@ -43,132 +53,68 @@ def GetModelConfig(config):
       'wv_len': 300,
       'emb_l2': 0.001,
       'in_seq_len': 1500,
-      'num_filters': [3,4,5],
-      'filter_sizes': [150,150,150],
-      'model_N': 4,
-      'alpha': 0.5,
+      'filter_sizes': [3,4,5],
+      'num_filters': [300,300,300],
+      'alpha': 0.07,
+      'temp': [1,2,5,7,10,15,20,25,30]
     }
 
   else:
     print('MODEL CONFIGURATION DOES NOT EXIST')
     exit(-1)
 
-# compute
-def knowledge_distillation_loss(y_true, y_pred,alpha,split):
-  # Extract the one-hot encoded values and the softs separately so that we can create two objective functions
+# first 1/2 are hard labels, second 1/2 are softmax outputs
+# alpha: constant for hard label error (should be small according to lit review)
+def knowledge_distillation_loss(y_true,y_pred,alpha,split):
+  # ground truth and teacher softmax
   y_true, y_true_softs = y_true[: , :split], y_true[: , split:]
+  # student class predictions and student softmax distillation
   y_pred, y_pred_softs = y_pred[: , :split], y_pred[: , split:]
 
-  diff_alpha = 1 - alpha
+  diff_alpha = 1.0 - alpha
 
   loss = alpha * logloss(y_true,y_pred) +  diff_alpha * logloss(y_true_softs, y_pred_softs)
 
   return loss
 
-# return the data for training and testing
-# will need to modify if other means of data gathering
-def GetData(d_dir,t_dir):
-  # load data
-  rawX = np.load( d_dir + 'train_X.npy' )
-  rawY = np.load( d_dir + 'train_Y.npy' )
-  rawXT = np.load( d_dir + 'test_X.npy' )
-  rawYT = np.load( d_dir + 'test_Y.npy' )
+# softmax/temperture output transformer
+def softmax(x,t):
+    ex = np.exp(x/t)
+    tot = np.sum(ex)
+    return np.array(ex / tot)
 
-  # raw data descriptions
-  print('RAW DATA DIMS')
-  print('rawX dim: ', rawX.shape)
-  print('rawY dim: ', rawY.shape)
-  print('rawXT dim: ', rawXT.shape)
-  print('rawYT dim: ', rawYT.shape , end='\n\n')
+# concatenate the data
+def ConcatData(y,yv,teach, temp):
+  Y,YV = [],[]
+  # iterate through the number of classes in the training data
+  for i in range(len(CLASS)):
+    # get training dir
+    Y.append([])
+    yt = np.load(teach + 'training-task-' + i + '.npy')
+    # make sure same lengths
+    if yt.shape[0] != y[i].shape[0] or yt.shape[1] != y[i].shape[1]:
+      print('NOT MATHCING DIMENSIONS: TRAINING')
+      exit(-1)
+    # concatenate + transform the teacher data the output data
+    for j in range(len(yt.shape[0])):
+      Y[i].append(np.concatenate(y[i][j], softmax(yt[j], temp)))
+    # make a numpy array
+    Y[i] = np.array(Y[i])
 
-  if rawY.shape[1] != rawYT.shape[1]:
-    print('NUMBER OF TASKS NOT THE SAME BETWEEN DATA SETS')
-    exit(-1)
 
-  # create array for each task output
-  y = [[] for i in range(rawY.shape[1])]
-  yt = [[] for i in range(rawY.shape[1])]
-  # load data
-  for t in range(rawY.shape[1]):
-    y[t] = rawY[:,t]
-    yt[t] = rawYT[:,t]
+    # get validation dir
+    YV.append([])
+    yv = np.load(teach + 'validating-task-' + i + '.npy')
+    # make sure same lengths
+    if yv.shape[0] != y[i].shape[0] or yv.shape[1] != yv[i].shape[1]:
+      print('NOT MATHCING DIMENSIONS: TRAINING')
+      exit(-1)
+    # concatenate + transform the teacher data the output data
+    for j in range(len(yv.shape[0])):
+      YV[i].append(np.concatenate(y[i][j], softmax(yv[j], temp)))
+    YV[i] = np.array(YV[i])
 
-  # make to catagorical data and pack up
-  tempY,tempYT = [],[]
-  for t in y:
-    tempY.append(to_categorical(t))
-  for t in yt:
-    tempYT.append(to_categorical(t))
-
-  print('Temp Training Output Data')
-  i = 0
-  for y in tempY:
-    print('task', i)
-    print('--cases:', len(y))
-    print('--classes:',len(y[0]))
-    i += 1
-  print()
-
-  print('Temp Testing Output Data')
-  i = 0
-  for y in tempYT:
-    print('task', i)
-    print('--cases:', len(y))
-    print('--classes:',len(y[0]))
-    i += 1
-  print()
-
-  # number of classes per task
-  classes = []
-  for y in tempY:
-    classes.append(len(y[0]))
-
-  # append teacher softmax outputs to the hard label output
-  Y,YT = [],[]
-  # number of tasks dictates number of output files expecting
-  for i in range(len(classes)):
-    # load data
-    file = t_dir + 'training-task-' + str(i) + '.npy'
-    teach_y = np.load(file)
-    file = t_dir + 'testing-task-' + str(i) + '.npy'
-    teach_yt = np.load(file)
-
-    # combine and save data
-    y,yt = CombineData(tempY[i],tempYT[i],teach_y,teach_yt)
-    Y.append(y)
-    YT.append(yt)
-
-  print('Training Output Data')
-  i = 0
-  for y in Y:
-    print('task', i)
-    print('--cases:', len(y))
-    print('--classes:',len(y[0]))
-    i += 1
-  print()
-
-  print('Testing Output Data')
-  i = 0
-  for y in YT:
-    print('task', i)
-    print('--cases:', len(y))
-    print('--classes:',len(y[0]))
-    i += 1
-  print()
-
-  return np.array(rawX),Y,np.array(rawXT),YT,classes
-
-# combine the data output with ground truth and teacher logits
-def CombineData(y,yt,ty,tyt):
-  Y = []
-  for i in range(len(y)):
-    Y.append(np.concatenate((y[i],ty[i])))
-
-  YT = []
-  for i in range(len(yt)):
-    YT.append(np.concatenate((yt[i],tyt[i])))
-
-  return np.array(Y),np.array(YT)
+  return Y,YV
 
 # will return a mt-cnn with a certain configuration
 def CreateMTCnn(num_classes,vocab_size,cfg):
@@ -177,7 +123,8 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
     model_input = Input(shape=input_shape, name= "Input")
     # embedding lookup
     emb_lookup = Embedding(vocab_size, cfg['wv_len'], input_length=cfg['in_seq_len'],
-                           name="embedding", embeddings_regularizer=l2(cfg['emb_l2']))(model_input)
+                            embeddings_initializer= initializers.RandomUniform( minval= 0, maxval= 0.01 ),
+                            name="embedding")(model_input)
 
     # convolutional layer and dropout
     conv_blocks = []
@@ -206,22 +153,16 @@ def main():
   print('\n************************************************************************************', end='\n\n')
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
-  parser.add_argument('data_dir',     type=str, help='Where is the data located?')
   parser.add_argument('tech_dir',     type=str, help='Where is the teacher data located?')
   parser.add_argument('dump_dir',     type=str, help='Where are we dumping the output?')
   parser.add_argument('config',       type=int, help='What model config are we using?')
-  parser.add_argument('seed',         type=int, help='Random seed for run')
-  parser.add_argument('temp',         type=float, help='What temperature are we running')
 
   # Parse all the arguments & set random seed
   args = parser.parse_args()
-  print('Seed:', args.seed, end='\n\n')
-  np.random.seed(args.seed)
+  seed = int(RANK)
+  print('Seed:', seed, end='\n\n')
+  np.random.seed(seed)
 
-  # check that dump directory exists
-  if not os.path.isdir(args.data_dir):
-    print('DATA DIRECTORY DOES NOT EXIST')
-    exit(-1)
   # check that dump directory exists
   if not os.path.isdir(args.tech_dir):
     print('TEACHER DIRECTORY DOES NOT EXIST')
@@ -234,24 +175,28 @@ def main():
   # Step 1: Get experiment configurations
   config = GetModelConfig(args.config)
   print('run parameters:', config, end='\n\n')
+  global TEMP
+  TEMP = config['temp'][seed]
+  print('TEMP:', TEMP)
 
   # Step 2: Create training/testing data for models
-  X,Y,XT,YT,classes =  GetData(args.data_dir, args.tech_dir)
-  global TEMP
-  TEMP = args.temp
+  X, XV, XT, Y, YV, YT = loadAllTasks(print_shapes = False)
+  Y,YV = ConcatData(Y,YV, args.tech_dir, TEMP)
+  print('DATA LOADED AND READY TO GO\n')
 
   # Step 3: Create the studen mtcnn model
-  mtcnn = CreateMTCnn(classes, max(np.max(X),np.max(XT)),config)
+  mtcnn = CreateMTCnn(CLASS, max(np.max(X),np.max(XV)) + 1,config)
+  print('MODEL CREATED\n')
 
   #Step 4: Create knowledge distilled student topology
 
   # remove the last activation layers
-  for i in range(4):
+  for i in range(len(CLASS)):
     mtcnn.layers.pop()
 
   # add new distlled layers
   new_out = []
-  for i in range(len(classes)):
+  for i in range(len(CLASS)):
     logits = mtcnn.get_layer('Dense'+str(i)).output
     probs = Activation('softmax', name='Logits'+str(i))(logits)
     # softed probabilities at raised temperature
@@ -264,6 +209,7 @@ def main():
   # mtcnn distillation model ready to go!
   mtcnn = Model(mtcnn.input, new_out)
   mtcnn.summary()
+  print('MODEL READJUSTED FOR DISTILLATION\n')
 
   # For testing use regular output probabilities - without temperature
   def acc(y_true, y_pred, split):
@@ -278,55 +224,83 @@ def main():
 
   # logloss with only soft probabilities and targets
   def soft_logloss(y_true, y_pred, split):
-    logits = y_true[:, split:]
-    y_soft = K.softmax(logits/TEMP)
+    y_true_soft = y_true[:, split:]
+    # y_soft = K.softmax(logits/TEMP)
     y_pred_soft = y_pred[:, split:]
-    return logloss(y_soft, y_pred_soft)
+    return logloss(y_true_soft, y_pred_soft)
 
   # create loss dictionary for each task
   losses = {}
-  for i in range(len(classes)):
-    l = lambda y_true, y_pred: knowledge_distillation_loss(y_true,y_pred,config['alpha'],classes[i])
+  for i in range(len(CLASS)):
+    l = lambda y_true, y_pred: knowledge_distillation_loss(y_true,y_pred,config['alpha'],CLASS[i])
     l.__name__ = 'kdl'
     losses['Active'+str(i)] = l
   # create metric dictionary per task
   metrics = {}
-  for i in range(len(classes)):
+  for i in range(len(CLASS)):
     metrics['Active'+str(i)] = []
-    l1 = lambda y_true, y_pred: acc(y_true,y_pred,classes[i])
+    l1 = lambda y_true, y_pred: acc(y_true,y_pred,CLASS[i])
     l1.__name__ = 'acc'
     metrics['Active'+str(i)].append(l1)
-    l2 = lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,classes[i])
+    l2 = lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,CLASS[i])
     l2.__name__ = 'cc'
     metrics['Active'+str(i)].append(l2)
-    l3 = lambda y_true, y_pred: soft_logloss(y_true,y_pred,classes[i])
+    l3 = lambda y_true, y_pred: soft_logloss(y_true,y_pred,CLASS[i])
     l3.__name__ = 'sl'
     metrics['Active'+str(i)].append(l3)
 
 
   mtcnn.compile(optimizer='adam', loss=losses, metrics=metrics)
+  print('MODEL COMPILED FOR DISTILLATION\n')
 
   hist = mtcnn.fit(X, Y,
             batch_size=256,
             epochs=EPOCHS,
-            verbose=1,
-            validation_data=(XT, YT))
-            # callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
+            verbose=2,
+            validation_data=(XV, YV),
+            callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
 
 
   # Step 5: Save everything
 
   # create directory to dump all data related to model
-  fdir = args.dump_dir + 'MTDistilled-' + str(args.config) + '/'
+  fdir = args.dump_dir + 'MTDistilled-' + str(args.config) + '-' + str(RANK) + '/'
   os.mkdir(fdir)
+
+  # get the softmax values of the our predictions from raw logits
+  predT = mtcnn.predict(XT)
+  micMac = []
+  data_path = fdir + "MicMacTest_R" + str(RANK) + ".csv"
+
+  # use only the first half of the output vector: those are predictions
+  for i in range(len(predT)):
+    for j in range(len(predT[i])):
+      predT[i][j] = predT[i][j][:CLASS[i]]
+
+  for t in range(len(CLASS)):
+    preds = np.argmax(predT[t], axis=1)
+    micro = f1_score(YT[:,t], preds, average='micro')
+    macro = f1_score(YT[:,t], preds, average='macro')
+    micMac.append(micro)
+    micMac.append(macro)
+
+  data = np.zeros(shape=(1, 10))
+  data = np.vstack((data, micMac))
+  df0 = pd.DataFrame(data,
+                     columns=['Beh_Mic', 'Beh_Mac', 'His_Mic', 'His_Mac', 'Lat_Mic', 'Lat_Mac', 'Site_Mic',
+                              'Site_Mac', 'Subs_Mic', 'Subs_Mac'])
+  df0.to_csv(data_path)
+  print('MIC-MAC SCORES SAVED')
 
   # convert the history.history dict to a pandas DataFrame:
   hist_df = pd.DataFrame(hist.history)
   hist_df.to_csv(path_or_buf= fdir + 'history.csv', index=False)
   print('History Saved!')
+
   # save model
   mtcnn.save(fdir + 'model.h5')
   print('Model Saved!')
+
   # save picture of model created
   plot_model(mtcnn, fdir + "model.png", show_shapes=True)
 
