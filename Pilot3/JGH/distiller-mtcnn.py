@@ -33,7 +33,7 @@ from loaddata6reg import loadAllTasks
 from mpi4py import MPI
 
 # global variables
-EPOCHS = 4
+EPOCHS = 1
 COMM = MPI.COMM_WORLD
 RANK = COMM.Get_rank()
 SIZE = COMM.size #Node count. size-1 = max rank.
@@ -319,6 +319,9 @@ def main():
   # use only the first half of the output vector: those are predictions
   for i in range(len(predT)):
     for j in range(len(predT[i])):
+      print(type(predT[i][j]))
+      print(predT[i][j].shape)
+      print(predT[i][j])
       predT[i][j] = predT[i][j][:CLASS[i]]
 
   for t in range(len(CLASS)):
