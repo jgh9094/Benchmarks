@@ -155,9 +155,9 @@ def Transform(rawY,rawYV):
     i += 1
   print()
 
-  for i in range(len(CLASS)):
-    Y[i] = np.array(Y[i])
-    YV[i] = np.array(YV[i])
+  # for i in range(len(CLASS)):
+  #   Y[i] = np.array(Y[i])
+  #   YV[i] = np.array(YV[i])
 
   return Y,YV
 
@@ -313,11 +313,18 @@ def main():
   predT = mtcnn.predict(XT)
 
   # use only the first half of the output vector: those are predictions
+  pred = [[] for x in range(len(CLASS))]
+
   for i in range(len(predT)):
+    print(predT[i][0].shape)
     print(int(len(predT[i][0])/2))
+    print(CLASS[i])
     for j in range(len(predT[i])):
-      s = int(len(predT[i][j])/2)
-      predT[i][j] = predT[i][j][:s]
+      # s = int(len(predT[i][j])/2)
+      # predT[i][j] = predT[i][j][:s]
+      pred[i].append(predT[i][j][:CLASS[i]])
+
+  pred = [np.array(x) for x in pred]
 
   # create directory to dump all data related to model
   fdir = args.dump_dir + 'MTDistilled-' + str(args.config) + '-' + str(RANK) + '/'
@@ -326,7 +333,7 @@ def main():
   data_path = fdir + "MicMacTest_R" + str(RANK) + ".csv"
 
   for t in range(len(CLASS)):
-    preds = np.argmax(predT[t], axis=1)
+    preds = np.argmax(pred[t], axis=1)
     micro = f1_score(YT[:,t], preds, average='micro')
     macro = f1_score(YT[:,t], preds, average='macro')
     micMac.append(micro)
