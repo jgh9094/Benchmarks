@@ -47,6 +47,7 @@ def main():
   # iterate through all the models and gather the data
   for r in range(args.models):
     # load data
+    print(args.data_dir + GetModelType(args.model) + str(r) + '/MicMacTest_R' + str(r) + '.csv')
     file = args.data_dir + GetModelType(args.model) + str(r) + '/MicMacTest_R' + str(r) + '.csv'
     df = pd.read_csv(file, index_col=False)
     # store and update data
