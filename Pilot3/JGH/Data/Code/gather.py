@@ -41,7 +41,7 @@ def main():
   x = df.iloc[1].to_list().pop(0)
 
   print(df)
-  print(x)
+  print('x:', x)
   print(data)
 
 
