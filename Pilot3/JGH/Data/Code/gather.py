@@ -56,8 +56,8 @@ def GetP(args):
   # iterate through all the models and gather the data
   for r in range(len(Pvals)):
     # load data
-    print(args.data_dir + Pvals[r] + GetModelType(args.model))
-    file = args.data_dir + Pvals[r] + GetModelType(args.model)
+    print(args.data_dir + Pvals[r] + '/' + GetModelType(args.model))
+    file = args.data_dir + Pvals[r] + '/' + GetModelType(args.model)
     df = pd.read_csv(file, index_col=False)
     # store and update data
     x = df.iloc[1].to_list()
