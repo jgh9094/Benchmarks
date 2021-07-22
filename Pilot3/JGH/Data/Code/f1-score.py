@@ -56,8 +56,8 @@ def main():
   YT= GetYT()
 
   for t in range(5):
-    micro = f1_score(YT[:,t], pred[i], average='micro')
-    macro = f1_score(YT[:,t], pred[i], average='macro')
+    micro = f1_score(YT[:,t], pred[t], average='micro')
+    macro = f1_score(YT[:,t], pred[t], average='macro')
     micMac.append(micro)
     micMac.append(macro)
 
