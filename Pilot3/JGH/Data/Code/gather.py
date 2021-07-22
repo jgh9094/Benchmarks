@@ -38,6 +38,7 @@ def main():
 
   df = pd.read_csv(args.data_dir + 'MTModel-0_Rank-0/MicMacTest_R0.csv')
 
+  print(df)
   print(df.iloc[1])
   print(data)
 
