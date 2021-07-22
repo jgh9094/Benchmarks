@@ -18,9 +18,9 @@ import pandas as pd
 from sklearn.metrics import f1_score
 
 # global variables for data storing
-data = {'Beh_Mic': [], 'Beh_Mac': [], 'His_Mic': [], 'His_Mac': [], 'Lat_Mic': [],
+data = {'seed': [], 'Beh_Mic': [], 'Beh_Mac': [], 'His_Mic': [], 'His_Mac': [], 'Lat_Mic': [],
           'Lat_Mac': [], 'Site_Mic': [], 'Site_Mac': [], 'Subs_Mic': [], 'Subs_Mac': []}
-header = ['Beh_Mic', 'Beh_Mac', 'His_Mic', 'His_Mac', 'Lat_Mic', 'Lat_Mac', 'Site_Mic',
+header = ['seed', 'Beh_Mic', 'Beh_Mac', 'His_Mic', 'His_Mac', 'Lat_Mic', 'Lat_Mac', 'Site_Mic',
                               'Site_Mac', 'Subs_Mic', 'Subs_Mac']
 
 
@@ -39,7 +39,7 @@ def main():
   df = pd.read_csv(args.data_dir + 'MTModel-0_Rank-0/MicMacTest_R0.csv', index_col=False)
 
   x = df.iloc[1].to_list()
-  x.pop(0)
+  x[0] = 17
 
   print(df)
   print('x:', x)
