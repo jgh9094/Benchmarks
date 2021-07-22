@@ -28,9 +28,8 @@ Pvals = ['P-1', 'P-2', 'P-5']
 def GetModelType(c):
   if c == 0:
     return 'MTModel-0_Rank-'
-  elif c == 1:
+  elif c == 1 or c == 2:
     return 'MicMacTest_R.csv'
-
   else:
     print('UNKNOWN MODEL TYPE')
 
@@ -66,6 +65,22 @@ def GetP(args):
     # store data
     for i in range(len(header)):
       data[header[i]].append(x[i])
+
+  print(data)
+  pd.DataFrame(data).to_csv(args.dump_dir + args.name + '.csv', index = False)
+
+def GetA(args):
+  # load data
+  print(args.data_dir + GetModelType(args.model))
+  file = args.data_dir + GetModelType(args.model)
+  df = pd.read_csv(file, index_col=False)
+  # store and update data
+  x = df.iloc[1].to_list()
+  x[0] = 0
+  x.append(args.name)
+  # store data
+  for i in range(len(header)):
+    data[header[i]].append(x[i])
 
   print(data)
   pd.DataFrame(data).to_csv(args.dump_dir + args.name + '.csv', index = False)
