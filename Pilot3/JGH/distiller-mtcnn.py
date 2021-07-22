@@ -33,7 +33,7 @@ from loaddata6reg import loadAllTasks
 from mpi4py import MPI
 
 # global variables
-EPOCHS = 1
+EPOCHS = 100
 COMM = MPI.COMM_WORLD
 RANK = COMM.Get_rank()
 SIZE = COMM.size #Node count. size-1 = max rank.
@@ -56,7 +56,35 @@ def GetModelConfig(config):
       'filter_sizes': [3,4,5],
       'num_filters': [300,300,300],
       'alpha': 0.07,
-      'temp': [1,2,5,7,10,15,20,25,30]
+      'temp': [1,2,5,7,10,13,15,17,20,22,25,30]
+    }
+  elif config == 1:
+    return {
+      'learning_rate': 0.01,
+      'batch_size': 5,
+      'dropout': 0.5,
+      'optimizer': 'adam',
+      'wv_len': 300,
+      'emb_l2': 0.001,
+      'in_seq_len': 1500,
+      'filter_sizes': [3,4,5],
+      'num_filters': [250,250,250],
+      'alpha': 0.07,
+      'temp': [1,2,5,7,10,13,15,17,20,22,25,30]
+    }
+  elif config == 2:
+    return {
+      'learning_rate': 0.01,
+      'batch_size': 5,
+      'dropout': 0.5,
+      'optimizer': 'adam',
+      'wv_len': 300,
+      'emb_l2': 0.001,
+      'in_seq_len': 1500,
+      'filter_sizes': [3,4,5],
+      'num_filters': [200,200,200],
+      'alpha': 0.07,
+      'temp': [1,2,5,7,10,13,15,17,20,22,25,30]
     }
 
   else:
@@ -154,10 +182,6 @@ def Transform(rawY,rawYV):
     print('--classes:',len(y[0]), flush= True)
     i += 1
   print()
-
-  # for i in range(len(CLASS)):
-  #   Y[i] = np.array(Y[i])
-  #   YV[i] = np.array(YV[i])
 
   return Y,YV
 
@@ -316,12 +340,7 @@ def main():
   pred = [[] for x in range(len(CLASS))]
 
   for i in range(len(predT)):
-    print(predT[i][0].shape)
-    print(int(len(predT[i][0])/2))
-    print(CLASS[i])
     for j in range(len(predT[i])):
-      # s = int(len(predT[i][j])/2)
-      # predT[i][j] = predT[i][j][:s]
       pred[i].append(predT[i][j][:CLASS[i]])
 
   pred = [np.array(x) for x in pred]
@@ -355,9 +374,6 @@ def main():
   # save model
   mtcnn.save(fdir + 'model.h5')
   print('Model Saved!')
-
-  # save picture of model created
-  plot_model(mtcnn, fdir + "model.png", show_shapes=True)
 
   # save model output
   print('Saving Training Softmax Output', flush= True)
