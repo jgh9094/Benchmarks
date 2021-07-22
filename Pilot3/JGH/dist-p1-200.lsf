@@ -1,0 +1,19 @@
+#BSUB -P MED107
+#BSUB -J dis-p1-200
+#BSUB -o logs/dis-p1-200.o%J
+#BSUB -e ErrorFile_DISS-P1-200
+#BSUB -W 06:00
+#BSUB -nnodes 46
+
+cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH/
+
+# dump_dir: where the data is being dumped
+TEACH=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/MLP/P-1/
+# dump_dir: where the data is being dumped
+DUMP=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/Distilled/p1-200/
+# config: configuration we are using
+CONFIG=2
+
+. ~/.bashrc_ttt
+
+jsrun -n12 -a1 -g1 -c7 python distiller-mtcnn.py ${TEACH} ${DUMP} ${CONFIG}
