@@ -37,12 +37,7 @@ def main():
   # get the softmax values of the our predictions from raw logits
   predT = np.load(args.data_dir + 'testing-task-0.npy')
   for i in range(len(predT)):
-    print(predT[i])
-    predT[i] = softmax(predT[i])
-    print(predT[i])
-    m = np.argmax(predT[i])
-    print(m)
-    pred.append(m)
+    pred.append(np.argmax(softmax(predT[i])))
 
   print(pred)
 
