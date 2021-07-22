@@ -19,13 +19,17 @@ from sklearn.metrics import f1_score
 
 # global variables for data storing
 data = {'seed': [], 'Beh_Mic': [], 'Beh_Mac': [], 'His_Mic': [], 'His_Mac': [], 'Lat_Mic': [],
-          'Lat_Mac': [], 'Site_Mic': [], 'Site_Mac': [], 'Subs_Mic': [], 'Subs_Mac': []}
+          'Lat_Mac': [], 'Site_Mic': [], 'Site_Mac': [], 'Subs_Mic': [], 'Subs_Mac': [], 'model': []}
 header = ['seed', 'Beh_Mic', 'Beh_Mac', 'His_Mic', 'His_Mac', 'Lat_Mic', 'Lat_Mac', 'Site_Mic',
-                              'Site_Mac', 'Subs_Mic', 'Subs_Mac']
+                              'Site_Mac', 'Subs_Mic', 'Subs_Mac', 'model']
+
+Pvals = ['P-1', 'P-2', 'P-5']
 
 def GetModelType(c):
   if c == 0:
     return 'MTModel-0_Rank-'
+  elif c == 1:
+    return 'MicMacTest_R.csv'
 
   else:
     print('UNKNOWN MODEL TYPE')
@@ -40,6 +44,25 @@ def Get276(args):
     # store and update data
     x = df.iloc[1].to_list()
     x[0] = r
+    x.append(args.name)
+    # store data
+    for i in range(len(header)):
+      data[header[i]].append(x[i])
+
+  print(data)
+  pd.DataFrame(data).to_csv(args.dump_dir + args.name + '.csv', index = False)
+
+def GetP(args):
+  # iterate through all the models and gather the data
+  for r in range(len(Pvals)):
+    # load data
+    print(args.data_dir + GetModelType(args.model))
+    file = args.data_dir + GetModelType(args.model)
+    df = pd.read_csv(file, index_col=False)
+    # store and update data
+    x = df.iloc[1].to_list()
+    x[0] = r
+    x.appen(Pvals[r])
     # store data
     for i in range(len(header)):
       data[header[i]].append(x[i])
@@ -65,6 +88,8 @@ def main():
 
   if args.model == 0:
     Get276(args)
+  if args.model == 1:
+    GetP(args)
 
 
 
