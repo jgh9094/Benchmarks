@@ -15,17 +15,16 @@ import psutil
 import os
 import pandas as pd
 
-
-from sklearn.metrics import f1_score
-from loaddata6reg import loadAllTasks
-
-
 # softmax output transformer
 def softmax(x):
     ex = np.exp(x)
     tot = np.sum(ex)
     return ex / tot
 
+def GetYT():
+  file = open('/gpfs/alpine/world-shared/med106/yoonh/storageFolder/HardLabels/test_y.pickle', 'rb')
+  y = pk.load(file)
+  return y
 
 def main():
   # generate and get arguments
@@ -51,7 +50,7 @@ def main():
 
   data_path = args.data_dir + "MicMacTest_R.csv"
   micMac = []
-  X, XV, XT, Y, YV, YT= loadAllTasks(print_shapes = False)
+  YT= GetYT()
 
   for t in range(5):
     micro = f1_score(YT[:,t], pred[i], average='micro')
