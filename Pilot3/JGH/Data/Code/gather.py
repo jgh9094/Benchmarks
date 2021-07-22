@@ -17,14 +17,18 @@ import pandas as pd
 
 from sklearn.metrics import f1_score
 
+# global variables for data storing
 data = {'Beh_Mic': [], 'Beh_Mac': [], 'His_Mic': [], 'His_Mac': [], 'Lat_Mic': [],
           'Lat_Mac': [], 'Site_Mic': [], 'Site_Mac': [], 'Subs_Mic': [], 'Subs_Mac': []}
+header = ['Beh_Mic', 'Beh_Mac', 'His_Mic', 'His_Mac', 'Lat_Mic', 'Lat_Mac', 'Site_Mic',
+                              'Site_Mac', 'Subs_Mic', 'Subs_Mac']
 
 
 def main():
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
   parser.add_argument('data_dir',     type=str,      help='Where are we dumping the output?')
+  parser.add_argument('file',         type=str,      help='Name of the file we are creating')
 
   # parse all the argument
   args = parser.parse_args()
@@ -34,7 +38,7 @@ def main():
 
   df = pd.read_csv(args.data_dir + 'MTModel-0_Rank-0/MicMacTest_R0.csv')
 
-  print(df)
+  print(df.iloc[1])
   print(data)
 
 
