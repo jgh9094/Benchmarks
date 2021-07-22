@@ -1,0 +1,19 @@
+#BSUB -P MED107
+#BSUB -J dis-agg-300
+#BSUB -o logs/dis-agg-300.o%J
+#BSUB -e ErrorFile_DISS300
+#BSUB -W 06:00
+#BSUB -nnodes 46
+
+cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH/
+
+# dump_dir: where the data is being dumped
+TEACH=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/AverageSM/
+# dump_dir: where the data is being dumped
+DUMP=/gpfs/alpine/world-shared/med106/yoonh/storageFolder/Distilled/Average-300/
+# config: configuration we are using
+CONFIG=0
+
+. ~/.bashrc_ttt
+
+jsrun -n12 -a1 -g1 -c7 python distiller-mtcnn.py ${TEACH} ${DUMP} ${CONFIG}
