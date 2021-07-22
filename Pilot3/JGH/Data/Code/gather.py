@@ -59,8 +59,8 @@ def main():
     for i in range(len(header)):
       data[header[i]].append(x[i])
 
-  print(header)
-  header.to_csv(args.dump_dir + args.name, index = False)
+  print(data)
+  pd.DataFrame(data).to_csv(args.dump_dir + args.name, index = False)
 
 
 
