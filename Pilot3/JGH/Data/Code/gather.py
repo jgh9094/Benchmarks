@@ -17,6 +17,9 @@ import pandas as pd
 
 from sklearn.metrics import f1_score
 
+data = {'Beh_Mic': [], 'Beh_Mac': [], 'His_Mic': [], 'His_Mac': [], 'Lat_Mic': [],
+          'Lat_Mac': [], 'Site_Mic': [], 'Site_Mac': [], 'Subs_Mic': [], 'Subs_Mac': []}
+
 
 def main():
   # generate and get arguments
@@ -32,6 +35,7 @@ def main():
   df = pd.read_csv(args.data_dir + 'MTModel-0_Rank-0/MicMacTest_R0.csv')
 
   print(df)
+  print(data)
 
 
 
