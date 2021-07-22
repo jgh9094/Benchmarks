@@ -23,12 +23,20 @@ data = {'seed': [], 'Beh_Mic': [], 'Beh_Mac': [], 'His_Mic': [], 'His_Mac': [], 
 header = ['seed', 'Beh_Mic', 'Beh_Mac', 'His_Mic', 'His_Mac', 'Lat_Mic', 'Lat_Mac', 'Site_Mic',
                               'Site_Mac', 'Subs_Mic', 'Subs_Mac']
 
+def GetModelType(c):
+  if c == 0:
+    return 'MTModel-0_Rank-'
+
+  else:
+    print('UNKNOWN MODEL TYPE')
 
 def main():
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
-  parser.add_argument('data_dir',     type=str,      help='Where are we dumping the output?')
-  parser.add_argument('file',         type=str,      help='Name of the file we are creating')
+  parser.add_argument('data_dir',     type=str,      help='Where is the data?')
+  parser.add_argument('dump_dir',     type=str,      help='Where are we dumping the output?')
+  parser.add_argument('model',        type=int,      help='What type of models are we getting')
+  parser.add_argument('name',         type=str,      help='Name of file to output')
 
   # parse all the argument
   args = parser.parse_args()
@@ -36,14 +44,20 @@ def main():
   # what are the inputs
   print('data_dir:', args.data_dir, flush= True)
 
-  df = pd.read_csv(args.data_dir + 'MTModel-0_Rank-0/MicMacTest_R0.csv', index_col=False)
+  # iterate through all the models and gather the data
+  for r in range(args.models):
+    # load data
+    file = args.data_dir + GetModelType(args.model) + str(r) + '/MicMacTest_R' + str(r) + '.csv'
+    df = pd.read_csv(file, index_col=False)
+    # store and update data
+    x = df.iloc[1].to_list()
+    x[0] = r
+    # store data
+    for i in range(len(header)):
+      data[header[i]].append(x[i])
 
-  x = df.iloc[1].to_list()
-  x[0] = 17
-
-  print(df)
-  print('x:', x)
-  print(data)
+  print(header)
+  header.to_csv(args.dump_dir + args.name, index = False)
 
 
 
