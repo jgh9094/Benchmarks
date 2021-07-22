@@ -30,22 +30,7 @@ def GetModelType(c):
   else:
     print('UNKNOWN MODEL TYPE')
 
-def main():
-  # generate and get arguments
-  parser = argparse.ArgumentParser(description='Process arguments for model training.')
-  parser.add_argument('data_dir',     type=str,      help='Where is the data?')
-  parser.add_argument('dump_dir',     type=str,      help='Where are we dumping the output?')
-  parser.add_argument('model',        type=int,      help='What type of models are we getting')
-  parser.add_argument('models',       type=int,      help='How many models')
-  parser.add_argument('name',         type=str,      help='Name of file to output')
-
-  # parse all the argument
-  args = parser.parse_args()
-  print(args)
-
-  # what are the inputs
-  print('data_dir:', args.data_dir, flush= True)
-
+def Get276(args):
   # iterate through all the models and gather the data
   for r in range(args.models):
     # load data
@@ -61,6 +46,25 @@ def main():
 
   print(data)
   pd.DataFrame(data).to_csv(args.dump_dir + args.name + '.csv', index = False)
+
+def main():
+  # generate and get arguments
+  parser = argparse.ArgumentParser(description='Process arguments for model training.')
+  parser.add_argument('data_dir',     type=str,      help='Where is the data?')
+  parser.add_argument('dump_dir',     type=str,      help='Where are we dumping the output?')
+  parser.add_argument('model',        type=int,      help='0: 276 models, 1: Partial % models, 2: Distilled ')
+  parser.add_argument('models',       type=int,      help='How many models')
+  parser.add_argument('name',         type=str,      help='Name of file to output')
+
+  # parse all the argument
+  args = parser.parse_args()
+  print(args)
+
+  # what are the inputs
+  print('data_dir:', args.data_dir, flush= True)
+
+  if args.model == 0:
+    Get276(args)
 
 
 
