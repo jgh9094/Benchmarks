@@ -36,7 +36,7 @@ def main():
   # what are the inputs
   print('data_dir:', args.data_dir, flush= True)
 
-  df = pd.read_csv(args.data_dir + 'MTModel-0_Rank-0/MicMacTest_R0.csv')
+  df = pd.read_csv(args.data_dir + 'MTModel-0_Rank-0/MicMacTest_R0.csv', index_col=False)
 
   print(df)
   print(df.iloc[1])
