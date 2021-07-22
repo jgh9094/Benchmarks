@@ -15,6 +15,9 @@ import psutil
 import os
 import pandas as pd
 
+from sklearn.metrics import f1_score
+
+
 # softmax output transformer
 def softmax(x):
     ex = np.exp(x)
