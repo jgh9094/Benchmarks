@@ -62,7 +62,7 @@ def GetP(args):
     # store and update data
     x = df.iloc[1].to_list()
     x[0] = r
-    x.appen(Pvals[r])
+    x.append(Pvals[r])
     # store data
     for i in range(len(header)):
       data[header[i]].append(x[i])
