@@ -60,7 +60,7 @@ def main():
       data[header[i]].append(x[i])
 
   print(data)
-  pd.DataFrame(data).to_csv(args.dump_dir + args.name, index = False)
+  pd.DataFrame(data).to_csv(args.dump_dir + args.name + '.csv', index = False)
 
 
 
