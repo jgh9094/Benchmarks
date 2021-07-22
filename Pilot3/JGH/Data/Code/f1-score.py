@@ -13,6 +13,12 @@ import argparse
 import pickle as pk
 import psutil
 import os
+import pandas as pd
+
+
+from sklearn.metrics import f1_score
+from loaddata6reg import loadAllTasks
+
 
 # softmax output transformer
 def softmax(x):
@@ -33,13 +39,33 @@ def main():
   print('data_dir:', args.data_dir, flush= True)
 
   pred = []
+  for t in range(5):
+    print(args.data_dir + 'testing-task-' + str(t) + '.npy')
+    # get the softmax values of the our predictions from raw logits
+    predT = np.load(args.data_dir + 'testing-task-' + str(t) + '.npy')
+    p = []
+    for i in range(len(predT)):
+      p.append(np.argmax(softmax(predT[i])))
 
-  # get the softmax values of the our predictions from raw logits
-  predT = np.load(args.data_dir + 'testing-task-0.npy')
-  for i in range(len(predT)):
-    pred.append(np.argmax(softmax(predT[i])))
+    pred.append(np.array(p))
 
-  print(pred)
+  data_path = args.data_dir + "MicMacTest_R.csv"
+  micMac = []
+  X, XV, XT, Y, YV, YT= loadAllTasks(print_shapes = False)
+
+  for t in range(5):
+    micro = f1_score(YT[:,t], pred[i], average='micro')
+    macro = f1_score(YT[:,t], pred[i], average='macro')
+    micMac.append(micro)
+    micMac.append(macro)
+
+  data = np.zeros(shape=(1, 10))
+  data = np.vstack((data, micMac))
+  df0 = pd.DataFrame(data,
+                     columns=['Beh_Mic', 'Beh_Mac', 'His_Mic', 'His_Mac', 'Lat_Mic', 'Lat_Mac', 'Site_Mic',
+                              'Site_Mac', 'Subs_Mic', 'Subs_Mac'])
+  df0.to_csv(data_path)
+
 
 
 if __name__ == '__main__':
