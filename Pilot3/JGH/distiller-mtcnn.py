@@ -359,5 +359,16 @@ def main():
   # save picture of model created
   plot_model(mtcnn, fdir + "model.png", show_shapes=True)
 
+  # save model output
+  print('Saving Training Softmax Output', flush= True)
+  for i in range(len(pred)):
+    print('task:',str(i))
+    print('--Number of data points: ', len(pred[i]), flush= True)
+    print('--Size of each data point', len(pred[i][0]), flush= True)
+
+    fname = fdir + 'testing-task-' + str(i) + '.npy'
+    np.save(fname, pred[i])
+  print()
+
 if __name__ == '__main__':
   main()
