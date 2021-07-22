@@ -38,11 +38,11 @@ def main():
 
   df = pd.read_csv(args.data_dir + 'MTModel-0_Rank-0/MicMacTest_R0.csv', index_col=False)
 
-  x = df.iloc[1].to_list()
+  x = df.iloc[1].to_list().pop(0)
   x.pop(0)
 
   print(df)
-  print('x:', x)
+  print('x:', df.iloc[1].to_list().pop(0))
   print(data)
 
 
