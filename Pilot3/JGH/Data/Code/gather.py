@@ -103,8 +103,13 @@ def main():
 
   if args.model == 0:
     Get276(args)
-  if args.model == 1:
+  elif args.model == 1:
     GetP(args)
+  elif args.model == 2:
+    GetA(args)
+  else:
+    print('UNKNOWN')
+    exit(-1)
 
 
 
