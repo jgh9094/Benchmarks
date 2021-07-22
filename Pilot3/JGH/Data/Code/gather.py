@@ -36,7 +36,7 @@ def main():
   parser.add_argument('data_dir',     type=str,      help='Where is the data?')
   parser.add_argument('dump_dir',     type=str,      help='Where are we dumping the output?')
   parser.add_argument('model',        type=int,      help='What type of models are we getting')
-  parser.add_argument('models',       type=int,      help='What type of models are we getting')
+  parser.add_argument('models',       type=int,      help='How many models')
   parser.add_argument('name',         type=str,      help='Name of file to output')
 
   # parse all the argument
