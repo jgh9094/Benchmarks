@@ -28,6 +28,8 @@ header = ['seed', 'Beh_Mic', 'Beh_Mac', 'His_Mic', 'His_Mac', 'Lat_Mic', 'Lat_Ma
 
 Pvals = ['P-1', 'P-2', 'P-5']
 
+temp = [1,2,5,7,10,13,15,17,20,22,25,30]
+
 def GetModelType(c):
   if c == 0:
     return 'MTModel-0_Rank-'
@@ -96,7 +98,19 @@ def GetDisAgg(args):
     print (file +"exists:"+str(path.exists(file)))
 
     if not path.exists(file):
-      print('continue')
+      continue
+
+    df = pd.read_csv(file, index_col=False)
+    # store and update data
+    x = df.iloc[1].to_list()
+    x[0] = r
+    x.append('t-'+str(temp[i]))
+    # store data
+    for i in range(len(header)):
+      data[header[i]].append(x[i])
+
+  print(data)
+  pd.DataFrame(data).to_csv(args.dump_dir + args.name + '.csv', index = False)
 
 def main():
   # generate and get arguments
