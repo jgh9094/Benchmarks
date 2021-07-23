@@ -30,13 +30,13 @@ Pvals = ['P-1', 'P-2', 'P-5']
 
 temp = [1,2,5,7,10,13,15,17,20,22,25,30]
 
-def GetModelType(c):
+def GetModelType(c, n):
   if c == 0:
-    return 'MTModel-0_Rank-'
+    return 'MTModel-'+ str(n) +'_Rank-'
   elif c == 1 or c == 2:
     return 'MicMacTest_R.csv'
   elif c == 3:
-    return 'MTDistilled-0-'
+    return 'MTDistilled-'+ str(n) +'-'
   else:
     print('UNKNOWN MODEL TYPE')
 
@@ -44,8 +44,8 @@ def Get276(args):
   # iterate through all the models and gather the data
   for r in range(args.models):
     # load data
-    print(args.data_dir + GetModelType(args.model) + str(r) + '/MicMacTest_R' + str(r) + '.csv')
-    file = args.data_dir + GetModelType(args.model) + str(r) + '/MicMacTest_R' + str(r) + '.csv'
+    print(args.data_dir + GetModelType(args.model, args.cfg) + str(r) + '/MicMacTest_R' + str(r) + '.csv')
+    file = args.data_dir + GetModelType(args.model, args.cfg) + str(r) + '/MicMacTest_R' + str(r) + '.csv'
     df = pd.read_csv(file, index_col=False)
     # store and update data
     x = df.iloc[1].to_list()
@@ -62,8 +62,8 @@ def GetP(args):
   # iterate through all the models and gather the data
   for r in range(len(Pvals)):
     # load data
-    print(args.data_dir + Pvals[r] + '/' + GetModelType(args.model))
-    file = args.data_dir + Pvals[r] + '/' + GetModelType(args.model)
+    print(args.data_dir + Pvals[r] + '/' + GetModelType(args.model, args.cfg))
+    file = args.data_dir + Pvals[r] + '/' + GetModelType(args.model, args.cfg)
     df = pd.read_csv(file, index_col=False)
     # store and update data
     x = df.iloc[1].to_list()
@@ -78,8 +78,8 @@ def GetP(args):
 
 def GetA(args):
   # load data
-  print(args.data_dir + GetModelType(args.model))
-  file = args.data_dir + GetModelType(args.model)
+  print(args.data_dir + GetModelType(args.model, args.cfg))
+  file = args.data_dir + GetModelType(args.model, args.cfg)
   df = pd.read_csv(file, index_col=False)
   # store and update data
   x = df.iloc[1].to_list()
@@ -94,7 +94,7 @@ def GetA(args):
 
 def GetDisAgg(args):
   for i in range(args.models):
-    file = args.data_dir + GetModelType(args.model) + str(i) + '/' + 'MicMacTest_R'+ str(i) +'.csv'
+    file = args.data_dir + GetModelType(args.model, args.cfg) + str(i) + '/' + 'MicMacTest_R'+ str(i) +'.csv'
     print (file +"exists:"+str(path.exists(file)))
 
     if not path.exists(file):
@@ -120,6 +120,7 @@ def main():
   parser.add_argument('model',        type=int,      help='0: 276 models, 1: Partial % models, 2: Distilled ')
   parser.add_argument('models',       type=int,      help='How many models')
   parser.add_argument('name',         type=str,      help='Name of file to output')
+  parser.add_argument('cfg',          type=int,      help='Configuration we used')
 
   # parse all the argument
   args = parser.parse_args()
