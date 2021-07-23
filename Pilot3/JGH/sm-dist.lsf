@@ -1,7 +1,7 @@
 #BSUB -P MED107
-#BSUB -J dis-agg-300
-#BSUB -o logs/dis-agg-300.o%J
-#BSUB -e ErrorFile_DISS300
+#BSUB -J dis-sm
+#BSUB -o logs/dis-sm.o%J
+#BSUB -e ErrorFile_DISSSM
 #BSUB -W 06:00
 #BSUB -nnodes 46
 
