@@ -30,12 +30,12 @@ from sklearn.metrics import f1_score
 
 # summit specific imports
 from loaddata6reg import loadAllTasks
-# from mpi4py import MPI
+from mpi4py import MPI
 
 # global variables
-# COMM = MPI.COMM_WORLD
-# RANK = COMM.Get_rank()
-# SIZE = COMM.size #Node count. size-1 = max rank.
+COMM = MPI.COMM_WORLD
+RANK = COMM.Get_rank()
+SIZE = COMM.size #Node count. size-1 = max rank.
 EPOCHS = 1
 CLASS =  [4,639,7,70,326]
 TEMP = 0
@@ -54,7 +54,6 @@ def GetModelConfig(config):
       'in_seq_len': 1500,
       'filter_sizes': [3,4,5],
       'num_filters': [300,300,300],
-      'alpha': 0.07,
       'temp': [1,2,5,7,10,13,15,17,20,22,25,30]
     }
   elif config == 1:
@@ -68,7 +67,6 @@ def GetModelConfig(config):
       'in_seq_len': 1500,
       'filter_sizes': [3,4,5],
       'num_filters': [250,250,250],
-      'alpha': 0.07,
       'temp': [1,2,5,7,10,13,15,17,20,22,25,30]
     }
   elif config == 2:
@@ -82,7 +80,6 @@ def GetModelConfig(config):
       'in_seq_len': 1500,
       'filter_sizes': [3,4,5],
       'num_filters': [200,200,200],
-      'alpha': 0.07,
       'temp': [1,2,5,7,10,13,15,17,20,22,25,30]
     }
 
@@ -183,7 +180,6 @@ def main():
 
   # Parse all the arguments & set random seed
   args = parser.parse_args()
-  RANK = 0
   seed = int(RANK)
   print('Seed:', seed, end='\n\n')
   np.random.seed(seed)
