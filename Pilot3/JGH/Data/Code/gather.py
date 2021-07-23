@@ -92,7 +92,8 @@ def GetA(args):
 
 def GetDisAgg(args):
   for r in range(args.models):
-    print(args.data_dir + GetModelType(args.model) + str(r) + '/' + 'MicMacTest_R'+ str(r) +'.csv')
+    file = args.data_dir + GetModelType(args.model) + str(r) + '/' + 'MicMacTest_R'+ str(r) +'.csv'
+    print ("File exists:"+str(path.exists(file)))
 
 def main():
   # generate and get arguments
