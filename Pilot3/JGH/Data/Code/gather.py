@@ -93,8 +93,8 @@ def GetA(args):
   pd.DataFrame(data).to_csv(args.dump_dir + args.name + '.csv', index = False)
 
 def GetDisAgg(args):
-  for r in range(args.models):
-    file = args.data_dir + GetModelType(args.model) + str(r) + '/' + 'MicMacTest_R'+ str(r) +'.csv'
+  for i in range(args.models):
+    file = args.data_dir + GetModelType(args.model) + str(i) + '/' + 'MicMacTest_R'+ str(i) +'.csv'
     print (file +"exists:"+str(path.exists(file)))
 
     if not path.exists(file):
