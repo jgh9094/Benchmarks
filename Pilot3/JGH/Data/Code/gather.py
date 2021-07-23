@@ -88,7 +88,7 @@ def GetA(args):
   pd.DataFrame(data).to_csv(args.dump_dir + args.name + '.csv', index = False)
 
 def GetDisAgg(args):
-  for r in range(12):
+  for r in range(args.models):
     print(args.data_dir + GetModelType(args.model) + str(r) + '/')
 
 def main():
