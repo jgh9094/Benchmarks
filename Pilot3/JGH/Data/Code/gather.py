@@ -95,6 +95,9 @@ def GetDisAgg(args):
     file = args.data_dir + GetModelType(args.model) + str(r) + '/' + 'MicMacTest_R'+ str(r) +'.csv'
     print (file +"exists:"+str(path.exists(file)))
 
+    if not path.exists(file):
+      print('continue')
+
 def main():
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
