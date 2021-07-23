@@ -206,7 +206,7 @@ def main():
 
   # Step 2: Create training/testing data for models
   X, XV, XT, Y, YV, YT = loadAllTasks(print_shapes = False)
-  Y,YV = LoadY(Y,YV)
+  Y,YV = LoadY(args.tech_dir, TEMP)
   print('DATA LOADED AND READY TO GO\n')
 
   # Step 3: Create the studen mtcnn model
@@ -215,7 +215,7 @@ def main():
 
   # create validation data dictionary
   val_dict = {}
-  for i in range(len(YV)):
+  for i in range(len(CLASS)):
     layer = 'Active' + str(i)
     val_dict[layer] = YV[i]
 
