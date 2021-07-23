@@ -36,7 +36,7 @@ from loaddata6reg import loadAllTasks
 # COMM = MPI.COMM_WORLD
 # RANK = COMM.Get_rank()
 # SIZE = COMM.size #Node count. size-1 = max rank.
-EPOCHS = 100
+EPOCHS = 1
 CLASS =  [4,639,7,70,326]
 TEMP = 0
 
