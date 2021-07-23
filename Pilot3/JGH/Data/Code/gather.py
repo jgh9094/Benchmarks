@@ -12,7 +12,10 @@ import numpy as np
 import argparse
 import pickle as pk
 import psutil
-import os
+
+import os.path
+from os import path
+
 import pandas as pd
 
 from sklearn.metrics import f1_score
@@ -89,7 +92,7 @@ def GetA(args):
 
 def GetDisAgg(args):
   for r in range(args.models):
-    print(args.data_dir + GetModelType(args.model) + str(r) + '/')
+    print(args.data_dir + GetModelType(args.model) + str(r) + '/' + 'MicMacTest_R'+ str(r) +'.csv')
 
 def main():
   # generate and get arguments
