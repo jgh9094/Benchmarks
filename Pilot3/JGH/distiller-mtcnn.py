@@ -319,6 +319,12 @@ def main():
     l3.__name__ = 'sl'
     metrics['Active'+str(i)].append(l3)
 
+  # create validation data dictionary
+  val_dict = {}
+  for i in range(len(CLASS)):
+    layer = 'Active' + str(i)
+    val_dict[layer] = YV[i]
+
 
   mtcnn.compile(optimizer='adam', loss=losses, metrics=metrics)
   print('MODEL COMPILED FOR DISTILLATION\n')
@@ -327,7 +333,7 @@ def main():
             batch_size=256,
             epochs=EPOCHS,
             verbose=2,
-            validation_data=(XV, YV),
+            validation_data=({'Input': XV}, val_dict),
             callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
 
 
