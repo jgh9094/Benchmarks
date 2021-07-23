@@ -30,6 +30,8 @@ def GetModelType(c):
     return 'MTModel-0_Rank-'
   elif c == 1 or c == 2:
     return 'MicMacTest_R.csv'
+  elif c == 3:
+    return 'MTDistilled-0-'
   else:
     print('UNKNOWN MODEL TYPE')
 
@@ -85,6 +87,10 @@ def GetA(args):
   print(data)
   pd.DataFrame(data).to_csv(args.dump_dir + args.name + '.csv', index = False)
 
+def GetDisAgg(args):
+  for r in range(12):
+    print(args.data_dir + GetModelType(args.model) + str(r) + '/')
+
 def main():
   # generate and get arguments
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
@@ -107,6 +113,8 @@ def main():
     GetP(args)
   elif args.model == 2:
     GetA(args)
+  elif args.model == 3:
+    GetDisAgg(args)
   else:
     print('UNKNOWN')
     exit(-1)
