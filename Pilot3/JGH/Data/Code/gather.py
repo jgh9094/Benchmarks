@@ -103,7 +103,7 @@ def GetDisAgg(args):
     df = pd.read_csv(file, index_col=False)
     # store and update data
     x = df.iloc[1].to_list()
-    x[0] = r
+    x[0] = i
     x.append('t-'+str(temp[i]))
     # store data
     for i in range(len(header)):
