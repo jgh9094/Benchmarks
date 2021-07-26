@@ -16,4 +16,4 @@ CONFIG=0
 
 . ~/.bashrc_ttt
 
-jsrun -n12 -a1 -g1 -c7 python distiller-mtcnn.py ${TEACH} ${DUMP} ${CONFIG}
+jsrun -n12 -a1 -g1 -c7 python distiller-sm.py ${TEACH} ${DUMP} ${CONFIG}
