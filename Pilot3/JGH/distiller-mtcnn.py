@@ -20,7 +20,7 @@ from keras.models import Model
 from keras.layers import Input,Embedding,Dropout,Dense,GlobalMaxPooling1D,Conv1D,Activation,Lambda,concatenate
 from keras.regularizers import l2
 from keras.callbacks import EarlyStopping
-from keras.utils import to_categorical,plot_model
+from keras.utils import to_categorical
 from keras.losses import categorical_crossentropy as logloss
 from keras import backend as K
 from keras import initializers
