@@ -2,8 +2,8 @@
 #BSUB -J dis-sm
 #BSUB -o logs/dis-sm.o%J
 #BSUB -e ErrorFile_DISSSM
-#BSUB -W 06:00
-#BSUB -nnodes 46
+#BSUB -W 12:00
+#BSUB -nnodes 2
 
 cd /gpfs/alpine/world-shared/med106/yoonh/Benchmarks/Pilot3/JGH/
 
