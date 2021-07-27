@@ -9,22 +9,16 @@ This file will distill the knowledge from teachers into a Multi-task CNN.
 
 # general python imports
 import numpy as np
-from matplotlib import pyplot as plt
 import argparse
 import os
 import pandas as pd
-import pickle as pk
 
 # keras python inputs
 from keras.models import Model
-from keras.layers import Input,Embedding,Dropout,Dense,GlobalMaxPooling1D,Conv1D,Activation,Lambda,concatenate
-from keras.regularizers import l2
+from keras.layers import Input,Embedding,Dropout,Dense,GlobalMaxPooling1D,Conv1D,Activation
 from keras.callbacks import EarlyStopping
-from keras.utils import to_categorical,plot_model
-from keras.losses import categorical_crossentropy as logloss
-from keras import backend as K
+from keras.losses import CategoricalCrossentropy
 from keras import initializers
-from keras.metrics import categorical_accuracy
 from keras.layers.merge import Concatenate
 from sklearn.metrics import f1_score
 
@@ -46,7 +40,7 @@ def GetModelConfig(config):
   if config == 0:
     return {
       'learning_rate': 0.01,
-      'batch_size': 5,
+      'batch_size': 256,
       'dropout': 0.5,
       'optimizer': 'adam',
       'wv_len': 300,
@@ -59,7 +53,7 @@ def GetModelConfig(config):
   elif config == 1:
     return {
       'learning_rate': 0.01,
-      'batch_size': 5,
+      'batch_size': 256,
       'dropout': 0.5,
       'optimizer': 'adam',
       'wv_len': 300,
@@ -72,7 +66,7 @@ def GetModelConfig(config):
   elif config == 2:
     return {
       'learning_rate': 0.01,
-      'batch_size': 5,
+      'batch_size': 256,
       'dropout': 0.5,
       'optimizer': 'adam',
       'wv_len': 300,
@@ -102,7 +96,7 @@ def LoadY(teach,temp):
     # get training dir
     Y.append([])
     yt = np.load(teach + 'training-task-' + str(i) + '.npy')
-    # transform the teacher data the output data
+    # transform the teacher data
     for j in range(yt.shape[0]):
       Y[i].append(softmax(yt[j], temp))
     # make a numpy array
@@ -112,7 +106,7 @@ def LoadY(teach,temp):
     # get validation dir
     YV.append([])
     yvt = np.load(teach + 'validating-task-' + str(i) + '.npy')
-    # concatenate + transform the teacher data the output data
+    # transform the teacher data
     for j in range(yvt.shape[0]):
       YV[i].append(softmax(yvt[j], temp))
     YV[i] = np.array(YV[i])
@@ -166,7 +160,7 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
 
     # the multitsk model
     model = Model(inputs=model_input, outputs = FC_models)
-    model.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
+    model.compile( loss= CategoricalCrossentropy(from_logits=False), optimizer= cfg['optimizer'], metrics=[ "acc" ] )
 
     return model
 
@@ -216,7 +210,7 @@ def main():
     val_dict[layer] = YV[i]
 
   hist = mtcnn.fit(x= X, y= Y,
-            batch_size=256,
+            batch_size=config['batch_size'],
             epochs=EPOCHS,
             verbose=2,
             validation_data=({'Input': XV}, val_dict),
@@ -226,16 +220,7 @@ def main():
   # Step 5: Save everything
 
   # get the softmax values of the our predictions from raw logits
-  predT = mtcnn.predict(XT)
-
-  # use only the first half of the output vector: those are predictions
-  pred = [[] for x in range(len(CLASS))]
-
-  for i in range(len(predT)):
-    for j in range(len(predT[i])):
-      pred[i].append(predT[i][j][:CLASS[i]])
-
-  pred = [np.array(x) for x in pred]
+  pred = mtcnn.predict(XT)
 
   # create directory to dump all data related to model
   fdir = args.dump_dir + 'MTDistilledN-' + str(args.config) + '-' + str(RANK) + '/'
