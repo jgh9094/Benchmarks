@@ -209,6 +209,8 @@ def main():
     layer = 'Active' + str(i)
     val_dict[layer] = yv[i]
 
+  print('VALIDATION DICTIONARY CREATED')
+
   hist = mtcnn.fit(x= X, y= y,
             batch_size=config['batch_size'],
             epochs=EPOCHS,
