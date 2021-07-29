@@ -26,12 +26,12 @@ from sklearn.metrics import f1_score
 
 # summit specific imports
 from loaddata6reg import loadAllTasks
-# from mpi4py import MPI
+from mpi4py import MPI
 
-# # global variables
-# COMM = MPI.COMM_WORLD
-# RANK = COMM.Get_rank()
-# SIZE = COMM.size #Node count. size-1 = max rank.
+# global variables
+COMM = MPI.COMM_WORLD
+RANK = COMM.Get_rank()
+SIZE = COMM.size #Node count. size-1 = max rank.
 EPOCHS = 100
 CLASS =  [4,639,7,70,326]
 TEMP = 0
@@ -157,7 +157,7 @@ def main():
 
   # Parse all the arguments & set random seed
   args = parser.parse_args()
-  RANK = 0
+  # RANK = 0
   seed = int(RANK)
   print('Seed:', seed, end='\n\n')
   np.random.seed(seed)
