@@ -16,7 +16,7 @@ import pandas as pd
 
 # keras python inputs
 from keras.models import Model
-from keras.layers import Input,Embedding,Dropout,Dense,GlobalMaxPooling1D,Conv1D,Activation
+from keras.layers import Input,Embedding,Dropout,Dense,GlobalMaxPooling1D,Convolution1D
 from keras.callbacks import EarlyStopping
 from keras.losses import categorical_crossentropy as logloss
 from keras import backend as K
@@ -120,7 +120,7 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
     # convolutional layer and dropout
     conv_blocks = []
     for ith_filter,sz in enumerate(cfg['filter_sizes']):
-        conv = Conv1D(filters=cfg['num_filters'][ ith_filter ], kernel_size=sz, padding="same",
+        conv = Convolution1D(filters=cfg['num_filters'][ ith_filter ], kernel_size=sz, padding="same",
                              activation="relu", strides=1, name=str(ith_filter) + "_thfilter")(emb_lookup)
         conv_blocks.append(GlobalMaxPooling1D()(conv))
 
