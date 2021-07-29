@@ -209,17 +209,31 @@ def main():
 
   # Step 5: Save everything
 
-  # get the softmax values of the our predictions from raw logits
-  pred = mtcnn.predict(XT)
-
   # create directory to dump all data related to model
   fdir = args.dump_dir + 'MTDistilledT-' + str(args.config) + '-' + str(RANK) + '/'
   os.mkdir(fdir)
   micMac = []
   data_path = fdir + "MicMacTest_R" + str(RANK) + ".csv"
 
+  # convert the history.history dict to a pandas DataFrame:
+  hist_df = pd.DataFrame(hist.history)
+  hist_df.to_csv(path_or_buf= fdir + 'history.csv', index=False)
+  print('History Saved!', flush= True)
+
+  # save model
+  mtcnn.save(fdir + 'model.h5')
+  print('Model Saved!', flush= True)
+
+  # get the softmax values of the our predictions from raw logits
+  predT = mtcnn.predict(XT)
+
+  # get the softmax values of the our predictions from raw logits
+  for i in range(len(predT)):
+    for j in range(len(predT[i])):
+      predT[i][j] = softmax(predT[i][j], 1.0)
+
   for t in range(len(CLASS)):
-    preds = np.argmax(pred[t], axis=1)
+    preds = np.argmax(predT[t], axis=1)
     micro = f1_score(YT[:,t], preds, average='micro')
     macro = f1_score(YT[:,t], preds, average='macro')
     micMac.append(micro)
@@ -233,24 +247,15 @@ def main():
   df0.to_csv(data_path)
   print('MIC-MAC SCORES SAVED', flush= True)
 
-  # convert the history.history dict to a pandas DataFrame:
-  hist_df = pd.DataFrame(hist.history)
-  hist_df.to_csv(path_or_buf= fdir + 'history.csv', index=False)
-  print('History Saved!', flush= True)
-
-  # save model
-  mtcnn.save(fdir + 'model.h5')
-  print('Model Saved!', flush= True)
-
   # save model output
   print('Saving Training Softmax Output', flush= True)
-  for i in range(len(pred)):
+  for i in range(len(predT)):
     print('task:',str(i))
-    print('--Number of data points: ', len(pred[i]), flush= True)
-    print('--Size of each data point', len(pred[i][0]), flush= True)
+    print('--Number of data points: ', len(predT[i]), flush= True)
+    print('--Size of each data point', len(predT[i][0]), flush= True)
 
     fname = fdir + 'testing-task-' + str(i) + '.npy'
-    np.save(fname, pred[i])
+    np.save(fname, predT[i])
   print()
 
 if __name__ == '__main__':
