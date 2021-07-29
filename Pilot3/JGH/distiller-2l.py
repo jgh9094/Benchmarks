@@ -302,6 +302,7 @@ def main():
 
   mtcnn.compile(optimizer='adam', loss=losses, metrics=metrics)
   print('MODEL COMPILED', flush= True)
+  print(mtcnn.summary(), flush= True)
 
   hist = mtcnn.fit(X, Y,
             batch_size=config['batch_size'],
