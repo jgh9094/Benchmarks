@@ -37,9 +37,12 @@ def GetModelType(c, n):
     return 'MicMacTest_R.csv'
   elif c == 3:
     return 'MTDistilled-'+ str(n) +'-'
+  elif c == 4:
+    return 'MTDistilledN-'+ str(n) +'-'
   else:
     print('UNKNOWN MODEL TYPE')
 
+# data from 276 models
 def Get276(args):
   # iterate through all the models and gather the data
   for r in range(args.models):
@@ -58,6 +61,7 @@ def Get276(args):
   print(data)
   pd.DataFrame(data).to_csv(args.dump_dir + args.name + '.csv', index = False)
 
+# Random subsample of 276 models
 def GetP(args):
   # iterate through all the models and gather the data
   for r in range(len(Pvals)):
@@ -76,6 +80,7 @@ def GetP(args):
   print(data)
   pd.DataFrame(data).to_csv(args.dump_dir + args.name + '.csv', index = False)
 
+# 276 aggregated data results
 def GetA(args):
   # load data
   print(args.data_dir + GetModelType(args.model, args.cfg))
@@ -92,7 +97,29 @@ def GetA(args):
   print(data)
   pd.DataFrame(data).to_csv(args.dump_dir + args.name + '.csv', index = False)
 
+# distilled model from 276 aggregated models
 def GetDisAgg(args):
+  for i in range(args.models):
+    file = args.data_dir + GetModelType(args.model, args.cfg) + str(i) + '/' + 'MicMacTest_R'+ str(i) +'.csv'
+    print (file +"exists:"+str(path.exists(file)))
+
+    if not path.exists(file):
+      continue
+
+    df = pd.read_csv(file, index_col=False)
+    # store and update data
+    x = df.iloc[1].to_list()
+    x[0] = i
+    x.append('t-'+str(temp[i]))
+    # store data
+    for i in range(len(header)):
+      data[header[i]].append(x[i])
+
+  print(data)
+  pd.DataFrame(data).to_csv(args.dump_dir + args.name + '.csv', index = False)
+
+def GetN(args):
+  # iterate through all the models and gather the data
   for i in range(args.models):
     file = args.data_dir + GetModelType(args.model, args.cfg) + str(i) + '/' + 'MicMacTest_R'+ str(i) +'.csv'
     print (file +"exists:"+str(path.exists(file)))
@@ -117,7 +144,7 @@ def main():
   parser = argparse.ArgumentParser(description='Process arguments for model training.')
   parser.add_argument('data_dir',     type=str,      help='Where is the data?')
   parser.add_argument('dump_dir',     type=str,      help='Where are we dumping the output?')
-  parser.add_argument('model',        type=int,      help='0: 276 models, 1: Partial % models, 2: Distilled ')
+  parser.add_argument('model',        type=int,      help='0: 276 models, 1: Partial % models, 2: aggregated, 3: distilled, 4: basic distilled ')
   parser.add_argument('models',       type=int,      help='How many models')
   parser.add_argument('name',         type=str,      help='Name of file to output')
   parser.add_argument('cfg',          type=int,      help='Configuration we used')
@@ -137,6 +164,8 @@ def main():
     GetA(args)
   elif args.model == 3:
     GetDisAgg(args)
+  elif args.model == 4:
+    GetN(args)
   else:
     print('UNKNOWN')
     exit(-1)
