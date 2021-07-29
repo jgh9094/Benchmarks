@@ -191,7 +191,7 @@ def main():
   # create validation data dictionary
   val_dict = {}
   for i in range(len(CLASS)):
-    layer = 'Active' + str(i)
+    layer = 'Dense' + str(i)
     val_dict[layer] = yv[i]
   print('VALIDATION DICTIONARY CREATED', flush= True)
 
