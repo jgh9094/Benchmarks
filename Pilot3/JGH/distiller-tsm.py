@@ -52,6 +52,19 @@ def GetModelConfig(config):
       'num_filters': [300,300,300],
       'temp': [1,2,5,7,10,13,15,17,20,22,25,30]
     }
+  if config == 1:
+    return {
+      'learning_rate': 0.01,
+      'batch_size': 256,
+      'dropout': 0.5,
+      'optimizer': 'adam',
+      'wv_len': 300,
+      'emb_l2': 0.001,
+      'in_seq_len': 1500,
+      'filter_sizes': [3,4,5],
+      'num_filters': [300,300,300],
+      'temp': [.1,.2,.5,.7,.9,1.0]
+    }
   else:
     print('MODEL CONFIGURATION DOES NOT EXIST')
     exit(-1)
