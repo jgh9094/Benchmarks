@@ -208,8 +208,17 @@ def main():
     val_dict[layer] = yv[i]
   print('VALIDATION DICTIONARY CREATED', flush= True)
 
-  mtcnn.compile(loss= [lambda y_true, y_pred: kd_loss(y_true,y_pred,TEMP)], optimizer= config['optimizer'], metrics=[ "acc" ])
+  # create set of losses
+  losses = {}
+  for i in range(len(CLASS)):
+    l = lambda y_true, y_pred: kd_loss(y_true,y_pred,TEMP)
+    l.__name__ = 'kdl'
+    losses['Dense'+str(i)] = l
+  print('LOSSES CREATED', flush= True)
+
+  mtcnn.compile(loss=losses, optimizer= config['optimizer'], metrics=[ "acc" ])
   print('MODEL COMPILED', flush= True)
+  print(mtcnn.summary(), flush= True)
 
 
   hist = mtcnn.fit(x= X, y= y,
