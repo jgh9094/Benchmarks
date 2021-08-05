@@ -1,5 +1,6 @@
 #BSUB -P MED107
 #BSUB -J dis-sm
+#BSUB -q batch-hm
 #BSUB -o logs/dis-sm.o%J
 #BSUB -e ErrorFile_DISSSM
 #BSUB -W 24:00

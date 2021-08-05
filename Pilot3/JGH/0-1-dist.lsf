@@ -1,4 +1,5 @@
 #BSUB -P MED107
+#BSUB -q batch-hm
 #BSUB -J dis-01-tsm
 #BSUB -o logs/dis-01-tsm.o%J
 #BSUB -e ErrorFile_DISS01TSM

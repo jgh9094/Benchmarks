@@ -1,4 +1,5 @@
 #BSUB -P MED107
+#BSUB -q batch-hm
 #BSUB -J dis-2l
 #BSUB -o logs/dis-2l.o%J
 #BSUB -e ErrorFile_DISS2L
