@@ -9,15 +9,13 @@ This file will distill the knowledge from teachers into a Multi-task CNN.
 
 # general python imports
 import numpy as np
-from matplotlib import pyplot as plt
 import argparse
 import os
 import pandas as pd
-import pickle as pk
 
 # keras python inputs
 from keras.models import Model
-from keras.layers import Input,Embedding,Dropout,Dense,GlobalMaxPooling1D,Conv1D
+from keras.layers import Input,Embedding,Dropout,Dense,GlobalMaxPooling1D,Conv1D,Lambda,Activation
 from keras.callbacks import EarlyStopping
 from keras.utils import to_categorical
 from keras.losses import categorical_crossentropy as logloss
@@ -35,7 +33,6 @@ from mpi4py import MPI
 COMM = MPI.COMM_WORLD
 RANK = COMM.Get_rank()
 SIZE = COMM.size #Node count. size-1 = max rank.
-# EXPECTED CLASSES FOR EACH TASK, MUST UPDATE
 EPOCHS = 100
 CLASS =  [4,639,7,70,326]
 TEMP = 0
@@ -56,7 +53,7 @@ def GetModelConfig(config):
       'filter_sizes': [3,4,5],
       'num_filters': [300,300,300],
       'alpha': 0.07,
-      'temp': [1,2,5,7,10,13,15,17,20,22,25,30]
+      'temp': [0.1,0.2,0.5,0.7,0.9,1.0,1.1,1.2,1.5,1.7,1.9,2.0]
     }
   else:
     print('MODEL CONFIGURATION DOES NOT EXIST')
@@ -67,14 +64,15 @@ def GetModelConfig(config):
 def kd_loss(y_true,y_pred,alpha,temp,split):
   # ground truth and teacher softmax
   y_true_hl, y_true_sl = y_true[: , :split], y_true[: , split:]
+  # student softmax and logits/temp
+  s_softmax, s_logits = y_pred[: , :split], y_pred[: , split:]
   # student raw logtis tranformed/temp: distallation loss
-  y_pred_sl = K.softmax(y_pred/temp)
-  # student raw logits softmax: hard loss
-  y_pred_hl = K.softmax(y_pred)
+  s_logits_sl = K.softmax(s_logits/temp)
+
   # hard loss
-  hl = alpha * logloss(y_true_hl,y_pred_hl,from_logits=False)
+  hl = alpha * logloss(y_true_hl,s_softmax,from_logits=False)
   # distillation loss
-  dl = (1.0 - alpha) * logloss(y_true_sl,y_pred_sl,from_logits=False)
+  dl = (1.0 - alpha) * logloss(y_true_sl,s_logits_sl,from_logits=False)
 
   return hl + dl
 
@@ -140,6 +138,7 @@ def ConcatData(y,yv,teach, temp):
   return Y,YV
 
 # transform y data to_categorical
+# [0,1,0,1,...]
 def Transform(rawY,rawYV):
   print('TRANSFORM', flush= True)
   # create array for each task output
@@ -200,10 +199,19 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
     concat_drop = Dropout(cfg['dropout'])(concat)
 
     # different dense layer per tasks
+    # dense layer is split into to activations
     FC_models = []
     for i in range(len(num_classes)):
-        dense = Dense(num_classes[i], name= "Dense"+str(i))( concat_drop )
-        FC_models.append(dense)
+        # raw logits being outputed
+        dense = Dense(num_classes[i], name='Dense'+str(i))( concat_drop )
+        # 1st half is the student softmax predictions
+        softmax_s = Activation('softmax')(dense)
+        # 2nd half is the student student raw logits
+        logits_s = Lambda(lambda x: x)(dense)
+        # concatenate
+        output = Concatenate(name='Out'+str(i))([softmax_s,logits_s])
+        # save cat
+        FC_models.append(output)
 
     # the multitsk model
     model = Model(inputs=model_input, outputs = FC_models)
@@ -249,55 +257,53 @@ def main():
 
   # For testing use regular output probabilities - without temperature
   def acc(y_true, y_pred, split):
-    y_pred = K.softmax(y_pred)
+    y_pred = K.softmax(y_pred[:, split:])
     return categorical_accuracy(y_true[:, :split], y_pred)
 
   # hard label categorical cross entropy
   def hard_cc(y_true, y_pred, split):
-    y_pred = K.softmax(y_pred)
+    y_pred = K.softmax(y_pred[:, split:])
     return logloss(y_true[:, :split], y_pred,from_logits=False)
 
   # logloss with only soft probabilities and targets
-  def soft_cc(y_true, y_pred, split, temp):
-    y_true_soft = y_true[:, split:]
-    t_logits = K.softmax(y_pred/temp)
-    return logloss(y_true_soft, t_logits,from_logits=False)
+  def soft_cc(y_true, y_pred, split):
+    t_logits = K.softmax(y_pred[:, split:])
+    return logloss(y_true[:, split:], t_logits,from_logits=False)
 
   # create loss dictionary for each task
   losses = {}
   for i in range(len(CLASS)):
     l = lambda y_true, y_pred: kd_loss(y_true,y_pred,config['alpha'],TEMP, CLASS[i])
     l.__name__ = 'kdl'
-    losses['Dense'+str(i)] = l
+    losses['Out'+str(i)] = l
   print('LOSSES CREATED', flush= True)
 
   # create metric dictionary per task
   metrics = {}
   for i in range(len(CLASS)):
-    metrics['Dense'+str(i)] = []
+    metrics['Out'+str(i)] = []
 
     l1 = lambda y_true, y_pred: acc(y_true,y_pred,CLASS[i])
     l1.__name__ = 'acc'
-    metrics['Dense'+str(i)].append(l1)
+    metrics['Out'+str(i)].append(l1)
 
     l2 = lambda y_true, y_pred: hard_cc(y_true,y_pred,CLASS[i])
     l2.__name__ = 'hcc'
-    metrics['Dense'+str(i)].append(l2)
+    metrics['Out'+str(i)].append(l2)
 
-    l3 = lambda y_true, y_pred: soft_cc(y_true,y_pred,CLASS[i],TEMP)
+    l3 = lambda y_true, y_pred: soft_cc(y_true,y_pred,CLASS[i])
     l3.__name__ = 'scc'
-    metrics['Dense'+str(i)].append(l3)
+    metrics['Out'+str(i)].append(l3)
   print('METRICS CREATED', flush= True)
 
   # create validation data dictionary
   val_dict = {}
   for i in range(len(CLASS)):
-    layer = 'Dense' + str(i)
-    val_dict[layer] = YV[i]
+    val_dict['Out' + str(i)] = YV[i]
   print('VALIDATION CREATED', flush= True)
 
   # Step 4: Create the studen mtcnn model
-  mtcnn = CreateMTCnn(CLASS, max(np.max(X),np.max(XV)) + 1,config)
+  mtcnn = CreateMTCnn(CLASS, max(np.max(X),np.max(XV)) + 1,config,TEMP)
   print('MODEL CREATED', flush= True)
 
   mtcnn.compile(optimizer='adam', loss=losses, metrics=metrics)
@@ -309,7 +315,7 @@ def main():
             epochs=EPOCHS,
             verbose=2,
             validation_data=({'Input': XV}, val_dict),
-            callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
+            callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=3, verbose=0, mode='auto', restore_best_weights=True)])
 
 
   # Step 5: Save everything
@@ -332,13 +338,18 @@ def main():
   # get the softmax values of the our predictions from raw logits
   predT = mtcnn.predict(XT)
 
+  # use only the first half of the output vector: those are predictions
+  pred = [[] for x in range(len(CLASS))]
+
   # get the softmax values of the our predictions from raw logits
   for i in range(len(predT)):
     for j in range(len(predT[i])):
-      predT[i][j] = softmax(predT[i][j], 1.0)
+      pred[i].append(softmax(predT[i][j][CLASS[i]:],1.0))
+
+  pred = [np.array(x) for x in pred]
 
   for t in range(len(CLASS)):
-    preds = np.argmax(predT[t], axis=1)
+    preds = np.argmax(pred[t], axis=1)
     micro = f1_score(YT[:,t], preds, average='micro')
     macro = f1_score(YT[:,t], preds, average='macro')
     micMac.append(micro)
