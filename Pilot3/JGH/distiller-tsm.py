@@ -63,7 +63,7 @@ def GetModelConfig(config):
       'in_seq_len': 1500,
       'filter_sizes': [3,4,5],
       'num_filters': [300,300,300],
-      'temp': [.1,.2,.5,.7,.9,1.0]
+      'temp': [0.1,0.2,0.5,0.7,0.9,1.0,1.1,1.2,1.5,1.7,1.9,2.0]
     }
   else:
     print('MODEL CONFIGURATION DOES NOT EXIST')
@@ -170,7 +170,6 @@ def main():
 
   # Parse all the arguments & set random seed
   args = parser.parse_args()
-  # RANK = 0
   seed = int(RANK)
   print('Seed:', seed, end='\n\n')
   np.random.seed(seed)
@@ -226,7 +225,7 @@ def main():
             epochs=EPOCHS,
             verbose=2,
             validation_data=({'Input': XV}, val_dict),
-            callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
+            callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=3, verbose=0, mode='auto', restore_best_weights=True)])
 
 
   # Step 5: Save everything
