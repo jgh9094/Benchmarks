@@ -190,6 +190,8 @@ def main():
     GetDisAgg(args)
   elif args.model == 4:
     GetN(args)
+  elif args.model == 5:
+    Get01(args)
   else:
     print('UNKNOWN')
     exit(-1)
