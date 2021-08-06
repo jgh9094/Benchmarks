@@ -29,6 +29,7 @@ header = ['seed', 'Beh_Mic', 'Beh_Mac', 'His_Mic', 'His_Mac', 'Lat_Mic', 'Lat_Ma
 Pvals = ['P-1', 'P-2', 'P-5']
 
 temp = [1,2,5,7,10,13,15,17,20,22,25,30]
+temp01 = [0.1,0.2,0.5,0.7,0.9,1.0,1.1,1.2,1.5,1.7,1.9,2.0]
 
 def GetModelType(c, n):
   if c == 0:
@@ -39,6 +40,8 @@ def GetModelType(c, n):
     return 'MTDistilled-'+ str(n) +'-'
   elif c == 4:
     return 'MTDistilledN-'+ str(n) +'-'
+  elif c == 5:
+    return 'MTDistilledT-'+ str(n) +'-'
   else:
     print('UNKNOWN MODEL TYPE')
 
@@ -132,6 +135,27 @@ def GetN(args):
     x = df.iloc[1].to_list()
     x[0] = i
     x.append('t-'+str(temp[i]))
+    # store data
+    for i in range(len(header)):
+      data[header[i]].append(x[i])
+
+  print(data)
+  pd.DataFrame(data).to_csv(args.dump_dir + args.name + '.csv', index = False)
+
+def Get01(args):
+  # iterate through all the models and gather the data
+  for i in range(args.models):
+    file = args.data_dir + GetModelType(args.model, args.cfg) + str(i) + '/' + 'MicMacTest_R'+ str(i) +'.csv'
+    print (file +"exists:"+str(path.exists(file)))
+
+    if not path.exists(file):
+      continue
+
+    df = pd.read_csv(file, index_col=False)
+    # store and update data
+    x = df.iloc[1].to_list()
+    x[0] = i
+    x.append('t-'+str(temp01[i]))
     # store data
     for i in range(len(header)):
       data[header[i]].append(x[i])
