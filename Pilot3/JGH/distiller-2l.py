@@ -303,7 +303,7 @@ def main():
   print('VALIDATION CREATED', flush= True)
 
   # Step 4: Create the studen mtcnn model
-  mtcnn = CreateMTCnn(CLASS, max(np.max(X),np.max(XV)) + 1,config,TEMP)
+  mtcnn = CreateMTCnn(CLASS, max(np.max(X),np.max(XV)) + 1,config)
   print('MODEL CREATED', flush= True)
 
   mtcnn.compile(optimizer='adam', loss=losses, metrics=metrics)
