@@ -382,7 +382,7 @@ def main():
   # student softmax(raw_logits) and hard labels
   def soft_logloss(y_true, y_pred, split,temp):
     y_true = y_true[:, split:]
-    y_pred = y_true[:, split:]
+    y_pred = y_pred[:, split:]
     # y_soft = K.softmax(y_pred/temp)
     y_soft = y_pred/temp
 
