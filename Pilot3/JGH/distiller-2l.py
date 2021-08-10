@@ -15,7 +15,7 @@ import pandas as pd
 
 # keras python inputs
 from keras.models import Model
-from keras.layers import Input,Embedding,Dropout,Dense,GlobalMaxPooling1D,Conv1D,Lambda,Activation
+from keras.layers import Input,Embedding,Dropout,Dense,GlobalMaxPooling1D,Conv1D,Lambda,Activation,concatenate
 from keras.callbacks import EarlyStopping
 from keras.utils import to_categorical
 from keras.losses import categorical_crossentropy as logloss
@@ -186,43 +186,45 @@ def Transform(rawY,rawYV):
 
 # will return a mt-cnn with a certain configuration
 def CreateMTCnn(num_classes,vocab_size,cfg):
-    # define network layers ----------------------------------------------------
-    input_shape = tuple([cfg['in_seq_len']])
-    model_input = Input(shape=input_shape, name= "Input")
-    # embedding lookup
-    emb_lookup = Embedding(vocab_size, cfg['wv_len'], input_length=cfg['in_seq_len'],
-                            embeddings_initializer= initializers.RandomUniform( minval= 0, maxval= 0.01 ),
-                            name="embedding")(model_input)
+  # define network layers ----------------------------------------------------
+  input_shape = tuple([cfg['in_seq_len']])
+  model_input = Input(shape=input_shape, name= "Input")
+  # embedding lookup
+  emb_lookup = Embedding(vocab_size, cfg['wv_len'], input_length=cfg['in_seq_len'],
+                          embeddings_initializer= initializers.RandomUniform( minval= 0, maxval= 0.01 ),
+                          name="embedding")(model_input)
 
-    # convolutional layer and dropout
-    conv_blocks = []
-    for ith_filter,sz in enumerate(cfg['filter_sizes']):
-        conv = Conv1D(filters=cfg['num_filters'][ ith_filter ], kernel_size=sz, padding="same",
-                             activation="relu", strides=1, name=str(ith_filter) + "_thfilter")(emb_lookup)
-        conv_blocks.append(GlobalMaxPooling1D()(conv))
+  # convolutional layer and dropout
+  conv_blocks = []
+  for ith_filter,sz in enumerate(cfg['filter_sizes']):
+      conv = Conv1D(filters=cfg['num_filters'][ ith_filter ], kernel_size=sz, padding="same",
+                            activation="relu", strides=1, name=str(ith_filter) + "_thfilter")(emb_lookup)
+      conv_blocks.append(GlobalMaxPooling1D()(conv))
 
-    concat = Concatenate()(conv_blocks) if len(conv_blocks) > 1 else conv_blocks[0]
-    concat_drop = Dropout(cfg['dropout'])(concat)
+  concat = Concatenate()(conv_blocks) if len(conv_blocks) > 1 else conv_blocks[0]
+  concat_drop = Dropout(cfg['dropout'])(concat)
 
-    # different dense layer per tasks
-    # dense layer is split into to activations
-    FC_models = []
-    for i in range(len(num_classes)):
-      # raw logits being outputed
-      dense = Dense(num_classes[i], name='Dense'+str(i))( concat_drop )
-      # 1st half is the student softmax predictions
-      softmax_s = Activation('softmax')(dense)
-      # 2nd half is the student student raw logits
-      logits_s = Lambda(lambda x: x)(dense)
-      # concatenate
-      output = Concatenate(name='Out'+str(i))([softmax_s,logits_s])
-      # save cat
-      FC_models.append(output)
+  # different dense layer per tasks
+  # dense layer is split into to activations
+  FC_models = []
+  for i in range(len(num_classes)):
+    # raw logits being outputed
+    dense = Dense(num_classes[i], name='Dense'+str(i))( concat_drop )
+    # 1st half is the student softmax predictions
+    softmax_s = Activation('softmax')(dense)
+    # 2nd half is the student student raw logits
+    logits_s = Lambda(lambda x: x)(dense)
+    # concatenate
+    # output = Concatenate(name='Out'+str(i))([softmax_s,logits_s])
+    output = concatenate([softmax_s,logits_s], name='Out'+str(i))
 
-    # the multitsk model
-    model = Model(inputs=model_input, outputs = FC_models)
+    # save cat
+    FC_models.append(output)
 
-    return model
+  # the multitsk model
+  model = Model(inputs=model_input, outputs = FC_models)
+
+  return model
 
 def main():
   print('************************************************************************************', flush= True)
@@ -277,7 +279,6 @@ def main():
 
   # hard label categorical cross entropy
   def hard_cc(y_true, y_pred, split):
-    y_pred = K.softmax(y_pred[:, split:])
     y_pred = K.softmax(y_pred[:, split:])
     return logloss(y_true, y_pred,from_logits=False)
 
