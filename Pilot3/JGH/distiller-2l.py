@@ -354,9 +354,9 @@ def main():
     logits = mtcnn.get_layer('Dense'+str(i)).output
     probs = Activation('softmax', name='Logits'+str(i))(logits)
     # softed probabilities at raised temperature
-    logits_T = Lambda(lambda x: x)(logits)
+    logits_T = Lambda(lambda x: x, name='lambda'+str(i))(logits)
     # probs_T = Activation('softmax', name='TLogits'+str(i))(logits_T)
-    # output layer
+    # output layer: softmax from dense & raw logits
     output = concatenate([probs, logits_T], name="Active"+str(i))
     new_out.append(output)
 
@@ -365,23 +365,26 @@ def main():
   mtcnn.summary()
   print('MODEL READJUSTED FOR DISTILLATION\n')
 
-  # For testing use regular output probabilities - without temperature
+  # student softmax(raw_logits) and hard labels
   def acc(y_true, y_pred, split):
-      y_true = y_true[:, :split]
-      y_pred = y_pred[:, :split]
-      return categorical_accuracy(y_true, y_pred)
+    # y_true = y_true[:, :split]
+    # y_pred = y_true[:, :split]
+    y_pred = K.softmax(y_pred[:, split:])
+    return categorical_accuracy(y_true[:, :split], y_pred)
 
+  # student softmax(raw_logits) and hard labels
   def categorical_crossentropy(y_true, y_pred, split):
-    y_true = y_true[:, :split]
-    y_pred = y_pred[:, :split]
-    return logloss(y_true, y_pred)
+    # y_true = y_true[:, :split]
+    # y_pred = y_pred[:, :split]
+    y_pred = K.softmax(y_pred[:, split:])
+    return logloss(y_true[:, :split], y_pred)
 
-  # logloss with only soft probabilities and targets
-  def soft_logloss(y_true, y_pred, split):
-    y_true_soft = y_true[:, split:]
-    # y_soft = K.softmax(logits/TEMP)
-    y_pred_soft = y_pred[:, split:]
-    return logloss(y_true_soft, y_pred_soft)
+  # student softmax(raw_logits) and hard labels
+  def soft_logloss(y_true, y_pred, split,temp):
+    # y_true_soft = y_true[:, split:]
+    y_soft = K.softmax(y_pred[:, split:]/temp)
+    # y_pred_soft = y_pred[:, split:]
+    return logloss(y_true[:, split:], y_soft)
 
   # create loss dictionary for each task
   losses = {}
@@ -399,7 +402,7 @@ def main():
     l2 = lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,CLASS[i])
     l2.__name__ = 'cc'
     metrics['Active'+str(i)].append(l2)
-    l3 = lambda y_true, y_pred: soft_logloss(y_true,y_pred,CLASS[i])
+    l3 = lambda y_true, y_pred: soft_logloss(y_true,y_pred,CLASS[i],TEMP)
     l3.__name__ = 'sl'
     metrics['Active'+str(i)].append(l3)
 
