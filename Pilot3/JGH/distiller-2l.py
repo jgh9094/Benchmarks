@@ -185,7 +185,7 @@ def Transform(rawY,rawYV):
   return Y,YV
 
 # will return a mt-cnn with a certain configuration
-def CreateMTCnn(num_classes,vocab_size,cfg):
+def CreateMTCnn1(num_classes,vocab_size,cfg):
   # define network layers ----------------------------------------------------
   input_shape = tuple([cfg['in_seq_len']])
   model_input = Input(shape=input_shape, name= "Input")
@@ -246,6 +246,53 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
 
   return model
 
+# will return a mt-cnn with a certain configuration
+def CreateMTCnn(num_classes,vocab_size,cfg):
+    # define network layers ----------------------------------------------------
+    input_shape = tuple([cfg['in_seq_len']])
+    model_input = Input(shape=input_shape, name= "Input")
+    # embedding lookup
+    emb_lookup = Embedding(vocab_size, cfg['wv_len'], input_length=cfg['in_seq_len'],
+                            embeddings_initializer= initializers.RandomUniform( minval= 0, maxval= 0.01 ),
+                            name="embedding")(model_input)
+
+    # convolutional layer and dropout
+    conv_blocks = []
+    for ith_filter,sz in enumerate(cfg['filter_sizes']):
+        conv = Conv1D(filters=cfg['num_filters'][ ith_filter ], kernel_size=sz, padding="same",
+                             activation="relu", strides=1, name=str(ith_filter) + "_thfilter")(emb_lookup)
+        conv_blocks.append(GlobalMaxPooling1D()(conv))
+
+    concat = Concatenate()(conv_blocks) if len(conv_blocks) > 1 else conv_blocks[0]
+    concat_drop = Dropout(cfg['dropout'])(concat)
+
+    # different dense layer per tasks
+    FC_models = []
+    for i in range(len(num_classes)):
+        dense = Dense(num_classes[i], name= "Dense"+str(i), )( concat_drop )
+        act = Activation('softmax', name= "Active"+str(i))(dense)
+        FC_models.append(act)
+
+    # the multitsk model
+    model = Model(inputs=model_input, outputs = FC_models)
+    model.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
+
+    return model
+
+# first 1/2 are hard labels, second 1/2 are softmax outputs
+# alpha: constant for hard label error (should be small according to lit review)
+def knowledge_distillation_loss(y_true,y_pred,alpha,split):
+  # ground truth and teacher softmax
+  y_true, y_true_softs = y_true[: , :split], y_true[: , split:]
+  # student class predictions and student softmax distillation
+  y_pred, y_pred_softs = y_pred[: , :split], y_pred[: , split:]
+
+  diff_alpha = 1.0 - alpha
+
+  loss = alpha * logloss(y_true,y_pred) +  diff_alpha * logloss(y_true_softs, y_pred_softs)
+
+  return loss
+
 def main():
   print('************************************************************************************', flush= True)
   # generate and get arguments
@@ -291,70 +338,87 @@ def main():
   Y,YV = ConcatData(Y,YV, args.tech_dir, TEMP)
   print('DATA LOADED AND READY TO GO', flush= True)
 
-  # create validation data dictionary
-  val_dict = {}
-  for i in range(len(CLASS)):
-    val_dict['Out' + str(i)] = YV[i]
-  print('VALIDATION CREATED', flush= True)
-
-  # Step 4: Create the studen mtcnn model
+  # Step 3: Create the studen mtcnn model
   mtcnn = CreateMTCnn(CLASS, max(np.max(X),np.max(XV)) + 1,config)
-  print('MODEL CREATED', flush= True)
+  print('MODEL CREATED\n')
 
-    # For testing use regular output probabilities - without temperature
+  #Step 4: Create knowledge distilled student topology
+
+  # remove the last activation layers
+  for i in range(len(CLASS)):
+    mtcnn.layers.pop()
+
+  # add new distlled layers
+  new_out = []
+  for i in range(len(CLASS)):
+    logits = mtcnn.get_layer('Dense'+str(i)).output
+    probs = Activation('softmax', name='Logits'+str(i))(logits)
+    # softed probabilities at raised temperature
+    logits_T = Lambda(lambda x: x / TEMP)(logits)
+    probs_T = Activation('softmax', name='TLogits'+str(i))(logits_T)
+    # output layer
+    output = concatenate([probs, probs_T], name="Active"+str(i))
+    new_out.append(output)
+
+  # mtcnn distillation model ready to go!
+  mtcnn = Model(mtcnn.input, new_out)
+  mtcnn.summary()
+  print('MODEL READJUSTED FOR DISTILLATION\n')
+
+  # For testing use regular output probabilities - without temperature
   def acc(y_true, y_pred, split):
-    y_pred = K.softmax(y_pred[:, split:])
-    y_true = y_true[:, :split]
-    return categorical_accuracy(y_true, y_pred)
+      y_true = y_true[:, :split]
+      y_pred = y_pred[:, :split]
+      return categorical_accuracy(y_true, y_pred)
 
-  # hard label categorical cross entropy
-  def hard_cc(y_true, y_pred, split):
-    y_pred = K.softmax(y_pred[:, split:])
-    return logloss(y_true, y_pred,from_logits=False)
+  def categorical_crossentropy(y_true, y_pred, split):
+    y_true = y_true[:, :split]
+    y_pred = y_pred[:, :split]
+    return logloss(y_true, y_pred)
 
   # logloss with only soft probabilities and targets
-  def soft_cc(y_true, y_pred, split, temp):
-    t_logits = K.softmax(y_pred[:, split:]/temp)
-    y_pred = K.softmax(y_pred[:, split:])
-    return logloss(y_true, t_logits,from_logits=False)
+  def soft_logloss(y_true, y_pred, split):
+    y_true_soft = y_true[:, split:]
+    # y_soft = K.softmax(logits/TEMP)
+    y_pred_soft = y_pred[:, split:]
+    return logloss(y_true_soft, y_pred_soft)
 
   # create loss dictionary for each task
   losses = {}
   for i in range(len(CLASS)):
-    l = lambda y_true, y_pred: kd_loss(y_true,y_pred,config['alpha'],TEMP, CLASS[i])
+    l = lambda y_true, y_pred: knowledge_distillation_loss(y_true,y_pred,config['alpha'],CLASS[i])
     l.__name__ = 'kdl'
-    losses['Out'+str(i)] = l
-  print('LOSSES CREATED', flush= True)
-
+    losses['Active'+str(i)] = l
   # create metric dictionary per task
   metrics = {}
   for i in range(len(CLASS)):
-    metrics['Out'+str(i)] = []
-
+    metrics['Active'+str(i)] = []
     l1 = lambda y_true, y_pred: acc(y_true,y_pred,CLASS[i])
     l1.__name__ = 'acc'
-    metrics['Out'+str(i)].append(l1)
+    metrics['Active'+str(i)].append(l1)
+    l2 = lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,CLASS[i])
+    l2.__name__ = 'cc'
+    metrics['Active'+str(i)].append(l2)
+    l3 = lambda y_true, y_pred: soft_logloss(y_true,y_pred,CLASS[i])
+    l3.__name__ = 'sl'
+    metrics['Active'+str(i)].append(l3)
 
-    l2 = lambda y_true, y_pred: hard_cc(y_true,y_pred,CLASS[i])
-    l2.__name__ = 'hcc'
-    metrics['Out'+str(i)].append(l2)
+  # create validation data dictionary
+  val_dict = {}
+  for i in range(len(CLASS)):
+    layer = 'Active' + str(i)
+    val_dict[layer] = YV[i]
 
-    l3 = lambda y_true, y_pred: soft_cc(y_true,y_pred,CLASS[i], TEMP)
-    l3.__name__ = 'scc'
-    metrics['Out'+str(i)].append(l3)
-  print('METRICS CREATED', flush= True)
 
   mtcnn.compile(optimizer='adam', loss=losses, metrics=metrics)
-  print('MODEL COMPILED', flush= True)
-  print(mtcnn.summary(), flush= True)
+  print('MODEL COMPILED FOR DISTILLATION\n')
 
   hist = mtcnn.fit(X, Y,
-            batch_size=config['batch_size'],
+            batch_size=256,
             epochs=EPOCHS,
             verbose=2,
             validation_data=({'Input': XV}, val_dict),
-            callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=3, verbose=0, mode='auto', restore_best_weights=True)])
-
+            callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
 
   # Step 5: Save everything
 
