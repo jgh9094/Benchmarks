@@ -368,14 +368,14 @@ def main():
   # student softmax(raw_logits) and hard labels
   def acc(y_true, y_pred, split):
     y_true = y_true[:, :split]
-    y_pred = y_true[:, split:]
+    y_pred = y_pred[:, split:]
     y_pred = K.softmax(y_pred)
     return categorical_accuracy(y_true, y_pred)
 
   # student softmax(raw_logits) and hard labels
   def categorical_crossentropy(y_true, y_pred, split):
     y_true = y_true[:, :split]
-    y_pred = pred[:, split:]
+    y_pred = y_pred[:, split:]
     # y_pred = K.softmax(y_pred)
     return logloss(y_true, y_pred, from_logits=True)
 
