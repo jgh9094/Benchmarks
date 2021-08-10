@@ -211,9 +211,9 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
     # raw logits being outputed
     dense = Dense(num_classes[i], name='Dense'+str(i))( concat_drop )
     # 1st half is the student softmax predictions
-    softmax_s = Activation('softmax')(dense)
+    softmax_s = Activation('softmax')(dense.output)
     # 2nd half is the student student raw logits
-    logits_s = Lambda(lambda x: x)(dense)
+    logits_s = Lambda(lambda x: x)(dense.output)
     # concatenate
     # output = Concatenate(name='Out'+str(i))([softmax_s,logits_s])
     output = concatenate([softmax_s,logits_s], name='Out'+str(i))
