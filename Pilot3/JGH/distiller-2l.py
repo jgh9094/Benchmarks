@@ -27,13 +27,13 @@ from sklearn.metrics import f1_score
 
 # summit specific imports
 from loaddata6reg import loadAllTasks
-from mpi4py import MPI
+# from mpi4py import MPI
 
-# global variables
-COMM = MPI.COMM_WORLD
-RANK = COMM.Get_rank()
-SIZE = COMM.size #Node count. size-1 = max rank.
-EPOCHS = 100
+# # global variables
+# COMM = MPI.COMM_WORLD
+# RANK = COMM.Get_rank()
+# SIZE = COMM.size
+EPOCHS = 2
 CLASS =  [4,639,7,70,326]
 TEMP = 0
 
@@ -202,16 +202,16 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
     # dense layer is split into to activations
     FC_models = []
     for i in range(len(num_classes)):
-        # raw logits being outputed
-        dense = Dense(num_classes[i], name='Dense'+str(i))( concat_drop )
-        # 1st half is the student softmax predictions
-        softmax_s = Activation('softmax')(dense)
-        # 2nd half is the student student raw logits
-        logits_s = Lambda(lambda x: x)(dense)
-        # concatenate
-        output = Concatenate(name='Out'+str(i))([softmax_s,logits_s])
-        # save cat
-        FC_models.append(output)
+      # raw logits being outputed
+      dense = Dense(num_classes[i], name='Dense'+str(i))( concat_drop )
+      # 1st half is the student softmax predictions
+      softmax_s = Activation('softmax')(dense)
+      # 2nd half is the student student raw logits
+      logits_s = Lambda(lambda x: x)(dense)
+      # concatenate
+      output = Concatenate(name='Out'+str(i))([softmax_s,logits_s])
+      # save cat
+      FC_models.append(output)
 
     # the multitsk model
     model = Model(inputs=model_input, outputs = FC_models)
@@ -228,7 +228,7 @@ def main():
 
   # Parse all the arguments & set random seed
   args = parser.parse_args()
-  # RANK = 0
+  RANK = 0
   seed = int(RANK)
   print('Seed:', seed, end='\n\n')
   np.random.seed(seed)
@@ -251,6 +251,14 @@ def main():
 
   # Step 2: Create training/testing data for models
   X, XV, XT, Y, YV, YT = loadAllTasks(print_shapes = False)
+
+  X = X[:1000,:]
+  XV = XV[:1000,:]
+  XT = XT[:1000,:]
+  Y = Y[:1000,:]
+  YV = YV[:1000,:]
+  YT = YT[:1000,:]
+  
   Y,YV = Transform(Y,YV)
   Y,YV = ConcatData(Y,YV, args.tech_dir, TEMP)
   print('DATA LOADED AND READY TO GO', flush= True)
