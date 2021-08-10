@@ -367,24 +367,25 @@ def main():
 
   # student softmax(raw_logits) and hard labels
   def acc(y_true, y_pred, split):
-    # y_true = y_true[:, :split]
-    # y_pred = y_true[:, :split]
-    y_pred = K.softmax(y_pred[:, split:])
-    return categorical_accuracy(y_true[:, :split], y_pred)
+    y_true = y_true[:, :split]
+    y_pred = y_true[:, split:]
+    y_pred = K.softmax(y_pred)
+    return categorical_accuracy(y_true, y_pred)
 
   # student softmax(raw_logits) and hard labels
   def categorical_crossentropy(y_true, y_pred, split):
-    # y_true = y_true[:, :split]
-    # y_pred = y_pred[:, :split]
-    y_pred = K.softmax(y_pred[:, split:])
-    return logloss(y_true[:, :split], y_pred)
+    y_true = y_true[:, :split]
+    y_pred = y_true[:, split:]
+    y_pred = K.softmax(y_pred)
+    return logloss(y_true, y_pred)
 
   # student softmax(raw_logits) and hard labels
   def soft_logloss(y_true, y_pred, split,temp):
-    # y_true_soft = y_true[:, split:]
-    y_soft = K.softmax(y_pred[:, split:]/temp)
-    # y_pred_soft = y_pred[:, split:]
-    return logloss(y_true[:, split:], y_soft)
+    y_true = y_true[:, split:]
+    y_pred = y_true[:, split:]
+    y_soft = K.softmax(y_pred/temp)
+
+    return logloss(y_true, y_soft)
 
   # create loss dictionary for each task
   losses = {}
