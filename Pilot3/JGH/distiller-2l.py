@@ -210,19 +210,39 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
   for i in range(len(num_classes)):
     # raw logits being outputed
     dense = Dense(num_classes[i], name='Dense'+str(i))( concat_drop )
-    # 1st half is the student softmax predictions
-    softmax_s = Activation('softmax')(dense.output)
-    # 2nd half is the student student raw logits
-    logits_s = Lambda(lambda x: x)(dense.output)
-    # concatenate
-    # output = Concatenate(name='Out'+str(i))([softmax_s,logits_s])
-    output = concatenate([softmax_s,logits_s], name='Out'+str(i))
-
+    act = Activation('softmax', name= "Active"+str(i))(dense)
     # save cat
-    FC_models.append(output)
+    FC_models.append(act)
 
   # the multitsk model
   model = Model(inputs=model_input, outputs = FC_models)
+  model.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
+
+  # redo
+
+  # remove the last activation layers
+  for i in range(len(CLASS)):
+    model.layers.pop()
+
+  output = []
+  for i in range(len(num_classes)):
+    # raw logits being outputed
+    logits = model.get_layer('Dense'+str(i)).output
+    # 1st half is the student softmax predictions
+    softmax_s = Activation('softmax')(logits)
+    # 2nd half is the student student raw logits
+    logits_s = Lambda(lambda x: x)(logits)
+    # concatenate
+    out = concatenate([softmax_s,logits_s], name='Out'+str(i))
+
+    # save cat
+    output.append(out)
+
+  # mtcnn distillation model ready to go!
+  model = Model(model.input, output)
+  # mtcnn.summary()
+  print('MODEL READJUSTED FOR DISTILLATION\n')
+
 
   return model
 
