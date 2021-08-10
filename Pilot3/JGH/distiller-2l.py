@@ -291,7 +291,17 @@ def main():
   Y,YV = ConcatData(Y,YV, args.tech_dir, TEMP)
   print('DATA LOADED AND READY TO GO', flush= True)
 
-  # For testing use regular output probabilities - without temperature
+  # create validation data dictionary
+  val_dict = {}
+  for i in range(len(CLASS)):
+    val_dict['Out' + str(i)] = YV[i]
+  print('VALIDATION CREATED', flush= True)
+
+  # Step 4: Create the studen mtcnn model
+  mtcnn = CreateMTCnn(CLASS, max(np.max(X),np.max(XV)) + 1,config)
+  print('MODEL CREATED', flush= True)
+
+    # For testing use regular output probabilities - without temperature
   def acc(y_true, y_pred, split):
     y_pred = K.softmax(y_pred[:, split:])
     y_true = y_true[:, :split]
@@ -333,16 +343,6 @@ def main():
     l3.__name__ = 'scc'
     metrics['Out'+str(i)].append(l3)
   print('METRICS CREATED', flush= True)
-
-  # create validation data dictionary
-  val_dict = {}
-  for i in range(len(CLASS)):
-    val_dict['Out' + str(i)] = YV[i]
-  print('VALIDATION CREATED', flush= True)
-
-  # Step 4: Create the studen mtcnn model
-  mtcnn = CreateMTCnn(CLASS, max(np.max(X),np.max(XV)) + 1,config)
-  print('MODEL CREATED', flush= True)
 
   mtcnn.compile(optimizer='adam', loss=losses, metrics=metrics)
   print('MODEL COMPILED', flush= True)
