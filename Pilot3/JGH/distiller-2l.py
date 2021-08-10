@@ -354,10 +354,10 @@ def main():
     logits = mtcnn.get_layer('Dense'+str(i)).output
     probs = Activation('softmax', name='Logits'+str(i))(logits)
     # softed probabilities at raised temperature
-    logits_T = Lambda(lambda x: x / TEMP)(logits)
-    probs_T = Activation('softmax', name='TLogits'+str(i))(logits_T)
+    logits_T = Lambda(lambda x: x)(logits)
+    # probs_T = Activation('softmax', name='TLogits'+str(i))(logits_T)
     # output layer
-    output = concatenate([probs, probs_T], name="Active"+str(i))
+    output = concatenate([probs, logits_T], name="Active"+str(i))
     new_out.append(output)
 
   # mtcnn distillation model ready to go!
