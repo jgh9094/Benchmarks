@@ -272,17 +272,20 @@ def main():
   # For testing use regular output probabilities - without temperature
   def acc(y_true, y_pred, split):
     y_pred = K.softmax(y_pred[:, split:])
-    return categorical_accuracy(y_true[:, :split], y_pred)
+    y_true = y_true[:, :split]
+    return categorical_accuracy(y_true, y_pred)
 
   # hard label categorical cross entropy
   def hard_cc(y_true, y_pred, split):
     y_pred = K.softmax(y_pred[:, split:])
-    return logloss(y_true[:, :split], y_pred,from_logits=False)
+    y_pred = K.softmax(y_pred[:, split:])
+    return logloss(y_true, y_pred,from_logits=False)
 
   # logloss with only soft probabilities and targets
-  def soft_cc(y_true, y_pred, split):
-    t_logits = K.softmax(y_pred[:, split:])
-    return logloss(y_true[:, split:], t_logits,from_logits=False)
+  def soft_cc(y_true, y_pred, split, temp):
+    t_logits = K.softmax(y_pred[:, split:]/temp)
+    y_pred = K.softmax(y_pred[:, split:])
+    return logloss(y_true, t_logits,from_logits=False)
 
   # create loss dictionary for each task
   losses = {}
@@ -305,7 +308,7 @@ def main():
     l2.__name__ = 'hcc'
     metrics['Out'+str(i)].append(l2)
 
-    l3 = lambda y_true, y_pred: soft_cc(y_true,y_pred,CLASS[i])
+    l3 = lambda y_true, y_pred: soft_cc(y_true,y_pred,CLASS[i], TEMP)
     l3.__name__ = 'scc'
     metrics['Out'+str(i)].append(l3)
   print('METRICS CREATED', flush= True)
