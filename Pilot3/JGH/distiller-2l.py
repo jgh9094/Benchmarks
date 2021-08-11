@@ -400,11 +400,23 @@ def main():
 
   # create loss dictionary for each task
   losses = {}
-  for i in range(len(CLASS)):
-    l = lambda y_true, y_pred: knowledge_distillation_loss(y_true,y_pred,config['alpha'],CLASS[i])
-    l.__name__ = 'kdl'
-    losses['Active'+str(i)] = l
-  print('LOSSES CREATED')
+  # task 0
+  l0 = lambda y_true, y_pred: kd_loss(y_true,y_pred,config['alpha'], TEMP,CLASS[0])
+  l0.__name__ = 'kdl'+str(0)
+  losses['Active'+str(0)] = l0
+  # task 1
+  l1 = lambda y_true, y_pred: kd_loss(y_true,y_pred,config['alpha'], TEMP,CLASS[1])
+  l1.__name__ = 'kdl'+str(1)
+  losses['Active'+str(1)] = l1
+  # task 2
+  l2 = lambda y_true, y_pred: kd_loss(y_true,y_pred,config['alpha'], TEMP,CLASS[2])
+  l2.__name__ = 'kdl'+str(2)
+  losses['Active'+str(2)] = l2
+  # task 3
+  l3 = lambda y_true, y_pred: kd_loss(y_true,y_pred,config['alpha'], TEMP,CLASS[3])
+  l3.__name__ = 'kdl'+str(3)
+  losses['Active'+str(3)] = l3
+
   # create metric dictionary per task
   metrics = {}
   # task 0
@@ -455,30 +467,11 @@ def main():
   print('METRICS CREATED')
 
 
-  # for i in range(len(CLASS)):
-  #   print('i:',i)
-  #   print('CLASS[i]:', CLASS[i])
-
-  #   metrics['Active'+str(i)] = []
-
-  #   l1 = lambda y_true, y_pred: acc(y_true,y_pred,CLASS[i])
-  #   l1.__name__ = 'acc'+str(i)
-  #   metrics['Active'+str(i)].append(l1)
-
-  #   l2 = lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,CLASS[i])
-  #   l2.__name__ = 'cc'+str(i)
-  #   metrics['Active'+str(i)].append(l2)
-
-  #   l3 = lambda y_true, y_pred: soft_logloss(y_true,y_pred,CLASS[i],TEMP)
-  #   l3.__name__ = 'sl'+str(i)
-  #   metrics['Active'+str(i)].append(l3)
-
   # create validation data dictionary
   val_dict = {}
   for i in range(len(CLASS)):
     layer = 'Active' + str(i)
     val_dict[layer] = YV[i]
-
 
   mtcnn.compile(optimizer='adam', loss=losses, metrics=metrics)
   print('MODEL COMPILED FOR DISTILLATION\n')
