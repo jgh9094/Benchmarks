@@ -404,26 +404,74 @@ def main():
     l = lambda y_true, y_pred: knowledge_distillation_loss(y_true,y_pred,config['alpha'],CLASS[i])
     l.__name__ = 'kdl'
     losses['Active'+str(i)] = l
-
+  print('LOSSES CREATED')
   # create metric dictionary per task
   metrics = {}
-  for i in range(len(CLASS)):
-    print('i:',i)
-    print('CLASS[i]:', CLASS[i])
+  # task 0
+  metrics['Active'+str(0)] = []
+  l01 = lambda y_true, y_pred: acc(y_true,y_pred,CLASS[0])
+  l01.__name__ = 'acc'+str(0)
+  metrics['Active'+str(0)].append(l01)
+  l02 = lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,CLASS[0])
+  l02.__name__ = 'cc'+str(0)
+  metrics['Active'+str(0)].append(l02)
+  l03 = lambda y_true, y_pred: soft_logloss(y_true,y_pred,CLASS[0],TEMP)
+  l03.__name__ = 'sl'+str(0)
+  metrics['Active'+str(0)].append(l03)
+  # task 1
+  metrics['Active'+str(1)] = []
+  l11 = lambda y_true, y_pred: acc(y_true,y_pred,CLASS[1])
+  l11.__name__ = 'acc'+str(1)
+  metrics['Active'+str(1)].append(l11)
+  l12 = lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,CLASS[1])
+  l12.__name__ = 'cc'+str(1)
+  metrics['Active'+str(1)].append(l12)
+  l13 = lambda y_true, y_pred: soft_logloss(y_true,y_pred,CLASS[1],TEMP)
+  l13.__name__ = 'sl'+str(1)
+  metrics['Active'+str(1)].append(l13)
+  # task 2
+  metrics['Active'+str(2)] = []
+  l21 = lambda y_true, y_pred: acc(y_true,y_pred,CLASS[2])
+  l21.__name__ = 'acc'+str(2)
+  metrics['Active'+str(2)].append(l21)
+  l22 = lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,CLASS[2])
+  l22.__name__ = 'cc'+str(2)
+  metrics['Active'+str(2)].append(l22)
+  l23 = lambda y_true, y_pred: soft_logloss(y_true,y_pred,CLASS[2],TEMP)
+  l23.__name__ = 'sl'+str(2)
+  metrics['Active'+str(2)].append(l23)
+  # task 3
+  metrics['Active'+str(3)] = []
+  l31 = lambda y_true, y_pred: acc(y_true,y_pred,CLASS[3])
+  l31.__name__ = 'acc'+str(3)
+  metrics['Active'+str(3)].append(l31)
+  l32 = lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,CLASS[3])
+  l32.__name__ = 'cc'+str(3)
+  metrics['Active'+str(3)].append(l32)
+  l33 = lambda y_true, y_pred: soft_logloss(y_true,y_pred,CLASS[3],TEMP)
+  l33.__name__ = 'sl'+str(3)
+  metrics['Active'+str(3)].append(l33)
 
-    metrics['Active'+str(i)] = []
+  print('METRICS CREATED')
 
-    l1 = lambda y_true, y_pred: acc(y_true,y_pred,CLASS[i])
-    l1.__name__ = 'acc'+str(i)
-    metrics['Active'+str(i)].append(l1)
 
-    l2 = lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,CLASS[i])
-    l2.__name__ = 'cc'+str(i)
-    metrics['Active'+str(i)].append(l2)
+  # for i in range(len(CLASS)):
+  #   print('i:',i)
+  #   print('CLASS[i]:', CLASS[i])
 
-    l3 = lambda y_true, y_pred: soft_logloss(y_true,y_pred,CLASS[i],TEMP)
-    l3.__name__ = 'sl'+str(i)
-    metrics['Active'+str(i)].append(l3)
+  #   metrics['Active'+str(i)] = []
+
+  #   l1 = lambda y_true, y_pred: acc(y_true,y_pred,CLASS[i])
+  #   l1.__name__ = 'acc'+str(i)
+  #   metrics['Active'+str(i)].append(l1)
+
+  #   l2 = lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,CLASS[i])
+  #   l2.__name__ = 'cc'+str(i)
+  #   metrics['Active'+str(i)].append(l2)
+
+  #   l3 = lambda y_true, y_pred: soft_logloss(y_true,y_pred,CLASS[i],TEMP)
+  #   l3.__name__ = 'sl'+str(i)
+  #   metrics['Active'+str(i)].append(l3)
 
   # create validation data dictionary
   val_dict = {}
