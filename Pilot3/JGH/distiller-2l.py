@@ -227,7 +227,7 @@ def main():
 
   # Parse all the arguments & set random seed
   args = parser.parse_args()
-  RANK = 0
+  # RANK = 0
   seed = int(RANK)
   print('Seed:', seed, end='\n\n')
   np.random.seed(seed)
