@@ -33,7 +33,7 @@ from loaddata6reg import loadAllTasks
 # COMM = MPI.COMM_WORLD
 # RANK = COMM.Get_rank()
 # SIZE = COMM.size
-EPOCHS = 2
+EPOCHS = 5
 CLASS =  [4,639,7,70,326]
 TEMP = 0
 
