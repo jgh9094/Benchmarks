@@ -408,6 +408,9 @@ def main():
   # create metric dictionary per task
   metrics = {}
   for i in range(len(CLASS)):
+    print('i:',i)
+    print('CLASS[i]:', CLASS[i])
+
     metrics['Active'+str(i)] = []
 
     l1 = lambda y_true, y_pred: acc(y_true,y_pred,CLASS[i])
