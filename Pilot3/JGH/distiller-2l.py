@@ -374,9 +374,17 @@ def main():
 
   # student softmax(raw_logits) and hard labels
   def categorical_crossentropy(y_true, y_pred, split):
+    print('CATEGORICAL CROSSENTROPY')
+    print('BEFORE:')
+    print('y_true', K.int_shape(y_true))
+    print('y_pred', K.int_shape(y_pred))
     y_true = y_true[:, :split]
     y_pred = y_pred[:, split:]
-    # y_pred = K.softmax(y_pred)
+
+    print('AFTER')
+    print('y_true', K.int_shape(y_true))
+    print('y_pred', K.int_shape(y_pred))
+
     return logloss(y_true, y_pred, from_logits=True)
 
   # student softmax(raw_logits) and hard labels
