@@ -27,13 +27,13 @@ from sklearn.metrics import f1_score
 
 # summit specific imports
 from loaddata6reg import loadAllTasks
-# from mpi4py import MPI
+from mpi4py import MPI
 
-# # global variables
-# COMM = MPI.COMM_WORLD
-# RANK = COMM.Get_rank()
-# SIZE = COMM.size
-EPOCHS = 5
+# global variables
+COMM = MPI.COMM_WORLD
+RANK = COMM.Get_rank()
+SIZE = COMM.size
+EPOCHS = 100
 CLASS =  [4,639,7,70,326]
 TEMP = 0
 
@@ -185,68 +185,6 @@ def Transform(rawY,rawYV):
   return Y,YV
 
 # will return a mt-cnn with a certain configuration
-def CreateMTCnn1(num_classes,vocab_size,cfg):
-  # define network layers ----------------------------------------------------
-  input_shape = tuple([cfg['in_seq_len']])
-  model_input = Input(shape=input_shape, name= "Input")
-  # embedding lookup
-  emb_lookup = Embedding(vocab_size, cfg['wv_len'], input_length=cfg['in_seq_len'],
-                          embeddings_initializer= initializers.RandomUniform( minval= 0, maxval= 0.01 ),
-                          name="embedding")(model_input)
-
-  # convolutional layer and dropout
-  conv_blocks = []
-  for ith_filter,sz in enumerate(cfg['filter_sizes']):
-      conv = Conv1D(filters=cfg['num_filters'][ ith_filter ], kernel_size=sz, padding="same",
-                            activation="relu", strides=1, name=str(ith_filter) + "_thfilter")(emb_lookup)
-      conv_blocks.append(GlobalMaxPooling1D()(conv))
-
-  concat = Concatenate()(conv_blocks) if len(conv_blocks) > 1 else conv_blocks[0]
-  concat_drop = Dropout(cfg['dropout'])(concat)
-
-  # different dense layer per tasks
-  # dense layer is split into to activations
-  FC_models = []
-  for i in range(len(num_classes)):
-    # raw logits being outputed
-    dense = Dense(num_classes[i], name='Dense'+str(i))( concat_drop )
-    act = Activation('softmax', name= "Active"+str(i))(dense)
-    # save cat
-    FC_models.append(act)
-
-  # the multitsk model
-  model = Model(inputs=model_input, outputs = FC_models)
-  model.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
-
-  # redo
-
-  # remove the last activation layers
-  for i in range(len(CLASS)):
-    model.layers.pop()
-
-  output = []
-  for i in range(len(num_classes)):
-    # raw logits being outputed
-    logits = model.get_layer('Dense'+str(i)).output
-    # 1st half is the student softmax predictions
-    softmax_s = Activation('softmax')(logits)
-    # 2nd half is the student student raw logits
-    logits_s = Lambda(lambda x: x)(logits)
-    # concatenate
-    out = concatenate([softmax_s,logits_s], name='Out'+str(i))
-
-    # save cat
-    output.append(out)
-
-  # mtcnn distillation model ready to go!
-  model = Model(model.input, output)
-  # mtcnn.summary()
-  print('MODEL READJUSTED FOR DISTILLATION\n')
-
-
-  return model
-
-# will return a mt-cnn with a certain configuration
 def CreateMTCnn(num_classes,vocab_size,cfg):
     # define network layers ----------------------------------------------------
     input_shape = tuple([cfg['in_seq_len']])
@@ -278,20 +216,6 @@ def CreateMTCnn(num_classes,vocab_size,cfg):
     model.compile( loss= "categorical_crossentropy", optimizer= cfg['optimizer'], metrics=[ "acc" ] )
 
     return model
-
-# first 1/2 are hard labels, second 1/2 are softmax outputs
-# alpha: constant for hard label error (should be small according to lit review)
-def knowledge_distillation_loss(y_true,y_pred,alpha,split):
-  # ground truth and teacher softmax
-  y_true, y_true_softs = y_true[: , :split], y_true[: , split:]
-  # student class predictions and student softmax distillation
-  y_pred, y_pred_softs = y_pred[: , :split], y_pred[: , split:]
-
-  diff_alpha = 1.0 - alpha
-
-  loss = alpha * logloss(y_true,y_pred) +  diff_alpha * logloss(y_true_softs, y_pred_softs)
-
-  return loss
 
 def main():
   print('************************************************************************************', flush= True)
@@ -326,21 +250,13 @@ def main():
 
   # Step 2: Create training/testing data for models
   X, XV, XT, Y, YV, YT = loadAllTasks(print_shapes = False)
-
-  X = X[:1000,:]
-  XV = XV[:1000,:]
-  XT = XT[:1000,:]
-  Y = Y[:1000,:]
-  YV = YV[:1000,:]
-  YT = YT[:1000,:]
-
   Y,YV = Transform(Y,YV)
   Y,YV = ConcatData(Y,YV, args.tech_dir, TEMP)
   print('DATA LOADED AND READY TO GO', flush= True)
 
   # Step 3: Create the studen mtcnn model
   mtcnn = CreateMTCnn(CLASS, max(np.max(X),np.max(XV)) + 1,config)
-  print('MODEL CREATED\n')
+  print('MODEL CREATED\n', flush= True)
 
   #Step 4: Create knowledge distilled student topology
 
@@ -374,28 +290,15 @@ def main():
 
   # student softmax(raw_logits) and hard labels
   def categorical_crossentropy(y_true, y_pred, split):
-    print('CATEGORICAL CROSSENTROPY')
-    print('SPLIT:', split)
-    print('BEFORE:')
-    print('y_true', K.int_shape(y_true))
-    print('y_pred', K.int_shape(y_pred))
-
     y_true = y_true[:, :split]
     y_pred = y_pred[:, split:]
-
-    print('AFTER')
-    print('y_true', K.int_shape(y_true))
-    print('y_pred', K.int_shape(y_pred))
-
     return logloss(y_true, y_pred, from_logits=True)
 
   # student softmax(raw_logits) and hard labels
   def soft_logloss(y_true, y_pred, split,temp):
     y_true = y_true[:, split:]
     y_pred = y_pred[:, split:]
-    # y_soft = K.softmax(y_pred/temp)
     y_soft = y_pred/temp
-
     return logloss(y_true, y_soft, from_logits=True)
 
   # create loss dictionary for each task
@@ -464,24 +367,24 @@ def main():
   l33.__name__ = 'sl'+str(3)
   metrics['Active'+str(3)].append(l33)
 
-  print('METRICS CREATED')
-
+  print('METRICS CREATED', flush= True)
 
   # create validation data dictionary
   val_dict = {}
   for i in range(len(CLASS)):
     layer = 'Active' + str(i)
     val_dict[layer] = YV[i]
+  print('VAL-DICT CREATED', flush= True)
 
   mtcnn.compile(optimizer='adam', loss=losses, metrics=metrics)
-  print('MODEL COMPILED FOR DISTILLATION\n')
+  print('MODEL COMPILED FOR DISTILLATION\n', flush= True)
 
   hist = mtcnn.fit(X, Y,
-            batch_size=256,
+            batch_size=config['batch_size'],
             epochs=EPOCHS,
             verbose=2,
             validation_data=({'Input': XV}, val_dict),
-            callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto', restore_best_weights=True)])
+            callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=3, verbose=0, mode='auto', restore_best_weights=True)])
 
   # Step 5: Save everything
 
