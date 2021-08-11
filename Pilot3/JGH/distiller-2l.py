@@ -404,18 +404,22 @@ def main():
     l = lambda y_true, y_pred: knowledge_distillation_loss(y_true,y_pred,config['alpha'],CLASS[i])
     l.__name__ = 'kdl'
     losses['Active'+str(i)] = l
+
   # create metric dictionary per task
   metrics = {}
   for i in range(len(CLASS)):
     metrics['Active'+str(i)] = []
+
     l1 = lambda y_true, y_pred: acc(y_true,y_pred,CLASS[i])
-    l1.__name__ = 'acc'
+    l1.__name__ = 'acc'+str(i)
     metrics['Active'+str(i)].append(l1)
+
     l2 = lambda y_true, y_pred: categorical_crossentropy(y_true,y_pred,CLASS[i])
-    l2.__name__ = 'cc'
+    l2.__name__ = 'cc'+str(i)
     metrics['Active'+str(i)].append(l2)
+
     l3 = lambda y_true, y_pred: soft_logloss(y_true,y_pred,CLASS[i],TEMP)
-    l3.__name__ = 'sl'
+    l3.__name__ = 'sl'+str(i)
     metrics['Active'+str(i)].append(l3)
 
   # create validation data dictionary
